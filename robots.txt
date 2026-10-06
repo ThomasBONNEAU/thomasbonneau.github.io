@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thomasbonneau.github.io/sitemap.xml
+Sitemap: https://thomas-bonneau.fr/sitemap.xml
