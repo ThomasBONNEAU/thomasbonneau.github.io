@@ -410,7 +410,31 @@ body.curtain-live .proj-panel.open { transition: none; }
 .site-frame__bl, .site-frame__br { will-change: opacity; }
 
 /* le monogramme conserve exactement sa taille optique */
-.frame-logo { display: block; }
+/* TB mène à « Qui je suis » ; au survol, les mots arrivent à côté du
+   monogramme, lettre à lettre, comme « Faites défiler » */
+.frame-logo { display: block; position: relative; color: inherit; text-decoration: none; cursor: pointer; }
+.frame-logo__mot {
+  position: absolute;
+  left: calc(100% + 0.6em);
+  top: 50%;
+  translate: 0 -50%;
+  white-space: nowrap;
+  pointer-events: none;
+  text-box: trim-both cap alphabetic;
+}
+@media (hover: none) { .frame-logo__mot { display: none; } }
+/* LE SAUT VERS « QUI JE SUIS » : le crème de l'À propos couvre la page le
+   temps qu'elle saute, sous le cadre, puis se retire sur le chapitre 01 */
+.voile-saut {
+  position: fixed; inset: 0; z-index: 98;
+  background: #fcfaeb;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.45, 0, 0.2, 1), visibility 0s linear 0.6s;
+}
+.voile-saut.est-la {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.32s cubic-bezier(0.45, 0, 0.2, 1), visibility 0s;
+}
 .nav-logo-svg {
   height: 25px;
   width: auto;
@@ -2121,6 +2145,8 @@ body.zone-foot .about-story {
   text-wrap: pretty;
 }
 .ab-texte p + p { margin-top: 0.85em; }
+/* les mots clés : un rien plus appuyés que le texte, sans peser */
+.ab-texte strong { font-weight: 420; }
 /* le parcours : sous le nom, la fonction puis les années, en italique ;
    le texte, à droite, part à la hauteur du nom */
 .ab-tete { display: flex; flex-direction: column; align-items: flex-start; }
@@ -2343,11 +2369,12 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 </div>
 
 <div class="ascenseur" id="ascenseur" aria-hidden="true"><span class="ascenseur__poignee"></span></div>
+<div class="voile-saut" id="voileSaut" aria-hidden="true"></div>
 
 <!-- NAV -->
 <nav id="siteNav" class="site-frame header-forming" aria-label="Interface">
   <div class="site-frame__tl">
-    <span class="frame-logo"><svg class="nav-logo-svg" viewBox="0 0 89.33 90.58" role="img" aria-label="TB" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg></span>
+    <a class="frame-logo" id="frameLogo" href="#apropos" aria-label="Qui je suis"><svg class="nav-logo-svg" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg><span class="frame-logo__mot" aria-hidden="true">Qui je suis</span></a>
   </div>
   <div class="site-frame__tr">
     <button type="button" class="frame-menu menu-trigger" id="menuTrigger" aria-controls="worksPanel" aria-expanded="false"><span class="frame-menu__mot">Index</span><span class="frame-menu__croix" aria-hidden="true">&#215;</span></button>
@@ -2451,7 +2478,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
        ONF : le logotype en premier, puis une case seule à gauche. ──────── -->
   <div class="projets-index" aria-hidden="true">
     <article class="projet-fiche" data-num="06" data-title="ONF" data-cat="Identité visuelle · Signalétique" data-desc="Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune." data-desc2="J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité." data-tags="Identité visuelle, Signalétique, Logotype, Édition" data-bloc="« Nos empreintes se mêlent à celles de la nature, dans un même cycle où préserver la forêt, c’est aussi préserver une part de nous-mêmes. »" data-imgs="nat:web/ONF_pres/Links/logo_arbre.webp,e:cosmos_1024194981.mp4,v:web/ONF_pres/Links/f642508f168f82eb1079d14f7d7aec7e.webp,p50:r:web/ONF_pres/Links/20260209143208.webp|web/ONF_pres/Links/Plan de travail 1.webp|web/ONF_pres/Links/20260304095207.webp|web/ONF_pres/Links/20260304095502.webp,ONF_pres/Links/Composition 1_1.mp4,v:web/ONF_pres/Links/Logo_Fond_1.webp,web/ONF_pres/Links/Trame_Photos.webp,web/ONF_pres/Links/sgfswg.webp,v:y80:web/ONF_pres/Links/5d7fcf09-10d8-4234-9092-ff843c6a16b6.webp,web/ONF_pres/Links/7d00f79b-5afe-4aa5-9bfc-e386f093d080.webp,web/ONF_pres/Links/xgxgx.webp,v:web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp,y61:web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp,z104:ONF_pres/Links/Composition 1_3.mp4"></article>
-    <article class="projet-fiche" data-num="07" data-title="Logotypes" data-cat="Logotypes · Identité visuelle" data-desc="Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal.|Opulus est un outil développé dans l’écosystème France Boulangerie pour accompagner les boulangers dans la gestion de leurs achats. Grâce à l’intelligence artificielle, il analyse, compare et centralise les références afin de faciliter leurs décisions au quotidien." data-desc2="Son traitement mêle dessin numérique et approche picturale, avec des formes volontairement irrégulières et imparfaites. Une manière de retrouver dans l’image la spontanéité du geste artisanal, la matière et le caractère unique d’un produit façonné à la main.|L’identité traduit cette idée d’observation à travers le « O » d’Opulus, transformé en un regard. Tourné vers l’ensemble des références qui l’entourent, il incarne un assistant attentif, capable d’observer, d’analyser et de guider le boulanger vers les choix les plus pertinents." data-tags="" data-ordre="visuel" data-logos-noms="France Boulangerie|Opulus" data-imgs="q:w74:logos/logo.svg|logos/Opulus_1.svg"></article>
+    <article class="projet-fiche" data-num="07" data-title="Logotypes" data-cat="Logotypes · Identité visuelle" data-desc="Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal.|Opulus est un outil développé dans l’écosystème France Boulangerie pour accompagner les boulangers dans la gestion de leurs achats. Grâce à l’intelligence artificielle, il analyse, compare et centralise les références afin de faciliter leurs décisions au quotidien.|Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune.|Studio Synapse est un collectif de quatre étudiants réuni autour de la création d’identités visuelles. J’ai conçu l’identité du studio dans un univers premium, inspiré par l’exigence et le savoir-faire, afin de s’adresser à des commanditaires haut de gamme." data-desc2="Son traitement mêle dessin numérique et approche picturale, avec des formes volontairement irrégulières et imparfaites. Une manière de retrouver dans l’image la spontanéité du geste artisanal, la matière et le caractère unique d’un produit façonné à la main.|L’identité traduit cette idée d’observation à travers le « O » d’Opulus, transformé en un regard. Tourné vers l’ensemble des références qui l’entourent, il incarne un assistant attentif, capable d’observer, d’analyser et de guider le boulanger vers les choix les plus pertinents.|J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité.|Le concept de la synapse traduit cette idée de connexion et de transmission : le studio reçoit l’histoire et le savoir de ses clients pour, à son tour, les transmettre visuellement à leur public." data-tags="" data-ordre="visuel" data-logos-noms="France Boulangerie|Opulus|ONF|Studio Synapse" data-imgs="q:w74:logos/logo.svg|logos/Opulus_1.svg|logos/LogoONF.svg|logos/Logosynapse.svg"></article>
     <article class="projet-fiche" data-num="08" data-title="Affiches" data-cat="Affiches · Composition" data-desc="Affiche réalisée pour une exposition fictive en hommage à Jean Widmer, réinterprétant son travail dans un langage contemporain. Les initiales J et W se rencontrent à travers un jeu de morphing et de flou, en référence à son approche graphique et à son travail pour le Centre Pompidou.|Affiche imaginée pour une exposition fictive au MAD autour de la Citroën DS et de l’esthétique des années 1970. La voiture volontairement hors champ suggère le mouvement et la vitesse, tout en laissant sa silhouette et son design emblématique guider la composition." data-desc2="" data-tags="" data-ordre="visuel" data-affiches="web/affiches/Poster_Frame_Mockup_2.webp ; web/affiches/Poster_Frame_Mockup_3.webp" data-imgs="f:"></article>
   </div>
 </section>
@@ -2565,15 +2592,15 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
               </li>
               <li class="ab-rangee">
                 <h3 class="ab-titre">Identité visuelle</h3>
-                <div class="ab-texte"><p>Traduire une idée en un langage visuel identifiable, de la direction artistique au logotype, à la typographie et au système graphique, puis le décliner selon les besoins.</p></div>
+                <div class="ab-texte"><p>Traduire une idée en un langage visuel identifiable, de la <strong>direction artistique</strong> au <strong>logotype</strong>, à la <strong>typographie</strong> et au <strong>système graphique</strong>, puis le décliner selon les besoins.</p></div>
               </li>
               <li class="ab-rangee">
                 <h3 class="ab-titre">Print</h3>
-                <div class="ab-texte"><p>Déployer une identité sur des supports imprimés, de l’édition à l’affiche, au flyer, à la signalétique et aux différents formats de communication.</p></div>
+                <div class="ab-texte"><p>Déployer une identité sur des supports imprimés, de l’<strong>édition</strong> à l’<strong>affiche</strong>, au <strong>flyer</strong>, à la <strong>signalétique</strong> et aux différents formats de communication.</p></div>
               </li>
               <li class="ab-rangee">
                 <h3 class="ab-titre">Digital</h3>
-                <div class="ab-texte"><p>Transposer un univers graphique à l’écran à travers la conception web, les interfaces, le motion design et des expériences interactives.</p></div>
+                <div class="ab-texte"><p>Transposer un univers graphique à l’écran à travers la <strong>conception web</strong>, les <strong>interfaces</strong>, le <strong>motion design</strong> et des <strong>expériences interactives</strong>.</p></div>
               </li>
             </ul>
           </div>
@@ -2589,8 +2616,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
             <div class="ab-seul">
               <p class="ab-citation">« Une identité naît de ce que l’on choisit de révéler. »</p>
               <div class="ab-texte">
-                <p>Ce qui m’anime dans le design graphique, c’est de partir d’une histoire, d’une personnalité ou d’un détail pour en révéler quelque chose de singulier. J’aime puiser dans ce qui fait l’ADN d’un projet pour lui donner une voix, une identité et une émotion qui lui appartiennent.</p>
-                <p>Je crois aussi à un design où le numérique dialogue avec le geste et la matière. Illustration, expérimentation, outils numériques ou intelligence artificielle sont pour moi différentes façons de créer, tant qu’elles restent guidées par une intention et une sensibilité humaines. C’est dans cette rencontre entre savoir-faire, technologie et émotion que j’ai envie de faire évoluer ma pratique.</p>
+                <p>Ce qui m’anime dans le design graphique, c’est de partir d’une histoire, d’une personnalité ou d’un détail pour en révéler quelque chose de singulier. J’aime puiser dans ce qui fait l’<strong>ADN</strong> d’un projet pour lui donner une <strong>voix</strong>, une <strong>identité</strong> et une <strong>émotion</strong> qui lui appartiennent.</p>
+                <p>Je crois aussi à un <strong>design</strong> où le <strong>numérique</strong> dialogue avec le geste et la matière. Illustration, expérimentation, outils numériques ou intelligence artificielle sont pour moi différentes façons de créer, tant qu’elles restent guidées par une intention et une <strong>sensibilité humaines</strong>. C’est dans cette rencontre entre savoir-faire, technologie et émotion que j’ai envie de faire évoluer ma pratique.</p>
               </div>
             </div>
           </div>
@@ -3706,12 +3733,28 @@ function composerDrapeau(p, prixLeger, lignes) {
   p._nLignes = l;
   const mots = p._mots;
   p.textContent = '';
+  let gras = false;
   for (let i = 0, k = l; i < mots.length; k--) {
     const j = S[k][i];
     if (i) p.appendChild(document.createElement('br'));
-    p.appendChild(document.createTextNode(mots.slice(i, j).join(' ')));
+    gras = poserMots(p, mots.slice(i, j).join(' '), gras);
     i = j;
   }
+}
+/* LES MOTS CLÉS EN GRAS voyagent dans le texte entre deux signes invisibles
+   (début, fin) : un groupe en gras peut ainsi passer d'une ligne à l'autre */
+const GRAS = '\uE000', MAIGRE = '\uE001', SIGNES_GRAS = /[\uE000\uE001]/g;
+function poserMots(el, texte, gras) {
+  texte.split(/([\uE000\uE001])/).forEach(b => {
+    if (b === GRAS) gras = true;
+    else if (b === MAIGRE) gras = false;
+    else if (b) {
+      const n = document.createTextNode(b);
+      if (gras) { const s = document.createElement('strong'); s.appendChild(n); el.appendChild(s); }
+      else el.appendChild(n);
+    }
+  });
+  return gras;
 }
 /* la table : C[l][i], le meilleur drapeau des mots i… en exactement l
    lignes ; S[l][i], où finit sa première ligne */
@@ -3719,9 +3762,10 @@ function tableDrapeau(p, W, prixLeger) {
   /* les mots, posés sur une seule ligne : leurs positions exactes */
   const mots = p._mots, n = mots.length;
   p.textContent = '';
+  let gras = false;
   const spans = mots.map((m, i) => {
-    if (i) p.appendChild(document.createTextNode(' '));
-    const sp = document.createElement('span'); sp.textContent = m; p.appendChild(sp); return sp;
+    if (i) poserMots(p, ' ', gras);
+    const sp = document.createElement('span'); gras = poserMots(sp, m, gras); p.appendChild(sp); return sp;
   });
   const g = new Float64Array(n), d = new Float64Array(n);
   spans.forEach((sp, i) => { const r = sp.getBoundingClientRect(); g[i] = r.left; d[i] = r.right; });
@@ -3730,7 +3774,7 @@ function tableDrapeau(p, W, prixLeger) {
      Une fin de ligne a un prix fixe — un article vaut un vide d'un
      cinquième de ligne ; « de », « et »… valent prixLeger : presque rien
      dans l'À propos, davantage dans les textes de projet. */
-  const fin = m => FIN_DURE.test(m) ? 50 : FIN_MOINS.test(m) ? 0.8 : FIN_LEGERE.test(m) ? prixLeger : 0;
+  const fin = m => (m = m.replace(SIGNES_GRAS, ''), FIN_DURE.test(m)) ? 50 : FIN_MOINS.test(m) ? 0.8 : FIN_LEGERE.test(m) ? prixLeger : 0;
   const C = [], S = [];
   for (let l = 0; l <= n; l++) { C.push(new Float64Array(n + 1).fill(Infinity)); S.push(new Int32Array(n + 1)); }
   C[0][n] = 0;
@@ -4727,9 +4771,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   }
 
   const NB = '\u00a0';
-  const aComposer = [...root.querySelectorAll('.ab-texte p, .ab-citation')].filter(p => !p.firstElementChild);
+  const aComposer = [...root.querySelectorAll('.ab-texte p, .ab-citation')]
+    .filter(p => [...p.children].every(c => c.tagName === 'STRONG'));
   aComposer.forEach(p => {
-    p._mots = p.textContent.trim().replace(/\s+/g, ' ')
+    const brut = [...p.childNodes].map(n => n.nodeType === 1 ? GRAS + n.textContent + MAIGRE : n.nodeValue).join('');
+    p._mots = brut.trim().replace(/\s+/g, ' ')
       .replace(/ ([:;!?»])/g, NB + '$1').replace(/« /g, '«' + NB)
       .split(' ');
     p.classList.add('drapeau');
@@ -4833,6 +4879,46 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     });
     relancer();
   }
+
+  /* ── LE RACCOURCI : TB mène à « Qui je suis » ────────────────────────────
+     On n'y va pas en traversant toute la page à toute vitesse : le crème de
+     l'À propos couvre l'écran, la page saute dessous, et il se retire sur le
+     chapitre 01 déjà installé, la photo figée. De près, un simple défilé. */
+  const logo = document.getElementById('frameLogo');
+  const voile = document.getElementById('voileSaut');
+  if (!logo) return;
+  const mot = logo.querySelector('.frame-logo__mot');
+  if (mot) {
+    lettres(mot);
+    const montrer = on => mot.classList.toggle('lettres-in', on);
+    logo.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') montrer(true); });
+    logo.addEventListener('pointerleave', () => montrer(false));
+    logo.addEventListener('focus', () => montrer(true));
+    logo.addEventListener('blur', () => montrer(false));
+  }
+  function cible() {
+    measure(); relancer();
+    /* au bureau : au milieu du temps mort du chapitre 01, le crème déjà posé
+       (il arrive un dixième d'écran après que la photo se fige) */
+    if (M.on) return Math.round(M.top + Math.min(M.pose - 8, Math.max(M.pose / 2, innerHeight * 0.1 + 24)));
+    /* au téléphone : le repère « Qui je suis » sous le monogramme */
+    return Math.round(chapters[0].getBoundingClientRect().top + scrollY - 64);
+  }
+  let saut = 0;
+  logo.addEventListener('click', e => {
+    e.preventDefault();
+    const index = document.body.classList.contains('index-ouvert');
+    if (index) closeWorksPanel();                  // l'Index s'efface : la page saute dessous
+    const y = cible();
+    if (index || reduced || !voile) { scrollTo({ top: y, behavior: 'instant' }); return; }
+    if (Math.abs(scrollY - y) < innerHeight * 1.5) { scrollTo({ top: y, behavior: 'smooth' }); return; }
+    voile.classList.add('est-la');
+    clearTimeout(saut);
+    saut = setTimeout(() => {
+      scrollTo({ top: cible(), behavior: 'instant' });
+      requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.remove('est-la')));
+    }, 340);
+  });
 
 })();
 
