@@ -1227,6 +1227,11 @@ footer {
 .proj-panel.visuel-abord .proj-panel-gallery > .affiches:first-child {
   margin-top: calc(-1 * var(--ui-y) - 25px);          /* la hauteur de la barre */
 }
+/* la marque, elle, prend un peu d'air sous TB et la croix : elle collait à la
+   barre (il l'a voulue « un peu plus bas, mais pas trop ») */
+.proj-panel.visuel-abord .proj-panel-gallery > .marque:first-child {
+  margin-top: clamp(22px, 4vh, 44px);
+}
 
 .proj-panel-gallery {
   padding-bottom: 8rem;
