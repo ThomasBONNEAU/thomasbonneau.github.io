@@ -1510,7 +1510,7 @@ footer {
 }
 
 /* SILLON (voir makeSillon) : le format des rangées voisines, un gris très
-   clair (5 %), et les images réduites de 40 % au centre, en entier */
+   clair (5 %), et les images réduites de 30 % au centre, en entier */
 .proj-panel-gallery-row .media-sillon {
   position: relative;
   overflow: hidden;
@@ -1523,7 +1523,7 @@ footer {
   position: absolute;
   left: 50%; top: 50%;
   translate: -50% -50%;
-  width: 60%;
+  width: 70%;
   height: auto;
   display: block;
   opacity: 0;
@@ -3225,7 +3225,7 @@ function makeSillon(liste) {
     return im;
   });
   if (ims.length < 2) return box;
-  const POSE = 700, DEPART = 450;      /* le temps de chaque image, le premier passage (ms) */
+  const POSE = 1000, DEPART = 450;      /* le temps de chaque image, le premier passage (ms) */
   let k = 0, minuteur = 0;
   function passer() {
     const im = ims[(k + 1) % ims.length];
