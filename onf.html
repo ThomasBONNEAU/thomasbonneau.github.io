@@ -1420,12 +1420,15 @@ footer {
   overflow: hidden;
 }
 .marque-plan img {
-  grid-area: 1 / 1;                      /* les logos se superposent, au centre */
+  /* les logos se superposent, centrés sur la trame : en absolu, car en grille
+     le plus haut (le boulanger) agrandissait la case commune au-delà du plan,
+     et tous descendaient de 60 px */
+  position: absolute; left: 50%; top: 50%;
+  translate: -50% -50%;
   width: 64%;
   height: auto;
   aspect-ratio: auto;
   display: block;
-  position: relative;                    /* au-dessus de la trame */
   transition: opacity 0.5s var(--ease-smooth);
 }
 .marque-plan img.marque-cache { opacity: 0; }
