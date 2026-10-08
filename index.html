@@ -1529,8 +1529,31 @@ footer {
   opacity: 0;
 }
 .proj-panel-gallery-row .media-sillon img.est-pose { opacity: 1; }
-/* le feuilletage des planches du mémoire : sur un fond noir */
+/* le feuilletage des planches du mémoire : sur un fond noir, flèches
+   blanches dans un rond à filet blanc fin, sans fond */
 .proj-panel-gallery-row .media-feuillet { background: #000; }
+.media-feuillet .marque-fleche {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.75);
+  color: #fff;
+}
+.media-feuillet .marque-fleche svg { stroke-width: 1.2; }
+.media-feuillet .marque-fleche:hover { border-color: #fff; }
+/* sous la case, à droite : le lien vers le document entier, tout petit */
+.feuillet-cadre { width: 100%; }
+.feuillet-lien {
+  display: block;
+  width: fit-content;
+  margin: 10px 0 0 auto;
+  font-family: 'LumaSans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #8c8c8c;
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.feuillet-lien::after { content: " ↗"; }
+.feuillet-lien:hover, .feuillet-lien:focus-visible { color: #111114; }
 
 /* PAVÉ DE TEXTE : la case de DROITE d'une paire carrée — même empreinte que
    n'importe quel visuel, mais c'est du texte. Pas d'aplat, pas de bord : il est
@@ -2465,7 +2488,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
         </div>
       </div>
     </div>
-    <div class="stack-card" data-bg="#D5E2EC" data-fg="#213A52" data-num="04" data-title="Sillage" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000308000000000000000000000000000000000000000000000000000000000321232302000000000000000000000000000000000000000000000000000222403732270300000000000000000000000000000000000000000000000014535250464129020000000000000000000000000000000000000000000008526261595754523302000000000000000000000000000000000000000000006373706967656461340200000000000000000000000000000000000000000000718178757270696735020000000000000000000000000000000000000000000078888681767372693502000000000000000000000000000000000000000000008394918578747471370100000000000000000000000000000000000000000000859592867976757137010000000000000000000000010101010101010101010185969589817672714002010101010101010101010103040304030303030404058797948881757370410403040404040403030404030808080808080808080910879592867974737143080808080808080808080808141313131313141314151686928983777574714513131314141413131313131420202020202020202021248589825348535451311719192020202020202019202727272727272727282931767364724550505240252728272727272727272727363636363636363636363874766971736661605232323335363636363636363649494949494949494910215782929698451212121212123549494949494949496666666666666666660712376481929738020202010101436666666666666666" data-cat="Design éditorial · Mémoire" data-desc="*Sillage, entre image et automobile* est un mémoire réalisé pour ma dernière année de master en direction artistique, né de ma passion pour l’automobile et de l’envie d’interroger l’évolution de son image. À travers différentes époques, il explore la manière dont le design graphique accompagne les transformations de l’automobile et les enjeux auxquels elle se confronte aujourd’hui : environnement, représentations, place des femmes et responsabilité des marques face à l’avenir. L’objet éditorial prolonge cette réflexion en empruntant directement au langage automobile : une couverture gris métallisé pensée comme une carrosserie, un titre débossé à la manière d’un emblème, et une typographie variable qui évolue de l’empattement vers le sans-serif, en écho à la simplification progressive des identités automobiles. Une trace traverse enfin les trois grandes périodes du mémoire et s’efface peu à peu, jusqu’à disparaître dans la dernière partie. Comme un sillage qui raconte ce que l’automobile laisse derrière elle, tout en questionnant ce qu’il reste encore à écrire." data-tags="Design éditorial, Mémoire, Mise en page, Direction artistique" data-imgs="web/PRESENTATION_SILLAGE.webp,v:z106:web/zfdsqdf.webp,z106:web/mockup mémoire.webp,p:web/automotive-clay-modeling-studio-tool.webp,stop6.7:Composition 1.mp4,nat:web/Couverture 2.webp,v:web/81615901-3d1f-4473-8d54-ac4e5065790b.webp,web/Couverture 3 carré.webp,v:loop:entier:ABCArizona-News-MysteryTeapotQuantity-02.mp4,web/Silllage_.webp,sillon:web/sillage-page1.webp|web/sillage-page2.webp|web/sillage-page3.webp,nat:web/Plan de travail 1_2.webp,v:web/Mocup123.webp,web/qfdqefd_f_d.webp,nat:web/sillage-plan-de-travail-1.webp,feuillet:web/sillage-planche-04.webp|web/sillage-planche-08.webp|web/sillage-planche-11.webp|web/sillage-planche-14.webp|web/sillage-planche-16.webp|web/sillage-planche-17.webp|web/sillage-planche-22.webp|web/sillage-planche-24.webp|web/sillage-planche-25.webp|web/sillage-planche-26.webp|web/sillage-planche-36.webp|web/sillage-planche-43.webp,web/qcdw.webp">
+    <div class="stack-card" data-bg="#D5E2EC" data-fg="#213A52" data-num="04" data-title="Sillage" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000308000000000000000000000000000000000000000000000000000000000321232302000000000000000000000000000000000000000000000000000222403732270300000000000000000000000000000000000000000000000014535250464129020000000000000000000000000000000000000000000008526261595754523302000000000000000000000000000000000000000000006373706967656461340200000000000000000000000000000000000000000000718178757270696735020000000000000000000000000000000000000000000078888681767372693502000000000000000000000000000000000000000000008394918578747471370100000000000000000000000000000000000000000000859592867976757137010000000000000000000000010101010101010101010185969589817672714002010101010101010101010103040304030303030404058797948881757370410403040404040403030404030808080808080808080910879592867974737143080808080808080808080808141313131313141314151686928983777574714513131314141413131313131420202020202020202021248589825348535451311719192020202020202019202727272727272727282931767364724550505240252728272727272727272727363636363636363636363874766971736661605232323335363636363636363649494949494949494910215782929698451212121212123549494949494949496666666666666666660712376481929738020202010101436666666666666666" data-cat="Design éditorial · Mémoire" data-desc="*Sillage, entre image et automobile* est un mémoire réalisé pour ma dernière année de master en direction artistique, né de ma passion pour l’automobile et de l’envie d’interroger l’évolution de son image. À travers différentes époques, il explore la manière dont le design graphique accompagne les transformations de l’automobile et les enjeux auxquels elle se confronte aujourd’hui : environnement, représentations, place des femmes et responsabilité des marques face à l’avenir. L’objet éditorial prolonge cette réflexion en empruntant directement au langage automobile : une couverture gris métallisé pensée comme une carrosserie, un titre débossé à la manière d’un emblème, et une typographie variable qui évolue de l’empattement vers le sans-serif, en écho à la simplification progressive des identités automobiles. Une trace traverse enfin les trois grandes périodes du mémoire et s’efface peu à peu, jusqu’à disparaître dans la dernière partie. Comme un sillage qui raconte ce que l’automobile laisse derrière elle, tout en questionnant ce qu’il reste encore à écrire." data-tags="Design éditorial, Mémoire, Mise en page, Direction artistique" data-imgs="web/PRESENTATION_SILLAGE.webp,v:z106:web/zfdsqdf.webp,z106:web/mockup mémoire.webp,p:web/automotive-clay-modeling-studio-tool.webp,stop6.7:Composition 1.mp4,nat:web/Couverture 2.webp,v:web/81615901-3d1f-4473-8d54-ac4e5065790b.webp,web/Couverture 3 carré.webp,v:loop:entier:ABCArizona-News-MysteryTeapotQuantity-02.mp4,web/Silllage_.webp,sillon:web/sillage-page1.webp|web/sillage-page2.webp|web/sillage-page3.webp,nat:web/Plan de travail 1_2.webp,v:web/Mocup123.webp,web/qfdqefd_f_d.webp,nat:web/sillage-plan-de-travail-1.webp,feuillet:web/sillage-planche-14.webp|web/sillage-planche-04.webp|web/sillage-planche-08.webp|web/sillage-planche-11.webp|web/sillage-planche-16.webp|web/sillage-planche-17.webp|web/sillage-planche-22.webp|web/sillage-planche-24.webp|web/sillage-planche-25.webp|web/sillage-planche-26.webp|web/sillage-planche-36.webp|web/sillage-planche-43.webp|lien:Voir le mémoire intégral>memoire-sillage-thomas-bonneau.pdf,web/qcdw.webp">
       <div class="proj-image"><img src="web/PRESENTATION_SILLAGE_1.webp" alt="Sillage — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--bas"></div>
       <div class="proj-info">
         <div>
@@ -3254,7 +3277,11 @@ function makeSillon(liste) {
    précédente, d'un coup ; le parcours boucle. Les planches se chargent à
    l'approche, pour qu'aucune n'arrive floue. */
 function makeFeuillet(liste) {
-  const srcs = String(liste || '').split('|').map(v => v.trim()).filter(Boolean);
+  let srcs = String(liste || '').split('|').map(v => v.trim()).filter(Boolean);
+  /* « lien:Texte>adresse » : un lien discret sous la case, à droite, qui
+     ouvre le document entier dans un nouvel onglet */
+  const lien = srcs.find(v => v.indexOf('lien:') === 0);
+  srcs = srcs.filter(v => v !== lien);
   const box = document.createElement('div');
   box.className = 'media-sillon media-feuillet';
   const ims = srcs.map((src, i) => {
@@ -3287,7 +3314,16 @@ function makeFeuillet(liste) {
   new IntersectionObserver((es, o) => es.forEach(en => {
     if (en.isIntersecting) { ims.forEach(im => { im.loading = 'eager'; }); o.disconnect(); }
   }), { rootMargin: '0px 0px 120% 0px' }).observe(box);
-  return box;
+  if (!lien) return box;
+  const [texte, adresse] = lien.slice(5).split('>');
+  const cadre = document.createElement('div');
+  cadre.className = 'feuillet-cadre';
+  const a = document.createElement('a');
+  a.className = 'feuillet-lien';
+  a.href = adresse; a.target = '_blank'; a.rel = 'noopener';
+  a.textContent = texte;
+  cadre.append(box, a);
+  return cadre;
 }
 
 /* « p<n>: » → le média est RÉDUIT dans sa case. La case ne bouge pas — sa
