@@ -2723,7 +2723,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- le contact, et c'est tout : l'adresse ferme la page -->
   <div class="footer-cta" id="contact">
     <p class="footer-amorce">Un projet, une opportunité<br>ou simplement envie d’échanger&nbsp;?</p>
-    <a class="footer-email" href="mailto:thomastheroy@gmail.com" aria-label="Me contacter : thomastheroy@gmail.com">
+    <a class="footer-email" href="mailto:tb.thomasbonneau@gmail.com" aria-label="Me contacter : tb.thomasbonneau@gmail.com">
       <span class="fe-text">Me contacter</span>
       <svg class="fe-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
     </a>
@@ -3106,7 +3106,14 @@ const mediaRevealObs = new IntersectionObserver((entries) => {
     mediaRevealObs.unobserve(el);
     const show = () => requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('media-in')));
     if (el.tagName === 'VIDEO') {
-      if (el.readyState >= 2) show(); else el.addEventListener('loadeddata', show, { once: true });
+      /* le premier signal venu suffit : « loadeddata » seul n'arrivait pas
+         toujours ici, et des vidéos jouaient en restant floues. Au pire, au
+         bout de 2,5 s, l'affiche se pose nette plutôt que de rester floue. */
+      let posee = false;
+      const une = () => { if (!posee) { posee = true; show(); } };
+      if (el.readyState >= 2) une();
+      else ['loadeddata', 'canplay', 'playing', 'timeupdate'].forEach(t => el.addEventListener(t, une, { once: true }));
+      setTimeout(une, 2500);
     } else {
       /* on attend aussi le DÉCODAGE : une très grande photo, téléchargée mais
          pas décodée, se peindrait par bandes */
