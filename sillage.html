@@ -1470,6 +1470,33 @@ footer {
 .proj-panel-suite:empty, .proj-panel-suite:not(:has(.suite-vue:not([hidden]))) { display: none; }
 .proj-panel-suite.legende-change { opacity: 0; }
 .proj-panel-suite .proj-panel-gallery-row { padding: 0; }
+/* une vidéo réduite dans sa case colorée : ses bords se fondent dans la couleur */
+.video-wrap > .bords-fondus {
+  -webkit-mask-image: linear-gradient(to right, transparent 4%, #000 16%, #000 84%, transparent 96%);
+          mask-image: linear-gradient(to right, transparent 4%, #000 16%, #000 84%, transparent 96%);
+}
+/* L'INDICE DU BAS : quand la vue a une suite sous le texte (l'animation
+   Opulus) et qu'elle est encore hors de l'écran, une flèche — celle des logos,
+   tournée vers le bas — se pose au bas de l'écran et se balance doucement.
+   Un clic y descend ; elle s'efface dès que la suite arrive. */
+.indice-bas {
+  position: fixed; left: 50%; bottom: clamp(16px, 3vh, 30px);
+  translate: -50% 0;
+  z-index: 205;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center; padding: 0;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(17,17,20,0.22);
+  color: #111114; cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+/* au bureau, sous la colonne du titre (rien n'y est écrit) ; au téléphone, au centre */
+@media (min-width: 901px) { .indice-bas { left: 3.5rem; translate: 0 0; } }
+.indice-bas svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.indice-bas.est-la { opacity: 1; pointer-events: auto; animation: indice-balance 1.9s ease-in-out infinite; }
+@keyframes indice-balance { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .indice-bas.est-la { animation: none; } }
 /* LOGOTYPES ET AFFICHES : le bloc de texte descend loin du visuel, et un
    grand vide le sépare des deux mentions du bas */
 .proj-panel.visuel-abord.volet-logos .proj-panel-intro,
@@ -2444,6 +2471,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 </div>
 
 <div class="ascenseur" id="ascenseur" aria-hidden="true"><span class="ascenseur__poignee"></span></div>
+<button type="button" class="indice-bas" id="indiceBas" aria-label="Voir la suite" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></button>
 <div class="voile-saut" id="voileSaut" aria-hidden="true"></div>
 
 <!-- NAV -->
@@ -2504,7 +2532,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
         </div>
       </div>
     </div>
-    <div class="stack-card" data-bg="#F2E2A8" data-fg="#2E5D34" data-num="03" data-title="Grapillon" data-lum="78818386878990919293948546439497979898989898989898989898979796957981838587888991919293841824839697979898989898989898989897979696788183858688899091919291171762959697979798989898989898979797979678818384868788899091929233105295959696969797979798979797979696967981828485868788899091926008449194959596969797979898979797979796798082848586878889909091760820809494959596969697979797979797979742506784858687888889909077101953939494949595969696979797979797970918246085868788888989906413222479939394949495969696969797979797101022377686868788888990401623253386939394949495959596969696969603072246608486878888898827172425265892929393939494949495959596960209244444748687878888872518354757729192929393939394949494949595030814323054728587888887262068848189909191919292929393939393939417130720244463708587888836125487738589909091919191929292929393932118081925314654597987886207468679778689899090909191919191919292202207091622283543647987800737838784848888898989899090909090919035311905091313222841538086151974858891888888888888898989868081837271552305060914192030588436046369575282858181666866595453333348616466371004050706062442625501111207126263545646454445342921232942453711010202010101092217220304061827262635312617192216121110083132130100000511020001020201030304060808040406050504020202030303" data-cat="Identité visuelle · Packaging" data-desc="Grapillon est une marque de vin née de la vision d’une vinificatrice au parcours singulier, entre approche scientifique et travail du vivant. Issue d’un DUT en biologie, elle imagine un vin précis et réfléchi, tout en laissant à la nature la liberté de s’exprimer, sans artifice. L’identité traduit cette rencontre à travers un langage graphique où les mots qui caractérisent chaque vin se superposent en ASCII art pour faire naître une image. Sur la bouteille, cette composition se prolonge dans un jeu de deux étiquettes : une première couche gaufrée que l’on déchire pour révéler la matière graphique située en dessous, comme une manière d’entrer à l’intérieur du vin et d’en découvrir toute la personnalité." data-tags="Identité visuelle, Packaging, Étiquette, Motion design" data-imgs="web/proj-grapillon.webp,v:web/P1019366.webp,web/P1018826.webp,Logo_Grapillon.svg,v:web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-06 16.webp,web/Illu1.webp,v:web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-02 2.webp,web/Illu2.webp,b:Grapillon_Motion_G.mp4,web/mockupcartedevisite2grapillonaxe2.webp,v:web/f4ed0d84-8420-45fb-81ac-14677351f6c9.webp,web/dfwcw.webp,v:web/Packaging_GRapillon.webp,web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp,z94:web/MockupCRTE2.webp,d:web/Plan de travail 1.webp,web/grapillon-sfsf.webp,nat:web/Business_Card_Mockup_4.webp,anim-siteweb-grapillon-axe-2.mp4">
+    <div class="stack-card" data-bg="#F2E2A8" data-fg="#2E5D34" data-num="03" data-title="Grapillon" data-lum="78818386878990919293948546439497979898989898989898989898979796957981838587888991919293841824839697979898989898989898989897979696788183858688899091919291171762959697979798989898989898979797979678818384868788899091929233105295959696969797979798979797979696967981828485868788899091926008449194959596969797979898979797979796798082848586878889909091760820809494959596969697979797979797979742506784858687888889909077101953939494949595969696979797979797970918246085868788888989906413222479939394949495969696969797979797101022377686868788888990401623253386939394949495959596969696969603072246608486878888898827172425265892929393939494949495959596960209244444748687878888872518354757729192929393939394949494949595030814323054728587888887262068848189909191919292929393939393939417130720244463708587888836125487738589909091919191929292929393932118081925314654597987886207468679778689899090909191919191919292202207091622283543647987800737838784848888898989899090909090919035311905091313222841538086151974858891888888888888898989868081837271552305060914192030588436046369575282858181666866595453333348616466371004050706062442625501111207126263545646454445342921232942453711010202010101092217220304061827262635312617192216121110083132130100000511020001020201030304060808040406050504020202030303" data-cat="Identité visuelle · Packaging" data-desc="Grapillon est une marque de vin née de la vision d’une vinificatrice au parcours singulier, entre approche scientifique et travail du vivant. Issue d’un DUT en biologie, elle imagine un vin précis et réfléchi, tout en laissant à la nature la liberté de s’exprimer, sans artifice. L’identité traduit cette rencontre à travers un langage graphique où les mots qui caractérisent chaque vin se superposent en ASCII art pour faire naître une image. Sur la bouteille, cette composition se prolonge dans un jeu de deux étiquettes : une première couche gaufrée que l’on déchire pour révéler la matière graphique située en dessous, comme une manière d’entrer à l’intérieur du vin et d’en découvrir toute la personnalité." data-tags="Identité visuelle, Packaging, Étiquette, Motion design" data-imgs="web/proj-grapillon.webp,v:web/P1019366.webp,web/P1018826.webp,Logo_Grapillon.svg,v:web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-06 16.webp,web/Illu1.webp,v:web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-02 2.webp,web/Illu2.webp,b:entier:fondfff7aa:Grapillon_Motion_G.mp4,web/mockupcartedevisite2grapillonaxe2.webp,v:web/f4ed0d84-8420-45fb-81ac-14677351f6c9.webp,web/dfwcw.webp,v:web/Packaging_GRapillon.webp,web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp,z94:web/MockupCRTE2.webp,d:web/Plan de travail 1.webp,web/grapillon-sfsf.webp,nat:web/Business_Card_Mockup_4.webp,anim-siteweb-grapillon-axe-2.mp4">
       <div class="proj-image"><img src="web/proj-grapillon.webp" alt="Grapillon — projet de Thomas Bonneau, designer graphique" class="proj-photo" decoding="async" fetchpriority="low"></div>
       <div class="proj-info">
         <div>
@@ -2553,7 +2581,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
        ONF : le logotype en premier, puis une case seule à gauche. ──────── -->
   <div class="projets-index" aria-hidden="true">
     <article class="projet-fiche" data-num="06" data-title="ONF" data-cat="Identité visuelle · Signalétique" data-desc="Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune." data-desc2="J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité." data-tags="Identité visuelle, Signalétique, Logotype, Édition" data-bloc="« Nos empreintes se mêlent à celles de la nature, dans un même cycle où préserver la forêt, c’est aussi préserver une part de nous-mêmes. »" data-imgs="nat:web/ONF_pres/Links/logo_arbre.webp,e:cosmos_1024194981.mp4,v:web/ONF_pres/Links/f642508f168f82eb1079d14f7d7aec7e.webp,p50:r:web/ONF_pres/Links/20260209143208.webp|web/ONF_pres/Links/Plan de travail 1.webp|web/ONF_pres/Links/20260304095207.webp|web/ONF_pres/Links/20260304095502.webp,ONF_pres/Links/Composition 1_1.mp4,v:web/ONF_pres/Links/Logo_Fond_1.webp,web/ONF_pres/Links/Trame_Photos.webp,web/ONF_pres/Links/sgfswg.webp,v:y80:web/ONF_pres/Links/5d7fcf09-10d8-4234-9092-ff843c6a16b6.webp,web/ONF_pres/Links/7d00f79b-5afe-4aa5-9bfc-e386f093d080.webp,web/ONF_pres/Links/xgxgx.webp,v:web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp,y61:web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp,z104:ONF_pres/Links/Composition 1_3.mp4"></article>
-    <article class="projet-fiche" data-num="07" data-title="Logotypes" data-cat="Logotypes · Identité visuelle" data-desc="Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal.|Opulus est un outil développé dans l’écosystème France Boulangerie pour accompagner les boulangers dans la gestion de leurs achats. Grâce à l’intelligence artificielle, il analyse, compare et centralise les références afin de faciliter leurs décisions au quotidien.|Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune.|Studio Synapse est un collectif de quatre étudiants réuni autour de la création d’identités visuelles. J’ai conçu l’identité du studio dans un univers premium, inspiré par l’exigence et le savoir-faire, afin de s’adresser à des commanditaires haut de gamme." data-desc2="Son traitement mêle dessin numérique et approche picturale, avec des formes volontairement irrégulières et imparfaites. Une manière de retrouver dans l’image la spontanéité du geste artisanal, la matière et le caractère unique d’un produit façonné à la main.|L’identité traduit cette idée d’observation à travers le « O » d’Opulus, transformé en un regard. Tourné vers l’ensemble des références qui l’entourent, il incarne un assistant attentif, capable d’observer, d’analyser et de guider le boulanger vers les choix les plus pertinents.|J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité.|Le concept de la synapse traduit cette idée de connexion et de transmission : le studio reçoit l’histoire et le savoir de ses clients pour, à son tour, les transmettre visuellement à leur public." data-tags="" data-ordre="visuel" data-logos-noms="France Boulangerie|Opulus|ONF|Studio Synapse" data-suite="|loop:logos/animation-opulus.mp4||" data-imgs="q:w74:logos/france-boulangerie.svg|logos/Opulus_1.svg|logos/LogoONF.svg|logos/Logosynapse.svg"></article>
+    <article class="projet-fiche" data-num="07" data-title="Logotypes" data-cat="Logotypes · Identité visuelle" data-desc="Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal.|Opulus est un outil développé dans l’écosystème France Boulangerie pour accompagner les boulangers dans la gestion de leurs achats. Grâce à l’intelligence artificielle, il analyse, compare et centralise les références afin de faciliter leurs décisions au quotidien.|Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune.|Studio Synapse est un collectif de quatre étudiants réuni autour de la création d’identités visuelles. J’ai conçu l’identité du studio dans un univers premium, inspiré par l’exigence et le savoir-faire, afin de s’adresser à des commanditaires haut de gamme." data-desc2="Son traitement mêle dessin numérique et approche picturale, avec des formes volontairement irrégulières et imparfaites. Une manière de retrouver dans l’image la spontanéité du geste artisanal, la matière et le caractère unique d’un produit façonné à la main.|L’identité traduit cette idée d’observation à travers le « O » d’Opulus, transformé en un regard. Tourné vers l’ensemble des références qui l’entourent, il incarne un assistant attentif, capable d’observer, d’analyser et de guider le boulanger vers les choix les plus pertinents.|J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité.|Le concept de la synapse traduit cette idée de connexion et de transmission : le studio reçoit l’histoire et le savoir de ses clients pour, à son tour, les transmettre visuellement à leur public." data-tags="" data-ordre="visuel" data-logos-noms="France Boulangerie|Opulus|ONF|Studio Synapse" data-suite="|loop:fondf2f2f2:masque17x19:logos/animation-opulus.mp4||" data-imgs="q:w74:logos/france-boulangerie.svg|logos/Opulus_1.svg|logos/LogoONF.svg|logos/Logosynapse.svg"></article>
     <article class="projet-fiche" data-num="08" data-title="Affiches" data-cat="Affiches · Composition" data-desc="|Affiche réalisée pour une exposition fictive en hommage à Jean Widmer, réinterprétant son travail dans un langage contemporain. Les initiales J et W se rencontrent à travers un jeu de morphing et de flou, en référence à son approche graphique et à son travail pour le Centre Pompidou.|Affiche imaginée pour une exposition fictive au MAD autour de la Citroën DS et de l’esthétique des années 1970. La voiture volontairement hors champ suggère le mouvement et la vitesse, tout en laissant sa silhouette et son design emblématique guider la composition." data-desc2="" data-tags="" data-ordre="visuel" data-affiches-mur="web/affiches/Poster_Frame_Mockup_2.webp" data-affiches-cadre="16.833% 31.625% 14.5% 31.375%" data-affiches="web/affiches/Affiche2_Mur.webp ; web/affiches/Poster_Frame_Mockup_2.webp ; web/affiches/Poster_Frame_Mockup_3.webp" data-imgs="f:"></article>
   </div>
 </section>
@@ -3402,6 +3430,12 @@ function construireMedia(src) {
   // marqueur « apres<n>: » → la vidéo attend n secondes, bien à l'écran, avant de partir
   // marqueur « entier: » → le média tient EN ENTIER dans sa case (fond blanc : les
   //   bandes se confondent avec la page) au lieu de la remplir en étant rogné
+  // marqueur « fond<rrggbb>: » → la couleur de la CASE autour du média (le jaune
+  //   de la vidéo du G, qui rapetisse dans son bandeau ; le gris de l'animation
+  //   Opulus). Avec « entier: », les bords de la vidéo se fondent dans cette
+  //   couleur : une vidéo n'a jamais tout à fait le jaune d'une couleur CSS.
+  // marqueur « masque<v>x<h>: » → la vidéo n'est montrée que dans un rectangle
+  //   centré (v % retirés en haut et en bas, h % à gauche et à droite)
   // marqueur « nat: » → le média garde ses propres proportions : rien n'est rogné.
   //   La rangée s'adapte au fichier au lieu d'imposer son format.
   let boucle = false, arret = 0, cadX = null, cadY = null, zoom = null;
@@ -3425,12 +3459,19 @@ function construireMedia(src) {
   if (mAttente) { attente = parseFloat(mAttente[1]); src = src.slice(mAttente[0].length); }
   let entier = false;
   if (src && src.indexOf('entier:') === 0) { entier = true; src = src.slice(7); }
+  let fond = null, masque = null;
+  const mFond = src && src.match(/^fond([0-9a-f]{6}):/i);
+  if (mFond) { fond = '#' + mFond[1]; src = src.slice(mFond[0].length); }
+  const mMasque = src && src.match(/^masque([\d.]+)x([\d.]+):/);
+  if (mMasque) { masque = mMasque[1] + '% ' + mMasque[2] + '%'; src = src.slice(mMasque[0].length); }
   if (src) {
     if (/\.mp4$/i.test(src)) {
       const v = document.createElement('video');
       poserZoom(v, zoom, cadX, cadY);
       if (cadrage) v.style.objectPosition = cadrage;
       if (entier) v.style.objectFit = 'contain';
+      if (fond) { v.dataset.fond = fond; if (entier) v.classList.add('bords-fondus'); }
+      if (masque) v.style.clipPath = 'inset(' + masque + ')';
       if (AFFICHES_VIDEO[src]) { v.poster = AFFICHES_VIDEO[src]; v.classList.add('a-apercu'); }
       v.src = src;
       v.loop = boucle; v.muted = true; v.playsInline = true;
@@ -3601,8 +3642,14 @@ function addBandeau(src) {
   const wrap = document.createElement('div');
   wrap.className = 'video-wrap';
   wrap.appendChild(makeMedia(src));
+  poserFond(wrap);
   row.appendChild(wrap);
   gallery.appendChild(row);
+}
+/* la couleur demandée par « fond » va sur la case qui porte le média */
+function poserFond(wrap) {
+  const m = wrap.firstElementChild;
+  if (m && m.dataset && m.dataset.fond) wrap.style.backgroundColor = m.dataset.fond;
 }
 
 // paire carrée dont le visuel de gauche est réduit dans sa case
@@ -4109,7 +4156,29 @@ let textesVues = [[''], ['']];
    l'ordre des logos) : il change avec la vue, comme le texte ; une vue sans
    média n'en montre aucun */
 let suiteVues = [];
-function poserSuite(k) { suiteVues.forEach((v, i) => { if (v) v.hidden = i !== k; }); }
+function poserSuite(k) {
+  suiteVues.forEach((v, i) => { if (v) v.hidden = i !== k; });
+  requestAnimationFrame(majIndiceBas);
+}
+/* l'indice du bas : visible tant que la suite de la vue est sous l'écran */
+function majIndiceBas() {
+  const b = document.getElementById('indiceBas'), pp = document.getElementById('projPanel');
+  if (!b || !pp) return;
+  const v = suiteVues.find(x => x && !x.hidden);
+  const ouvert = pp.classList.contains('open');
+  b.classList.toggle('est-la', !!(ouvert && v && v.getBoundingClientRect().top > innerHeight * 0.82));
+}
+(function () {
+  const b = document.getElementById('indiceBas'), pp = document.getElementById('projPanel');
+  if (!b || !pp) return;
+  pp.addEventListener('scroll', () => requestAnimationFrame(majIndiceBas), { passive: true });
+  addEventListener('resize', majIndiceBas, { passive: true });
+  new MutationObserver(majIndiceBas).observe(pp, { attributes: true, attributeFilter: ['class'] });
+  b.addEventListener('click', () => {
+    const v = suiteVues.find(x => x && !x.hidden);
+    if (v) v.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
 function poserTextes(k) {
   ['projPanelDesc', 'projPanelDesc2'].forEach((id, i) => {
     const p = document.getElementById(id), t = textesVues[i];
@@ -4179,6 +4248,7 @@ function openPanel(card) {
       const w = document.createElement('div');
       w.className = 'video-wrap';
       w.appendChild(makeMedia(src));
+      poserFond(w);
       vue.appendChild(w);
     } else vue.appendChild(makeMedia(src));
     suite.appendChild(vue);
