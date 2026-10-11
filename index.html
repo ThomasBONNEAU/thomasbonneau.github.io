@@ -997,9 +997,7 @@ footer {
 .cv-voile.est-ouvert { opacity: 1; }
 .cv-scene { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 /* la feuille : au format A4, la plus grande possible ; elle monte TOUT DROIT
-   du bas de l'écran jusqu'au centre, un peu plus petite au départ. Sa taille
-   exacte (en pixels entiers) et son calage sur la grille de l'écran sont posés
-   en JS : une feuille à cheval sur deux pixels étalait chaque lettre. */
+   du bas de l'écran jusqu'au centre, un peu plus petite au départ */
 .cv-feuille {
   position: relative;
   height: min(calc(100vh - 76px), calc((100vw - 32px) * 842 / 595));
@@ -1010,8 +1008,7 @@ footer {
   transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cv-voile.est-ouvert .cv-feuille { transform: none; }
-.cv-feuille canvas, .cv-feuille iframe { display: block; width: 100%; height: 100%; border: 0; }
-.cv-feuille canvas { image-rendering: auto; }
+.cv-feuille img { display: block; width: 100%; height: 100%; }
 .cv-telecharger {
   display: inline-flex; align-items: center; gap: 0.45em;
   font-family: 'LumaSans', sans-serif; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -2512,13 +2509,13 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="proj-panel-pied"><span>Design graphique</span><span>Direction artistique</span></div>
 </div>
 
-<!-- LE CV : la page se floute et le PDF lui-même (peint par PDF.js, net à
-     toute taille) monte du bas de l'écran jusqu'au centre, comme une feuille ;
-     le lien de téléchargement dessous -->
+<!-- LE CV : la page se floute et la page du PDF, en VECTORIEL (le PDF converti
+     en SVG, texte en tracés : le navigateur le dessine net à toute taille, comme
+     du texte), monte du bas jusqu'au centre ; le lien de téléchargement dessous -->
 <div class="cv-voile" id="cvVoile" role="dialog" aria-modal="true" aria-label="CV de Thomas Bonneau" hidden>
   <button type="button" class="cv-fermer" id="cvFermer" aria-label="Fermer le CV">&#215;</button>
   <div class="cv-scene">
-    <div class="cv-feuille" role="img" aria-label="CV de Thomas Bonneau, designer graphique et directeur artistique"><canvas></canvas></div>
+    <div class="cv-feuille"><img data-src="web/cv-thomas-bonneau.svg" alt="CV de Thomas Bonneau, designer graphique et directeur artistique"></div>
     <a class="cv-telecharger" href="CV_Thomas_BONNEAU.pdf" download>Télécharger le CV<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg></a>
   </div>
 </div>
@@ -6982,76 +6979,28 @@ void main() {
 initHeroProjectRefraction();
 
 
-/* ══ LE CV : un clic sur « CV » floute la page et fait monter le PDF au
-   centre. C'est le PDF lui-même, peint par PDF.js à la taille exacte de
-   l'écran (pixels de l'écran compris) : le texte reste vectoriel et net, sans
-   barre d'outils de lecteur. Si PDF.js ne peut pas se charger, le lecteur PDF
-   du navigateur prend le relais. Un clic à côté, la croix ou Échap ferment ;
-   sans JavaScript, le lien télécharge le PDF. ══ */
+/* ══ LE CV : un clic sur « CV » floute la page et fait monter la feuille au
+   centre. C'est la page du PDF convertie en SVG, texte en tracés : du dessin
+   vectoriel, que le navigateur peint lui-même à la résolution de l'écran —
+   net comme du texte, même entre deux pixels, même pendant la montée (une
+   image peinte à l'avance, PDF.js compris, se floutait dès qu'elle tombait
+   sur un demi-pixel). Un clic à côté, la croix ou Échap ferment ; sans
+   JavaScript, le lien télécharge le PDF. ══ */
 (function cv() {
   const lien = document.getElementById('lienCV'), voile = document.getElementById('cvVoile');
   if (!lien || !voile) return;
   const croix = document.getElementById('cvFermer');
-  const feuille = voile.querySelector('.cv-feuille'), toile = feuille.querySelector('canvas');
-  const PDF = lien.getAttribute('href');
-  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
-  let page = null, peint = 0, minuteur = 0;
-  async function chargerPage() {
-    if (page) return page;
-    const lib = await import(PDFJS);
-    lib.GlobalWorkerOptions.workerSrc = PDFJS.replace('pdf.min.mjs', 'pdf.worker.min.mjs');
-    const doc = await lib.getDocument(PDF).promise;
-    return (page = await doc.getPage(1));
-  }
-  /* la feuille en pixels ENTIERS d'écran : sa toile est peinte exactement à
-     cette taille, un pixel de PDF pour un pixel d'écran */
-  function poserTaille() {
-    const dpr = window.devicePixelRatio || 1;
-    const h = Math.floor(Math.min(innerHeight - 76, (innerWidth - 32) * 842 / 595) * dpr) / dpr;
-    const w = Math.round(h * 595 / 842 * dpr) / dpr;
-    feuille.style.width = w + 'px'; feuille.style.height = h + 'px';
-    return [w, h, dpr];
-  }
-  async function peindre() {
-    const [w, h, dpr] = poserTaille();
-    const cle = w * dpr + 'x' + h * dpr;
-    if (!page || cle === peint) return;
-    peint = cle;
-    const vp = page.getViewport({ scale: Math.round(w * dpr) / page.getViewport({ scale: 1 }).width });
-    const t = document.createElement('canvas');            /* peinte à part, posée d'un coup */
-    t.width = Math.round(w * dpr); t.height = Math.round(h * dpr);
-    const ctx = t.getContext('2d');
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, t.width, t.height);
-    await page.render({ canvasContext: ctx, viewport: vp }).promise;
-    toile.width = t.width; toile.height = t.height;
-    toile.getContext('2d').drawImage(t, 0, 0);
-  }
-  /* une fois montée : on la cale sur la grille des pixels de l'écran (centrée,
-     elle pouvait tomber sur un demi-pixel) */
-  function caler() {
-    if (!voile.classList.contains('est-ouvert')) return;
-    feuille.style.translate = '0px 0px';
-    const r = feuille.getBoundingClientRect(), d = window.devicePixelRatio || 1;
-    const dx = Math.round(r.left * d) / d - r.left, dy = Math.round(r.top * d) / d - r.top;
-    feuille.style.translate = dx.toFixed(3) + 'px ' + dy.toFixed(3) + 'px';
-  }
-  feuille.addEventListener('transitionend', e => { if (e.target === feuille && e.propertyName === 'transform') caler(); });
-  function lecteurNatif() {
-    if (feuille.querySelector('iframe')) return;
-    const f = document.createElement('iframe');
-    f.src = PDF + '#toolbar=0&navpanes=0&view=Fit'; f.title = 'CV de Thomas Bonneau';
-    toile.replaceWith(f);
-  }
-  async function ouvrir(e) {
+  const image = voile.querySelector('.cv-feuille img');
+  let minuteur = 0;
+  function ouvrir(e) {
     e.preventDefault();
     clearTimeout(minuteur);
+    if (image.dataset.src) { image.src = image.dataset.src; image.removeAttribute('data-src'); }
     voile.classList.remove('se-ferme');
     voile.hidden = false;
     document.body.style.overflow = 'hidden';
-    feuille.style.translate = '';
-    poserTaille();
-    try { await chargerPage(); await peindre(); } catch (err) { lecteurNatif(); }
-    requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
+    const partir = () => requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
+    (image.decode ? image.decode().catch(() => {}) : Promise.resolve()).then(partir);
     croix.focus({ preventScroll: true });
   }
   function fermer() {
@@ -7066,7 +7015,6 @@ initHeroProjectRefraction();
   croix.addEventListener('click', fermer);
   voile.addEventListener('click', e => { if (!e.target.closest('.cv-feuille, .cv-telecharger')) fermer(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
-  addEventListener('resize', () => { if (!voile.hidden) peindre().then(() => requestAnimationFrame(caler)); }, { passive: true });
 })();
 </script>
 </body>
