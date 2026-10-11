@@ -996,19 +996,22 @@ footer {
 .cv-voile[hidden] { display: none; }
 .cv-voile.est-ouvert { opacity: 1; }
 .cv-scene { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-/* la feuille : au format A4, la plus grande possible ; elle monte du bas de
-   l'écran jusqu'au centre, un rien inclinée au départ, comme une feuille posée */
+/* la feuille : au format A4, la plus grande possible ; elle monte TOUT DROIT
+   du bas de l'écran jusqu'au centre, un peu plus petite au départ. Sa taille
+   exacte (en pixels entiers) et son calage sur la grille de l'écran sont posés
+   en JS : une feuille à cheval sur deux pixels étalait chaque lettre. */
 .cv-feuille {
   position: relative;
   height: min(calc(100vh - 76px), calc((100vw - 32px) * 842 / 595));
   aspect-ratio: 595 / 842;
   background: #fff;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-  transform: translateY(105vh) rotate(2.5deg);
-  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(105vh) scale(0.82);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cv-voile.est-ouvert .cv-feuille { transform: none; }
 .cv-feuille canvas, .cv-feuille iframe { display: block; width: 100%; height: 100%; border: 0; }
+.cv-feuille canvas { image-rendering: auto; }
 .cv-telecharger {
   display: inline-flex; align-items: center; gap: 0.45em;
   font-family: 'LumaSans', sans-serif; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -7000,18 +7003,39 @@ initHeroProjectRefraction();
     const doc = await lib.getDocument(PDF).promise;
     return (page = await doc.getPage(1));
   }
+  /* la feuille en pixels ENTIERS d'écran : sa toile est peinte exactement à
+     cette taille, un pixel de PDF pour un pixel d'écran */
+  function poserTaille() {
+    const dpr = window.devicePixelRatio || 1;
+    const h = Math.floor(Math.min(innerHeight - 76, (innerWidth - 32) * 842 / 595) * dpr) / dpr;
+    const w = Math.round(h * 595 / 842 * dpr) / dpr;
+    feuille.style.width = w + 'px'; feuille.style.height = h + 'px';
+    return [w, h, dpr];
+  }
   async function peindre() {
-    const largeur = feuille.offsetWidth;                 /* la largeur de mise en page, hors transformation */
-    const dpr = Math.min(3, window.devicePixelRatio || 1);
-    if (!page || !largeur || Math.round(largeur * dpr) === peint) return;
-    peint = Math.round(largeur * dpr);
-    const vp = page.getViewport({ scale: peint / page.getViewport({ scale: 1 }).width });
+    const [w, h, dpr] = poserTaille();
+    const cle = w * dpr + 'x' + h * dpr;
+    if (!page || cle === peint) return;
+    peint = cle;
+    const vp = page.getViewport({ scale: Math.round(w * dpr) / page.getViewport({ scale: 1 }).width });
     const t = document.createElement('canvas');            /* peinte à part, posée d'un coup */
-    t.width = Math.round(vp.width); t.height = Math.round(vp.height);
-    await page.render({ canvasContext: t.getContext('2d'), viewport: vp }).promise;
+    t.width = Math.round(w * dpr); t.height = Math.round(h * dpr);
+    const ctx = t.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, t.width, t.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
     toile.width = t.width; toile.height = t.height;
     toile.getContext('2d').drawImage(t, 0, 0);
   }
+  /* une fois montée : on la cale sur la grille des pixels de l'écran (centrée,
+     elle pouvait tomber sur un demi-pixel) */
+  function caler() {
+    if (!voile.classList.contains('est-ouvert')) return;
+    feuille.style.translate = '0px 0px';
+    const r = feuille.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    const dx = Math.round(r.left * d) / d - r.left, dy = Math.round(r.top * d) / d - r.top;
+    feuille.style.translate = dx.toFixed(3) + 'px ' + dy.toFixed(3) + 'px';
+  }
+  feuille.addEventListener('transitionend', e => { if (e.target === feuille && e.propertyName === 'transform') caler(); });
   function lecteurNatif() {
     if (feuille.querySelector('iframe')) return;
     const f = document.createElement('iframe');
@@ -7024,6 +7048,8 @@ initHeroProjectRefraction();
     voile.classList.remove('se-ferme');
     voile.hidden = false;
     document.body.style.overflow = 'hidden';
+    feuille.style.translate = '';
+    poserTaille();
     try { await chargerPage(); await peindre(); } catch (err) { lecteurNatif(); }
     requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
     croix.focus({ preventScroll: true });
@@ -7040,7 +7066,7 @@ initHeroProjectRefraction();
   croix.addEventListener('click', fermer);
   voile.addEventListener('click', e => { if (!e.target.closest('.cv-feuille, .cv-telecharger')) fermer(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
-  addEventListener('resize', () => { if (!voile.hidden) peindre(); }, { passive: true });
+  addEventListener('resize', () => { if (!voile.hidden) peindre().then(() => requestAnimationFrame(caler)); }, { passive: true });
 })();
 </script>
 </body>
