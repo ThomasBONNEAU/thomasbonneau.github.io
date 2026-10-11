@@ -1008,36 +1008,30 @@ footer {
 }
 .cv-voile[hidden] { display: none; }
 .cv-voile.est-ouvert { opacity: 1; }
-.cv-scene { display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 2.4vh, 24px); }
-/* la feuille : au format A4, la plus grande possible sans toucher les bords */
+.cv-scene { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+/* la feuille : au format A4, la plus grande possible ; elle monte du bas de
+   l'écran jusqu'au centre, un rien inclinée au départ, comme une feuille posée */
 .cv-feuille {
   position: relative;
-  height: min(80vh, calc((100vw - 48px) * 842 / 595));
+  height: min(calc(100vh - 76px), calc((100vw - 32px) * 842 / 595));
   aspect-ratio: 595 / 842;
+  background: #fff;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-  transform: translateY(14px) scale(0.985);
-  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(105vh) rotate(2.5deg);
+  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cv-voile.est-ouvert .cv-feuille { transform: none; }
-/* chaque tranche sort de dessous la précédente, comme un dossier qu'on tire */
-.cv-bande { position: absolute; left: 0; width: 100%; overflow: hidden; }
-.cv-bande img {
-  display: block; width: 100%; height: 100%;
-  transform: translateY(-101%);
-  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(0.15s + var(--i) * 0.2s);
-}
-.cv-voile.est-ouvert .cv-bande img { transform: none; }
+.cv-feuille canvas, .cv-feuille iframe { display: block; width: 100%; height: 100%; border: 0; }
 .cv-telecharger {
   display: inline-flex; align-items: center; gap: 0.45em;
-  font-family: 'LumaSans', sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: 'LumaSans', sans-serif; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
   color: #fff; text-decoration: none;
   opacity: 0; transform: translateY(6px);
-  transition: opacity 0.5s ease 1.25s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.25s;
+  transition: opacity 0.5s ease 0.75s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.75s;
 }
 .cv-voile.est-ouvert .cv-telecharger { opacity: 0.92; transform: none; }
 .cv-telecharger:hover { opacity: 1; }
-.cv-telecharger svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
+.cv-telecharger svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
 .cv-telecharger:hover svg { transform: translateY(2px); }
 /* la croix des volets, en blanc, au coin haut droit */
 .cv-fermer {
@@ -1048,7 +1042,7 @@ footer {
 /* en fermant : tout repart vite, sans rejouer les tranches */
 .cv-voile.se-ferme { transition-duration: 0.3s; }
 @media (prefers-reduced-motion: reduce) {
-  .cv-feuille, .cv-bande img, .cv-telecharger { transition: none; transform: none; }
+  .cv-feuille, .cv-telecharger { transition: none; transform: none; }
 }
 
 .fcv-arrow {
@@ -2528,18 +2522,13 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="proj-panel-pied"><span>Design graphique</span><span>Direction artistique</span></div>
 </div>
 
-<!-- LE CV : la page se floute, la feuille se compose au centre, tranche après
-     tranche, comme des dossiers qu'on sort ; le lien de téléchargement dessous -->
+<!-- LE CV : la page se floute et le PDF lui-même (peint par PDF.js, net à
+     toute taille) monte du bas de l'écran jusqu'au centre, comme une feuille ;
+     le lien de téléchargement dessous -->
 <div class="cv-voile" id="cvVoile" role="dialog" aria-modal="true" aria-label="CV de Thomas Bonneau" hidden>
   <button type="button" class="cv-fermer" id="cvFermer" aria-label="Fermer le CV">&#215;</button>
   <div class="cv-scene">
-    <div class="cv-feuille" role="img" aria-label="CV de Thomas Bonneau, designer graphique et directeur artistique">
-      <div class="cv-bande" style="top:0.0%;height:25.0909%;--i:0"><img data-src="web/cv-bande-1.webp" alt=""></div>
-      <div class="cv-bande" style="top:25.0909%;height:20.2727%;--i:1"><img data-src="web/cv-bande-2.webp" alt=""></div>
-      <div class="cv-bande" style="top:45.3636%;height:23.6364%;--i:2"><img data-src="web/cv-bande-3.webp" alt=""></div>
-      <div class="cv-bande" style="top:69.0%;height:19.3182%;--i:3"><img data-src="web/cv-bande-4.webp" alt=""></div>
-      <div class="cv-bande" style="top:88.3182%;height:11.6818%;--i:4"><img data-src="web/cv-bande-5.webp" alt=""></div>
-    </div>
+    <div class="cv-feuille" role="img" aria-label="CV de Thomas Bonneau, designer graphique et directeur artistique"><canvas></canvas></div>
     <a class="cv-telecharger" href="CV_Thomas_BONNEAU.pdf" download>Télécharger le CV<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg></a>
   </div>
 </div>
@@ -7003,25 +6992,53 @@ void main() {
 initHeroProjectRefraction();
 
 
-/* ══ LE CV : un clic sur « CV » floute la page et compose la feuille au
-   centre ; un clic à côté, la croix ou Échap la referment. Sans JavaScript,
-   le lien télécharge simplement le PDF. ══ */
+/* ══ LE CV : un clic sur « CV » floute la page et fait monter le PDF au
+   centre. C'est le PDF lui-même, peint par PDF.js à la taille exacte de
+   l'écran (pixels de l'écran compris) : le texte reste vectoriel et net, sans
+   barre d'outils de lecteur. Si PDF.js ne peut pas se charger, le lecteur PDF
+   du navigateur prend le relais. Un clic à côté, la croix ou Échap ferment ;
+   sans JavaScript, le lien télécharge le PDF. ══ */
 (function cv() {
   const lien = document.getElementById('lienCV'), voile = document.getElementById('cvVoile');
   if (!lien || !voile) return;
   const croix = document.getElementById('cvFermer');
-  let minuteur = 0;
-  function ouvrir(e) {
+  const feuille = voile.querySelector('.cv-feuille'), toile = feuille.querySelector('canvas');
+  const PDF = lien.getAttribute('href');
+  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
+  let page = null, peint = 0, minuteur = 0;
+  async function chargerPage() {
+    if (page) return page;
+    const lib = await import(PDFJS);
+    lib.GlobalWorkerOptions.workerSrc = PDFJS.replace('pdf.min.mjs', 'pdf.worker.min.mjs');
+    const doc = await lib.getDocument(PDF).promise;
+    return (page = await doc.getPage(1));
+  }
+  async function peindre() {
+    const largeur = feuille.offsetWidth;                 /* la largeur de mise en page, hors transformation */
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    if (!page || !largeur || Math.round(largeur * dpr) === peint) return;
+    peint = Math.round(largeur * dpr);
+    const vp = page.getViewport({ scale: peint / page.getViewport({ scale: 1 }).width });
+    const t = document.createElement('canvas');            /* peinte à part, posée d'un coup */
+    t.width = Math.round(vp.width); t.height = Math.round(vp.height);
+    await page.render({ canvasContext: t.getContext('2d'), viewport: vp }).promise;
+    toile.width = t.width; toile.height = t.height;
+    toile.getContext('2d').drawImage(t, 0, 0);
+  }
+  function lecteurNatif() {
+    if (feuille.querySelector('iframe')) return;
+    const f = document.createElement('iframe');
+    f.src = PDF + '#toolbar=0&navpanes=0&view=Fit'; f.title = 'CV de Thomas Bonneau';
+    toile.replaceWith(f);
+  }
+  async function ouvrir(e) {
     e.preventDefault();
     clearTimeout(minuteur);
-    voile.querySelectorAll('img[data-src]').forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
     voile.classList.remove('se-ferme');
     voile.hidden = false;
     document.body.style.overflow = 'hidden';
-    /* les tranches attendent d'être chargées : elles sortent toutes nettes */
-    const ims = [...voile.querySelectorAll('.cv-bande img')];
-    Promise.all(ims.map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve()))
-      .then(() => requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert'))));
+    try { await chargerPage(); await peindre(); } catch (err) { lecteurNatif(); }
+    requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
     croix.focus({ preventScroll: true });
   }
   function fermer() {
@@ -7036,6 +7053,7 @@ initHeroProjectRefraction();
   croix.addEventListener('click', fermer);
   voile.addEventListener('click', e => { if (!e.target.closest('.cv-feuille, .cv-telecharger')) fermer(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
+  addEventListener('resize', () => { if (!voile.hidden) peindre(); }, { passive: true });
 })();
 </script>
 </body>
