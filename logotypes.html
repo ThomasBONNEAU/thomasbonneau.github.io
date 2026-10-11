@@ -996,6 +996,60 @@ footer {
 }
 .footer-social:hover .swap { transform: translateY(-100%); }
 .footer-cv { display: inline-flex; align-items: center; gap: 0.35em; }
+/* ══ LE CV (voir cvVoile) ══ */
+.cv-voile {
+  position: fixed; inset: 0; z-index: 9000;
+  display: grid; place-items: center;
+  background: rgba(10, 10, 14, 0.38);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.cv-voile[hidden] { display: none; }
+.cv-voile.est-ouvert { opacity: 1; }
+.cv-scene { display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 2.4vh, 24px); }
+/* la feuille : au format A4, la plus grande possible sans toucher les bords */
+.cv-feuille {
+  position: relative;
+  height: min(80vh, calc((100vw - 48px) * 842 / 595));
+  aspect-ratio: 595 / 842;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  transform: translateY(14px) scale(0.985);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cv-voile.est-ouvert .cv-feuille { transform: none; }
+/* chaque tranche sort de dessous la précédente, comme un dossier qu'on tire */
+.cv-bande { position: absolute; left: 0; width: 100%; overflow: hidden; }
+.cv-bande img {
+  display: block; width: 100%; height: 100%;
+  transform: translateY(-101%);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(0.15s + var(--i) * 0.2s);
+}
+.cv-voile.est-ouvert .cv-bande img { transform: none; }
+.cv-telecharger {
+  display: inline-flex; align-items: center; gap: 0.45em;
+  font-family: 'LumaSans', sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff; text-decoration: none;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.5s ease 1.25s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.25s;
+}
+.cv-voile.est-ouvert .cv-telecharger { opacity: 0.92; transform: none; }
+.cv-telecharger:hover { opacity: 1; }
+.cv-telecharger svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
+.cv-telecharger:hover svg { transform: translateY(2px); }
+/* la croix des volets, en blanc, au coin haut droit */
+.cv-fermer {
+  position: absolute; top: clamp(16px, 1.2vw, 24px); right: clamp(18px, 1.35vw, 26px);
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: 'Castillon', serif; font-weight: 100; font-size: 40px; line-height: 1; color: #fff;
+}
+/* en fermant : tout repart vite, sans rejouer les tranches */
+.cv-voile.se-ferme { transition-duration: 0.3s; }
+@media (prefers-reduced-motion: reduce) {
+  .cv-feuille, .cv-bande img, .cv-telecharger { transition: none; transform: none; }
+}
+
 .fcv-arrow {
   width: 0.9em; height: 0.9em; fill: none; stroke: currentColor;
   stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
@@ -2473,6 +2527,21 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="proj-panel-pied"><span>Design graphique</span><span>Direction artistique</span></div>
 </div>
 
+<!-- LE CV : la page se floute, la feuille se compose au centre, tranche après
+     tranche, comme des dossiers qu'on sort ; le lien de téléchargement dessous -->
+<div class="cv-voile" id="cvVoile" role="dialog" aria-modal="true" aria-label="CV de Thomas Bonneau" hidden>
+  <button type="button" class="cv-fermer" id="cvFermer" aria-label="Fermer le CV">&#215;</button>
+  <div class="cv-scene">
+    <div class="cv-feuille" role="img" aria-label="CV de Thomas Bonneau, designer graphique et directeur artistique">
+      <div class="cv-bande" style="top:0.0%;height:25.0909%;--i:0"><img data-src="web/cv-bande-1.webp" alt=""></div>
+      <div class="cv-bande" style="top:25.0909%;height:20.2727%;--i:1"><img data-src="web/cv-bande-2.webp" alt=""></div>
+      <div class="cv-bande" style="top:45.3636%;height:23.6364%;--i:2"><img data-src="web/cv-bande-3.webp" alt=""></div>
+      <div class="cv-bande" style="top:69.0%;height:19.3182%;--i:3"><img data-src="web/cv-bande-4.webp" alt=""></div>
+      <div class="cv-bande" style="top:88.3182%;height:11.6818%;--i:4"><img data-src="web/cv-bande-5.webp" alt=""></div>
+    </div>
+    <a class="cv-telecharger" href="CV_Thomas_BONNEAU.pdf" download>Télécharger le CV<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg></a>
+  </div>
+</div>
 <div class="ascenseur" id="ascenseur" aria-hidden="true"><span class="ascenseur__poignee"></span></div>
 <button type="button" class="indice-bas" id="indiceBas" aria-label="Voir la suite" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></button>
 <div class="voile-saut" id="voileSaut" aria-hidden="true"></div>
@@ -2744,7 +2813,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     <p><strong>Thomas Bonneau</strong></p>
     <p><a class="footer-social" href="#"><span class="swap" data-text="LinkedIn">LinkedIn</span></a></p>
     <!-- déposer le PDF sous ce nom à côté du HTML et le lien fonctionne -->
-    <p><a class="footer-social footer-cv" href="cv-thomas-bonneau.pdf" download><span class="swap" data-text="CV">CV</span><svg class="fcv-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></p>
+    <p><a class="footer-social footer-cv" id="lienCV" href="CV_Thomas_BONNEAU.pdf" download><span class="swap" data-text="CV">CV</span><svg class="fcv-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></p>
     <p>Angers, France</p>
     <p>© <span id="footerYear">2026</span></p>
   </div>
@@ -6932,6 +7001,41 @@ void main() {
 
 initHeroProjectRefraction();
 
+
+/* ══ LE CV : un clic sur « CV » floute la page et compose la feuille au
+   centre ; un clic à côté, la croix ou Échap la referment. Sans JavaScript,
+   le lien télécharge simplement le PDF. ══ */
+(function cv() {
+  const lien = document.getElementById('lienCV'), voile = document.getElementById('cvVoile');
+  if (!lien || !voile) return;
+  const croix = document.getElementById('cvFermer');
+  let minuteur = 0;
+  function ouvrir(e) {
+    e.preventDefault();
+    clearTimeout(minuteur);
+    voile.querySelectorAll('img[data-src]').forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
+    voile.classList.remove('se-ferme');
+    voile.hidden = false;
+    document.body.style.overflow = 'hidden';
+    /* les tranches attendent d'être chargées : elles sortent toutes nettes */
+    const ims = [...voile.querySelectorAll('.cv-bande img')];
+    Promise.all(ims.map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve()))
+      .then(() => requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert'))));
+    croix.focus({ preventScroll: true });
+  }
+  function fermer() {
+    if (voile.hidden) return;
+    voile.classList.add('se-ferme');
+    voile.classList.remove('est-ouvert');
+    document.body.style.overflow = '';
+    minuteur = setTimeout(() => { voile.hidden = true; }, 320);
+    lien.focus({ preventScroll: true });
+  }
+  lien.addEventListener('click', ouvrir);
+  croix.addEventListener('click', fermer);
+  voile.addEventListener('click', e => { if (!e.target.closest('.cv-feuille, .cv-telecharger')) fermer(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
+})();
 </script>
 </body>
 </html>
