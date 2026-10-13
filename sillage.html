@@ -2378,10 +2378,7 @@ body.zone-foot .about-story {
 /* ── ÉTAPE 3 — FOOTER (fond transparent : la couleur du fond de page le traverse →
    son haut est ocre, puis noir à partir des colonnes ; variables crème pour la zone noire) ── */
 footer {
-  /* son propre noir : le pied MONTE sur le crème de l'À propos au défilement,
-     comme un rideau, au lieu d'un fondu de toute la page qui passait par un
-     gris terne */
-  background: #000;
+  background: transparent;
   --foot-pad: clamp(24px, 3vw, 56px);        /* la même marge de page qu'À propos */
   --text: #ffffff;                            /* sur le noir : blanc */
   --muted: rgba(255,255,255,0.6);
@@ -2393,8 +2390,13 @@ footer {
   transition-duration: var(--zone-duree);
   transition-timing-function: var(--zone-courbe);
 }
-/* (le pied porte son propre noir : son encre est blanche dès qu'il paraît,
-   sans passer par l'ocre — l'ancien relais ocre → blanc est retiré) */
+/* Le haut du footer est encore sur le CRÈME quand on y arrive : le blanc y
+   serait invisible. L'encre y reste l'ocre, puis devient blanche avec le noir. */
+body.zone-pres footer {
+  --text: #c16700;
+  --muted: rgba(193,103,0,0.72);
+  --border: rgba(193,103,0,0.26);
+}
 .footer-social, .footer-meta {
   transition-property: color, border-color;
   transition-duration: var(--zone-duree);
@@ -2419,9 +2421,6 @@ body.on-projects #siteNav { --text: #fff; color: #fff; }                  /* sur
    quoi que la sonde lise dessous (rien de sombre ne passe sous eux ici) */
 body.zone-pres #siteNav .site-frame__tl, body.zone-pres #siteNav .site-frame__tr,
 body.zone-pres #siteNav .site-frame__bl, body.zone-pres #siteNav .site-frame__br { color: var(--ocre); }
-/* …sauf là où le noir du pied de page est déjà monté sous lui */
-body.zone-pres #siteNav .site-frame__tl.sur-pied, body.zone-pres #siteNav .site-frame__tr.sur-pied,
-body.zone-pres #siteNav .site-frame__bl.sur-pied, body.zone-pres #siteNav .site-frame__br.sur-pied { color: #fff; }
 .site-frame__tl, .site-frame__tr,
 .site-frame__bl, .site-frame__br { transition: color 100ms linear; }
 /* …sauf quand c'est la ZONE qui change : le cadre passe alors d'une encre à
@@ -5339,7 +5338,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     //    seuil et le noir n'arriverait jamais. On garde alors un dixième d'écran
     //    de défilement en noir.
     const maxScroll  = Math.max(0, document.documentElement.scrollHeight - vh);
-    const blackStart = foot ? Math.min(absTop(foot) - vh * 0.04, maxScroll - 2)
+    const blackStart = foot ? Math.min(absTop(foot) - vh * 0.30, maxScroll - vh * 0.10)
                             : Infinity;
     let bg = '';                                    // zone haute : couleur du thème (blanc / nuit)
     if (y >= blackStart)      bg = BLACK;           // footer → tout noir
@@ -5353,8 +5352,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
       fondu = setTimeout(() => document.body.classList.remove('zone-fondu'), dureeFondu() + 80);
     }
     document.body.style.backgroundColor = bg;       // peint TOUT le viewport d'un coup
-    /* le fond du DOCUMENT aussi : c'est lui qu'on voit quand on tire au-delà
-       du bas de la page (rebond) — noir sous le pied, blanc ailleurs */
+    /* le fond du DOCUMENT aussi : c'est lui qu'on voit quand on force le
+       défilement au-delà du bas de la page (le rebond) — sous le pied, il
+       laissait une ligne blanche sous les mentions du bas : noir, désormais */
     document.documentElement.style.backgroundColor = bg === BLACK ? '#000' : '';
     document.body.classList.toggle('zone-foot', bg === BLACK);
     document.body.classList.toggle('zone-pres', bg === OCRE);
@@ -5550,14 +5550,8 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
     const ocre = document.body.classList.contains('zone-pres');
     for (let i = 0; i < nodes.length; i++) {
       const el = nodes[i];
+      if (ocre) { el.classList.remove('on-light', 'on-dark'); continue; }
       const r = el.getBoundingClientRect();
-      if (ocre) {
-        el.classList.remove('on-light', 'on-dark');
-        const pied = document.querySelector('body > footer');
-        el.classList.toggle('sur-pied', !!pied && r.top + r.height / 2 >= pied.getBoundingClientRect().top);
-        continue;
-      }
-      el.classList.remove('sur-pied');
       if (!r.width) continue;
       const lum = lumSous(r.left + r.width / 2, r.top + r.height / 2);
       if (lum === null) continue;
@@ -5677,8 +5671,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   nom.classList.add('nom-attente');
   new IntersectionObserver(entries => {
     entries.forEach(en => {
-      /* elle part quand le nom est à MOITIÉ dans l'écran : le noir est déjà là */
-      if (en.isIntersecting && en.intersectionRatio >= 0.5 && !dedans) {
+      if (en.isIntersecting && !dedans) {
         dedans = true;
         if (!charge || performance.now() - charge < RESTAURATION) { nom.classList.remove('nom-attente'); return; }
         nom.classList.remove('nom-entre');
@@ -5691,7 +5684,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
         nom.classList.add('nom-attente');
       }
     });
-  }, { threshold: [0, 0.5] }).observe(nom);
+  }).observe(nom);
 })();
 
 
