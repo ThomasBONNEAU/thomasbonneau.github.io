@@ -2380,6 +2380,10 @@ body.zone-foot .about-story {
    son haut est ocre, puis noir à partir des colonnes ; variables crème pour la zone noire) ── */
 footer {
   background: transparent;
+  /* SOUS la page, une ombre noire d'un écran de haut : invisible tant qu'on
+     ne force pas ; si un rebond découvre le dessous du pied, c'est du noir
+     (elle ne compte ni dans la hauteur de la page ni sur les côtés) */
+  box-shadow: 0 50vh 0 50vh #000;
   --foot-pad: clamp(24px, 3vw, 56px);        /* la même marge de page qu'À propos */
   --text: #ffffff;                            /* sur le noir : blanc */
   --muted: rgba(255,255,255,0.6);
@@ -5357,6 +5361,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
        défilement au-delà du bas de la page (le rebond) — sous le pied, il
        laissait une ligne blanche sous les mentions du bas : noir, désormais */
     document.documentElement.style.backgroundColor = bg === BLACK ? '#000' : '';
+    /* et au bas de la page, plus de rebond : en forçant, la page ne décolle
+       plus, rien ne peut apparaître dessous (le haut garde le sien) */
+    document.documentElement.style.overscrollBehaviorY = bg === BLACK ? 'none' : '';
     document.body.classList.toggle('zone-foot', bg === BLACK);
     document.body.classList.toggle('zone-pres', bg === OCRE);
   }
