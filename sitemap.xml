@@ -1,30 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://thomas-bonneau.fr/</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/accueil.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/portrait-tb.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-grapillon.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/PRESENTATION_SILLAGE_1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/archocktail</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/archocktail.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-p2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-doseur.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret3.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-cocktail.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-carte.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-img4282.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/malbec</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/malbec.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-p10037222.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-grain.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-p1003677.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-contre-etiquette.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-sans-titre-3.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/8f9ea888-2b4b-43cf-8a4b-65d717b0157a.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Mockup_CARTE2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-logo.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Mockup_CARTE1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/cerrado-coffee-experience_52515742777_o.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-logo2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-mockup.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-plan-de-travail-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-livret2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-voilier.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/5d853d55-c22b-46bf-a6e1-a7a876294433.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec-p1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/cerrado-coffee-experience_52515742542_o.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/grapillon</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/grapillon.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-grapillon.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/P1019366.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/P1018826.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-06%2016.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Illu1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-02%202.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Illu2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/mockupcartedevisite2grapillonaxe2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/f4ed0d84-8420-45fb-81ac-14677351f6c9.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/dfwcw.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Packaging_GRapillon.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/MockupCRTE2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Plan%20de%20travail%201.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/grapillon-sfsf.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Business_Card_Mockup_4.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/sillage</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/sillage.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/PRESENTATION_SILLAGE.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/zfdsqdf.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/mockup%20mémoire.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/automotive-clay-modeling-studio-tool.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-couverture-2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/81615901-3d1f-4473-8d54-ac4e5065790b.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Couverture%203%20carré.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Silllage_.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-page1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-page2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-page3.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Plan%20de%20travail%201_2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/Mocup123.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/qfdqefd_f_d.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-plan-de-travail-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-14.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-04.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-08.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-13.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-16.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-17.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-22.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-24.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-25.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-26.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-33.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-35.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-36.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/sillage-planche-38.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/studio-synapse</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/studio-synapse.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/65951ad2-c4ef-4ea2-a74a-3149df510365_1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse-3.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/onf</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/onf.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/logo_arbre.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/f642508f168f82eb1079d14f7d7aec7e.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/20260209143208.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/Plan%20de%20travail%201.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/20260304095207.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/20260304095502.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/Logo_Fond_1.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/Trame_Photos.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/sgfswg.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/5d7fcf09-10d8-4234-9092-ff843c6a16b6.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/7d00f79b-5afe-4aa5-9bfc-e386f093d080.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/xgxgx.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/logotypes</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/logotypes.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/affiches</loc>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/affiches.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/Affiche2_Mur.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/Poster_Frame_Mockup_2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/Poster_Frame_Mockup_3.webp</image:loc></image:image>
   </url>
 </urlset>
