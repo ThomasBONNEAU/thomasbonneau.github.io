@@ -1318,7 +1318,7 @@ footer {
 .proj-panel-gallery-row video.media-load {
   opacity: 0;
   filter: blur(12px);
-  transition: opacity 0.9s ease, filter 1.1s cubic-bezier(0.16,1,0.3,1);
+  transition: opacity 0.45s ease, filter 0.55s cubic-bezier(0.16,1,0.3,1);   /* court : la photo est déjà là */
 }
 .proj-panel-gallery-row img.media-in,
 .proj-panel-gallery-row video.media-in { opacity: 1; filter: blur(0); }
@@ -3220,7 +3220,7 @@ const mediaRevealObs = new IntersectionObserver((entries) => {
       }
     }
   });
-}, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+}, { threshold: 0.01, rootMargin: '0px 0px 6% 0px' });   /* dès qu'elle arrive, un peu avant même */
 function revealMedia(el) { el.classList.add('media-load'); mediaRevealObs.observe(el); }
 
 /* ── LES IMAGES À LA BONNE TAILLE ──────────────────────────────────────────
@@ -3252,6 +3252,8 @@ function sourcesWeb(img, src) {
    utile. Les trois premières images du volet partent tout de suite, en
    priorité (le volet glisse encore : sa position ne dit rien). */
 function poserTailles() {
+  /* les visuels sans tailles préparées (logos SVG…) partent aussi tout de suite */
+  gallery.querySelectorAll('img[loading="lazy"]').forEach(im => { if (!im.dataset.web) im.loading = 'eager'; });
   enAttente.splice(0).forEach((img, rang) => {
     const src = img.dataset.web, v = VARIANTES[src];
     const r = img.getBoundingClientRect();
@@ -3260,7 +3262,10 @@ function poserTailles() {
       utile = Math.max(r.width, r.height * v[0] / v[1]);
     img.sizes = Math.ceil(utile) + 'px';
     img.srcset = v[2].map(w => src.replace(/\.webp$/, '-' + w + '.webp') + ' ' + w + 'w').concat(src + ' ' + v[0] + 'w').join(', ');
-    if (rang < 3) { img.loading = 'eager'; img.fetchPriority = 'high'; }
+    /* à l'ouverture, TOUTES les photos du projet partent : les trois premières
+       en priorité, les suivantes derrière — quand on descend, elles sont là */
+    img.loading = 'eager';
+    img.fetchPriority = rang < 3 ? 'high' : 'low';
     img.src = src;
   });
 }
@@ -3550,7 +3555,7 @@ function construireMedia(src) {
          prête (sinon elle n'arrivait qu'après avoir été vue, avec un temps mort) */
       new IntersectionObserver((es, o) => es.forEach(en => {
         if (en.isIntersecting) { v.preload = 'auto'; o.disconnect(); }
-      }), { rootMargin: '0px 0px 100% 0px' }).observe(v);
+      }), { rootMargin: '0px 0px 200% 0px' }).observe(v);
       if (arret > 0) {
         /* Certains exports se terminent par du noir. On arrête alors la lecture
            sur la dernière image utile plutôt que de laisser un carré noir figé
