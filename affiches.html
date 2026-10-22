@@ -947,6 +947,13 @@ img.img-posee { transition: filter 900ms cubic-bezier(0.16, 1, 0.3, 1); }
 .proj-photo--bas {
   object-position: center bottom;
 }
+/* Écran en hauteur (téléphone) : la case ne montre qu'un tiers de la photo
+   d'Arch'ocktail. Centrée, elle laissait la carte des cocktails décalée vers
+   la gauche (son milieu est à 45,9 % du fichier) : on recentre la carte, pas
+   le fichier. La réfraction de l'accueil lit le même cadrage. */
+@media (max-aspect-ratio: 3/4) {
+  .proj-photo--carte { object-position: 44% 50%; }
+}
 
 
 /* Les informations projet sont désormais portées par l'interface périphérique
@@ -1562,6 +1569,21 @@ footer {
    mordait sur la composition : ici on le retire, les bords de l'export sont
    propres. */
 .proj-panel-gallery-row.full.media-video.bandeau video { transform: none; }
+
+/* AU TÉLÉPHONE, LES IMAGES PRENNENT LA PLACE : la marge des galeries devient
+   celle du cadre (TB, la croix, 14 px), la gouttière d'une paire se resserre
+   à 8 px et les rangées se rapprochent. Une paire gagne ainsi près d'un
+   quart de surface, sans qu'aucun visuel soit recadré autrement. */
+@media (max-width: 600px) {
+  .proj-panel-gallery { gap: 2.75rem; }
+  .proj-panel-gallery-row.full.inset, .proj-panel-gallery-row.full.media-video,
+  .proj-panel-gallery-row.duo, .proj-panel-gallery-row.duo.vj,
+  .proj-panel-gallery-row.solo, .proj-panel-gallery-row.marque,
+  .proj-panel-gallery-row.asym { padding: 0 14px; }
+  .proj-panel-gallery-row.duo, .proj-panel-gallery-row.duo.vj,
+  .proj-panel-gallery-row.asym { gap: 8px; }
+  .proj-panel-gallery-row.bandeau .video-wrap { padding-bottom: calc(50% - 4px); }
+}
 
 /* LE QUADRILLAGE : un plan de points minuscules, parfaitement réguliers, et
    la marque posée en son centre. Les points viennent d'un dégradé radial
@@ -2272,6 +2294,7 @@ body {
   --sp-md:  clamp(26px, 3.4vh, 40px);
   --sp-lg:  clamp(44px, 6vh, 72px);
 }
+.ab-bande { display: none; }
 .about-story {
   position: relative;
   background: transparent;
@@ -2493,35 +2516,108 @@ body.zone-foot .about-story {
   .about-layout { grid-template-columns: 1fr; padding: var(--sp-lg) var(--ab-x); }
   .about-left { height: auto; }
   .about-portrait { position: relative; top: auto; height: auto; aspect-ratio: 3 / 4; }
-  /* AU TÉLÉPHONE AUSSI, LES PLANS GLISSENT L'UN SUR L'AUTRE : chaque chapitre
-     est un plan opaque, au moins haut d'un écran, qui se colle en haut ; le
-     suivant monte et le recouvre. Un chapitre plus haut que l'écran se colle
-     par son BAS (top négatif, posé par aboutStory) : on le lit en entier
-     avant que le suivant n'arrive. Les marges laissent le passage aux coins
-     du cadre (TB, Index en haut ; les mentions en bas). */
+  /* AU TÉLÉPHONE, DES DOSSIERS. L'À propos se fige à partir de TB et Index :
+     une bande de la couleur des plans, collée en haut, porte le monogramme
+     et « Index » ; une autre, en bas, les deux mentions. Rien ne passe plus
+     sous l'interface. Entre les deux, la FENÊTRE : chaque chapitre est un
+     dossier opaque qui monte, se pose sous la bande et attend que le suivant
+     le recouvre — une ombre légère en marque le bord. Son repère (filet, nom,
+     numéro) en est le bord haut. Un chapitre plus long que la fenêtre se pose
+     par son BAS (--h, écrite par aboutStory) : son texte passe sous son
+     repère, qui reste en place, puis le dossier suivant arrive. Le parcours
+     range chaque expérience dans un dossier à elle, sous le même repère.
+     Les hauteurs sont en svh : la barre d'adresse ne les fait plus bouger. */
+  .about-story {
+    --bande-haut: 58px;
+    --bande-bas:  44px;
+    --repere-h:   46px;
+    --fenetre:    calc(100svh - var(--bande-haut) - var(--bande-bas));
+  }
+  .ab-bande {
+    display: block; position: sticky; z-index: 6; pointer-events: none;
+    background: var(--ab-plane);
+    transition: background-color var(--zone-duree) var(--zone-courbe);
+  }
+  .ab-bande--haut { top: 0;    height: var(--bande-haut); margin-bottom: calc(var(--bande-haut) * -1); }
+  .ab-bande--bas  { bottom: 0; height: var(--bande-bas);  margin-top:    calc(var(--bande-bas) * -1); }
   .about-right { margin-top: var(--sp-lg); height: auto; }
   .about-flow { position: static; height: auto; overflow: visible; }
   .about-chapter {
-    position: sticky; top: 0; inset: auto; display: block;
-    min-height: 100vh;
-    padding: calc(var(--ui-y, 14px) + 46px) 0 calc(var(--ui-y, 14px) + 64px);
+    position: sticky; inset: auto;
+    top: min(var(--bande-haut), calc(100svh - var(--bande-bas) - var(--h, 0px)));
+    display: flex; flex-direction: column;
+    min-height: var(--fenetre);
+    padding: 0 0 var(--sp-md);
     background: var(--ab-plane);
     will-change: auto; transform: none !important;
   }
-  .about-chapter + .about-chapter { margin-top: 0; }
-
-  /* le contenu suit le flux ; une rangée met son titre au-dessus de sa
-     description, la hiérarchie ne change pas */
-  .about-chapter__corps { display: block; padding: var(--sp-md) 0 0; }
+  /* l'ombre ne marque que le bord HAUT du dossier qui arrive : sur les côtés,
+     elle aurait dessiné deux filets le long de la fenêtre */
+  .about-chapter + .about-chapter,
+  .about-chapter--dossiers .ab-rangee + .ab-rangee {
+    margin-top: 0;
+    box-shadow: 0 -18px 26px -22px rgba(70, 40, 0, 0.32);
+    clip-path: inset(-40px 0 0 0);
+  }
+  .about-chapter .repere {
+    position: sticky; top: var(--bande-haut); z-index: 2;
+    box-sizing: border-box; height: var(--repere-h);
+    padding: 16px 0 0; align-items: flex-start;
+    background: var(--ab-plane);
+    transition-property: border-color, background-color;
+  }
+  /* un texte qui passe sous le repère, ou qui arrive par la bande du bas,
+     s'y efface sur quelques pixels au lieu d'y être tranché net */
+  .about-chapter .repere::after, .ab-bande--bas::before {
+    content: ""; position: absolute; left: 0; right: 0; height: 14px; pointer-events: none;
+  }
+  .about-chapter .repere::after { top: 100%; background: linear-gradient(var(--ab-plane), transparent); }
+  .ab-bande--bas::before { bottom: 100%; background: linear-gradient(transparent, var(--ab-plane)); }
+  /* le contenu se pose au milieu de la fenêtre ; trop long, il part d'en
+     haut (une marge automatique ne déborde jamais vers le haut) */
+  .about-chapter__corps { flex: 1; display: flex; flex-direction: column; align-items: stretch; padding: var(--sp-sm) 0 0; }
+  .about-chapter__corps > * { margin-block: auto; }
   .ab-seul { width: auto; }
   .ab-rangee { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-md); }
-
+  /* le parcours : une expérience par dossier, collée sous le repère */
+  .about-chapter--dossiers .about-chapter__corps { padding: 0; }
+  .about-chapter--dossiers .ab-liste { gap: 0; margin: 0; }
+  .about-chapter--dossiers .ab-rangee {
+    position: sticky; top: calc(var(--bande-haut) + var(--repere-h));
+    min-height: calc(var(--fenetre) - var(--repere-h) - var(--sp-md));
+    align-content: center;
+    background: var(--ab-plane);
+    transition: background-color var(--zone-duree) var(--zone-courbe);
+  }
 
   /* la ligne d'informations passe proprement sur trois rangs — et le footer
      s'allonge d'autant, pour qu'en bas de page elle soit sortie tout entière */
   .footer-meta { grid-template-columns: 1fr 1fr; gap: 14px 24px; align-items: start; }
   .footer-meta > p:first-child { grid-column: 1 / -1; }
   footer { min-height: calc(100vh + 130px); }
+}
+/* AU TÉLÉPHONE, LE DERNIER ÉCRAN N'EST PLUS UN GRAND NOIR VIDE : il tient
+   tout entier dans la hauteur de l'écran (svh : la barre d'adresse ne le
+   fait pas bouger) — la ligne d'informations sous TB et Index, le contact
+   au milieu, et la signature en bas, sur DEUX lignes : « BONNEAU » touche
+   les deux marges du cadre, comme le nom entier au bureau. Son encre mesure
+   4,57995 cadratins, plus six points d'interlettrage ; les retraits annulent
+   l'approche du T (0,0412) et du B (0,0314), les deux mots partent du même
+   axe que « Design graphique ». */
+@media (max-width: 600px) {
+  footer { min-height: 100svh; }
+  .footer-haut { min-height: 0; flex: 1; }
+  .footer-meta { padding-top: 62px; }
+  .footer-cta { padding: 36px var(--foot-pad); }
+  .footer-nom {
+    white-space: normal; text-indent: 0;
+    font-size: calc((100cqw - var(--sig-x) * 2 - 6pt) / 4.57995);
+    line-height: 0.86;
+    padding-bottom: 54px;
+  }
+  .footer-nom > span { display: block; }
+  .footer-nom > span:first-child { margin-left: -0.0412em; }
+  .footer-nom > span:last-child  { margin-left: -0.0314em; }
 }
 
 /* MOUVEMENT RÉDUIT — la composition reste, la chorégraphie disparaît */
@@ -2538,7 +2634,9 @@ body.zone-foot .about-story {
     position: relative; inset: auto; display: block; padding-bottom: 0;
     background: none; will-change: auto; transform: none !important;
   }
-  .about-chapter + .about-chapter { margin-top: var(--ab-entre); }
+  .about-chapter + .about-chapter { margin-top: var(--ab-entre); box-shadow: none; clip-path: none; }
+  .about-chapter .repere, .about-chapter--dossiers .ab-rangee { position: static; min-height: 0; box-shadow: none; clip-path: none; }
+  .about-chapter--dossiers .ab-rangee + .ab-rangee { margin-top: var(--ab-rang-gap); }
 }
 
 /* ── ÉTAPE 3 — FOOTER (fond transparent : la couleur du fond de page le traverse →
@@ -2742,7 +2840,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <section class="projects" id="projets">
   <div class="projects-stack">
     <div class="stack-card" data-bg="#D7E8CF" data-fg="#2E5D34" data-num="01" data-title="Arch’ocktail" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000511182735404407000000000000000000000000000000000000000000000000608284858685846000000000000000000000000000000000000000000000000060808074818385170000000000000000000000000000000000000000000000005967726970758409000000000000000000000000000000000000000000000000607980818184830800000000000000000000000000000000000000000000000059778079798181080000000000000000000000000000000000000000000000005976717279797908000000000000000000000000000000000000000000000000597662678679790800000000000000000000000000000000000000000000000059767671827778070000000000000000000000000000000000000000000000005875778179787807000000000000000000000000000000010204060910111010597576797879790803020202010101010101000000172330384654616668696872747779798081135452514947454341393735333045536168758084878787867774777979808016878787878787868686858278716975808385878889898988716467707173771258596162636465666563605446848688898989898989898983797670646468060505050606060606060606050491929292929292929191919090898987858071656057534842352719130906049595959595959595949392929190898989898989888886827564534334272116" data-cat="Direction artistique · Identité visuelle" data-desc="Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités complémentaires. L’identité s’est construite autour de cette dualité, avec le doseur comme symbole d’équilibre et de précision. Les nuances de vert distinguent subtilement les deux frères, tandis que les illustrations à l’aquarelle apportent une dimension plus artisanale et sensible. Un univers pensé à leur image, entre exigence, prestige, créativité et savoir-faire français dans l’univers de la mixologie." data-tags="Direction artistique, Identité visuelle, Typographie, Édition" data-imgs="web/proj-archocktail-livret.webp,v:web/proj-archocktail-p2.webp,web/proj-archocktail-doseur.webp,proj-archocktail-motion.mp4,d:web/proj-archocktail-livret3.webp,web/proj-archocktail-livret2.webp,web/proj-archocktail-cocktail.webp,d:web/proj-archocktail-carte.webp,web/proj-archocktail-img4282.webp,proj-archocktail-site.mp4">
-      <div class="proj-image"><img src="web/proj-archocktail-livret.webp" srcset="web/proj-archocktail-livret-w960.webp 960w, web/proj-archocktail-livret-w1036.webp 1036w, web/proj-archocktail-livret-w1119.webp 1119w, web/proj-archocktail-livret-w1209.webp 1209w, web/proj-archocktail-livret-w1306.webp 1306w, web/proj-archocktail-livret-w1410.webp 1410w, web/proj-archocktail-livret-w1523.webp 1523w, web/proj-archocktail-livret-w1645.webp 1645w, web/proj-archocktail-livret-w1776.webp 1776w, web/proj-archocktail-livret-w1919.webp 1919w, web/proj-archocktail-livret-w2072.webp 2072w, web/proj-archocktail-livret-w2238.webp 2238w, web/proj-archocktail-livret-w2417.webp 2417w, web/proj-archocktail-livret-w2610.webp 2610w, web/proj-archocktail-livret-w2800.webp 2800w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(149vh * 0.67), (min-aspect-ratio: 1483/1000) 100vw, 149vh" alt="Arch’ocktail — projet de Thomas Bonneau, designer graphique" class="proj-photo" fetchpriority="high" decoding="async"></div>
+      <div class="proj-image"><img src="web/proj-archocktail-livret.webp" srcset="web/proj-archocktail-livret-w960.webp 960w, web/proj-archocktail-livret-w1036.webp 1036w, web/proj-archocktail-livret-w1119.webp 1119w, web/proj-archocktail-livret-w1209.webp 1209w, web/proj-archocktail-livret-w1306.webp 1306w, web/proj-archocktail-livret-w1410.webp 1410w, web/proj-archocktail-livret-w1523.webp 1523w, web/proj-archocktail-livret-w1645.webp 1645w, web/proj-archocktail-livret-w1776.webp 1776w, web/proj-archocktail-livret-w1919.webp 1919w, web/proj-archocktail-livret-w2072.webp 2072w, web/proj-archocktail-livret-w2238.webp 2238w, web/proj-archocktail-livret-w2417.webp 2417w, web/proj-archocktail-livret-w2610.webp 2610w, web/proj-archocktail-livret-w2800.webp 2800w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(149vh * 0.67), (min-aspect-ratio: 1483/1000) 100vw, 149vh" alt="Arch’ocktail — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--carte" fetchpriority="high" decoding="async"></div>
       <div class="proj-info">
         <div>
           <p class="proj-num">01</p>
@@ -2753,7 +2851,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
       </div>
     </div>
     <div class="stack-card" data-bg="#E8D8BE" data-fg="#9E2B25" data-num="02" data-title="Malbec" data-lum="59586061636669727272747777757580848890919190888685868791939392875961646769717070747676747578838789909088878788888688919393918887626770707069727475757376818689908988858587908986889192939187848369716867697374737173798388898987858385889189868891939392878380837068676973737170748186898686899191909091898686919292908685848688686870717069727783878889939595939293949486869092929089898584848469707068687378848888898993959491919494938689929292919186818183887068666974808587888888899193766865929493909292929290858181828792676669758185868787888888928851292462939492929392898683818488868564697681848586868787878592928440245691939292918885848288919086866775808284858686878683829293947341779594918886878682859188807982747981828485858684828184939493908094949486858887828390887975838476788081828484828080848993949393929494948688878181888880757988876265707983858686858988919394858284899594908578808790857881898989494650729394919290939087929288868889939384787787919086879292898847434352919595939192918890898889898684907778859193919294928990893531355887908988918790918785899092888793919190888886868686868686717071757979797877757269848484858585858594725152617676809191908890909191919192929292929292929292929393839291687986949293949495958889899090909191919192929292939393939494939394949393939392919191" data-cat="Packaging · Direction artistique" data-desc="Malbec Coffee est un torréfacteur premium basé à Valanjou, porté par une recherche de qualité et une sélection exigeante de ses cafés. Son identité puise dans l’histoire de son fondateur, marquée dès l’enfance par les voyages et les rencontres, jusqu’aux producteurs avec lesquels il travaille aujourd’hui. Pensé comme un carnet de voyage, l’univers mêle photographie, iconographie et aquarelle pour raconter les territoires, les fermiers et les émotions qui accompagnent chaque café. Sur les packagings, les couleurs et les illustrations évoquent les pays d’origine et les notes propres à chaque référence, comme autant de souvenirs rapportés d’une rencontre." data-tags="Packaging, Direction artistique, Illustration, Identité visuelle" data-centre="Malbec Coffee s’engage dans le commerce équitable et fait importer ses grains de café par voilier. Celui-ci devient alors un emblème de l’identité, pensé comme un voyageur parcourant le monde à la rencontre des différentes cultures du café." data-imgs="web/proj-malbec.webp,v:web/proj-malbec-p10037222.webp,web/proj-malbec-grain.webp,proj-malbec-motion-packaging.mp4,web/proj-malbec-p1003677.webp,v:web/proj-malbec-contre-etiquette.webp,web/proj-malbec-sans-titre-3.webp,v:web/8f9ea888-2b4b-43cf-8a4b-65d717b0157a.webp,web/Mockup_CARTE2.webp,s:web/proj-malbec-logo.webp,v:x12:web/Mockup_CARTE1.webp,web/cerrado-coffee-experience_52515742777_o.webp,s:web/proj-malbec-logo2.webp,v:web/proj-malbec-mockup.webp,web/proj-malbec-plan-de-travail-1.webp,s:web/proj-malbec-livret2.webp,c:,v:web/proj-malbec-voilier.webp,y60:web/5d853d55-c22b-46bf-a6e1-a7a876294433.webp,s:z108:x0:y40:web/proj-malbec-p1.webp,web/cerrado-coffee-experience_52515742542_o.webp,anim-siteweb-malbec-axe-3.mp4">
-      <div class="proj-image"><img src="web/proj-malbec.webp" srcset="web/proj-malbec-w960.webp 960w, web/proj-malbec-w1036.webp 1036w, web/proj-malbec-w1119.webp 1119w, web/proj-malbec-w1209.webp 1209w, web/proj-malbec-w1306.webp 1306w, web/proj-malbec-w1410.webp 1410w, web/proj-malbec-w1523.webp 1523w, web/proj-malbec-w1672.webp 1672w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(178vh * 0.67), (min-aspect-ratio: 1777/1000) 100vw, 178vh" alt="Malbec — projet de Thomas Bonneau, designer graphique" class="proj-photo" decoding="async" decoding="async" fetchpriority="low"></div>
+      <div class="proj-image"><picture class="photo-cadree"><source media="(max-aspect-ratio: 3/4)" srcset="web/malbec-portrait.webp" width="640" height="1280"><img src="web/proj-malbec.webp" srcset="web/proj-malbec-w960.webp 960w, web/proj-malbec-w1036.webp 1036w, web/proj-malbec-w1119.webp 1119w, web/proj-malbec-w1209.webp 1209w, web/proj-malbec-w1306.webp 1306w, web/proj-malbec-w1410.webp 1410w, web/proj-malbec-w1523.webp 1523w, web/proj-malbec-w1672.webp 1672w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(178vh * 0.67), (min-aspect-ratio: 1777/1000) 100vw, 178vh" alt="Malbec — projet de Thomas Bonneau, designer graphique" class="proj-photo" decoding="async" fetchpriority="low"></picture></div>
       <div class="proj-info">
         <div>
           <p class="proj-num">02</p>
@@ -2827,6 +2925,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
      La fenêtre a exactement le cadre de la photo. Le fond est peint par zoneWash.
      ═══════════════════════════════════════════════════════════════════════ -->
 <section class="about-story" id="apropos">
+  <div class="ab-bande ab-bande--haut" aria-hidden="true"></div>
   <div class="about-layout">
 
     <!-- ── GAUCHE ───────────────────────────────────────────────────────── -->
@@ -2855,8 +2954,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </div>
         </section>
 
-        <!-- ═══ 02 · PARCOURS ═══ une liste -->
-        <section class="about-chapter" data-chapter>
+        <!-- ═══ 02 · PARCOURS ═══ une liste (au téléphone : un dossier par expérience) -->
+        <section class="about-chapter about-chapter--dossiers" data-chapter>
           <header class="repere">
             <span class="repere__nom">Parcours</span>
             <span class="repere__num">02</span>
@@ -2960,6 +3059,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     </div>
 
   </div>
+  <div class="ab-bande ab-bande--bas" aria-hidden="true"></div>
 </section>
 
 
@@ -2988,7 +3088,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   </div>
 
   <!-- la signature, sous le contact -->
-  <p class="footer-nom">Thomas Bonneau</p>
+  <p class="footer-nom"><span>Thomas</span> <span>Bonneau</span></p>
 
 </footer>
 
@@ -2996,6 +3096,19 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 
 // Intro / preloader supprimés : le site s'affiche directement, header visible tout de suite.
 document.body.classList.add('loaded');
+
+/* AU DOIGT, LA BARRE D'ADRESSE va et vient avec le défilement : la hauteur de
+   la fenêtre change à chaque geste. Ce n'est pas un vrai redimensionnement —
+   tout se recalculait (la course de l'accueil, les plans de l'À propos) et la
+   page sautait en remontant. Seul un changement de LARGEUR (rotation) compte.
+   Ce filtre est posé avant tous les autres écouteurs : il les court-circuite. */
+if (matchMedia('(pointer: coarse)').matches) {
+  let largeurVue = innerWidth;
+  addEventListener('resize', e => {
+    if (innerWidth === largeurVue) { e.stopImmediatePropagation(); return; }
+    largeurVue = innerWidth;
+  }, true);
+}
 
 // ══════════════════════════════════════════════════════════════════
 // MOTION STATE — source CENTRALE (un seul pointermove, un seul scroll).
@@ -5394,13 +5507,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
   /* ── MESURE : au repos seulement ───────────────────────────────────────── */
   const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1 };
-  /* au téléphone : un chapitre plus haut que l'écran se colle par son bas */
-  function collerParLeBas() {
+  /* au téléphone : chaque dossier connaît sa hauteur ; le CSS en déduit s'il
+     se pose sous la bande (il tient dans la fenêtre) ou par son bas */
+  function hauteursDossiers() {
     const petit = !matchMedia('(min-width: 901px)').matches;
-    chapters.forEach(c => { c.style.top = petit ? Math.min(0, innerHeight - c.offsetHeight) + 'px' : ''; });
+    chapters.forEach(c => {
+      if (petit) c.style.setProperty('--h', c.offsetHeight + 'px');
+      else c.style.removeProperty('--h');
+    });
   }
   function measure() {
-    collerParLeBas();
+    hauteursDossiers();
     M.on = matchMedia('(min-width: 901px)').matches && !reduced;
     if (!M.on) {
       /* le CSS a déjà remis les chapitres dans le flux : on retire seulement
@@ -5512,8 +5629,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* au bureau : au milieu du temps mort du chapitre 01, le crème déjà posé
        (il arrive un dixième d'écran après que la photo se fige) */
     if (M.on) return Math.round(M.top + Math.min(M.pose - 8, Math.max(M.pose / 2, innerHeight * 0.1 + 24)));
-    /* au téléphone : le repère « Qui je suis » sous le monogramme */
-    return Math.round(chapters[0].getBoundingClientRect().top + scrollY - 64);
+    /* au téléphone : le dossier « Qui je suis » posé sous la bande de TB et
+       Index — la fenêtre suit le flux, son haut est celui du premier dossier */
+    return Math.round(flow.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(root).getPropertyValue('--bande-haut')) || 58));
   }
   let saut = 0;
   logo.addEventListener('click', e => {
@@ -6660,7 +6778,11 @@ void main() {
       pctx.save();
       pctx.beginPath(); pctx.rect(bx, by, bw, bh); pctx.clip();
       if (fit === 'contain') { pctx.fillStyle = '#f5f5f0'; pctx.fillRect(ix, iy, iw, ih); }
-      pctx.drawImage(texSource, ix + (iw - dw) / 2, iy + (ih - dh) / 2, dw, dh);
+      /* le MÊME object-position que le DOM : au téléphone, Arch'ocktail
+         recadre sa carte au milieu — la réfraction doit s'y poser pareil */
+      const pos = getComputedStyle(photo).objectPosition.split(' ');
+      const decale = (q, libre) => q && q.indexOf('%') < 0 ? parseFloat(q) : libre * ((parseFloat(q) || 50) / 100);
+      pctx.drawImage(texSource, ix + decale(pos[0], iw - dw), iy + decale(pos[1], ih - dh), dw, dh);
       pctx.restore();
     }
 
