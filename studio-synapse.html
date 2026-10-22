@@ -1627,6 +1627,7 @@ footer {
 }
 
 .marque-plan {
+  grid-column: 2; grid-row: 2;          /* sa case, que le calque des flèches partage */
   position: relative;
   width: 100%;
   aspect-ratio: 2.15 / 1;                /* deux bandes de moins, en haut et en bas */
@@ -1646,13 +1647,20 @@ footer {
      et tous descendaient de 60 px */
   position: absolute; left: 50%; top: 50%;
   translate: -50% -50%;
-  width: 64%;
+  width: calc(var(--w, 64) * 1%);       /* « w74: » devant un fichier règle --w */
   height: auto;
   aspect-ratio: auto;
   display: block;
   transition: opacity 0.5s var(--ease-smooth);
 }
 .marque-plan img.marque-cache { opacity: 0; }
+/* LE CALQUE DES FLÈCHES — au bureau, exactement sur le plan (même case de la
+   grille, ou toute la scène des affiches) : les flèches y sont posées à
+   mi-hauteur. Il ne prend pas les clics, seules les flèches les prennent. */
+.marque-cadre > .fleches { grid-column: 2; grid-row: 2; position: relative; z-index: 2; pointer-events: none; }
+.proj-panel-gallery-row.affiches { position: relative; }
+.affiches > .fleches { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.fleches .marque-fleche { pointer-events: auto; }
 /* les flèches : au milieu de la zone du logo, une à chaque bord, à l'encre */
 .marque-fleche {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -1755,7 +1763,7 @@ footer {
 .affiche-scene img.affiche-cadre { position: absolute; z-index: 2; aspect-ratio: auto; }
 /* les flèches ont la forme de celles des logos — un rond cerné d'un filet —,
    posées SUR l'image, à mi-hauteur, une à chaque bord, au-dessus des affiches */
-.affiche-scene .marque-fleche {
+.affiches .marque-fleche {
   z-index: 3;
   background: transparent;               /* sur l'affiche : un contour blanc, sans fond */
   border: 0;                             /* le filet : un demi-pixel, en ombre */
@@ -1765,7 +1773,42 @@ footer {
      blanc du fond sans rien poser derrière */
   filter: drop-shadow(0 0 2px rgba(0,0,0,0.35));
 }
-.affiche-scene .marque-fleche:hover { border-color: #fff; background: rgba(255,255,255,0.12); }
+.affiches .marque-fleche:hover { border-color: #fff; background: rgba(255,255,255,0.12); }
+/* (après les règles du bureau, qu'elles remplacent au téléphone) */
+@media (max-width: 600px) {
+  /* LES AFFICHES ET LES LOGOS PRENNENT LA PLACE. Une affiche se regarde
+     grande : la scène est agrandie, centrée sur elle, dans une case en 4/5
+     (--zoom, --cx, --cy : voir addAffiches) — le mur n'en est plus que le
+     bord. Un logo aussi : le plan de points passe en 6/5 et la marque y
+     grandit d'un quart. Le texte ne passe plus devant l'image. Les flèches
+     ne sont plus posées SUR l'image : elles passent dessous, au centre. */
+  .affiche-cadrage { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
+  .affiche-cadrage > .affiche-scene {
+    position: absolute; left: 50%; top: 50%;
+    width: calc(var(--zoom, 1) * 100%);
+    translate: calc(var(--cx, 50) * -1%) calc(var(--cy, 50) * -1%);
+  }
+  .proj-panel-gallery-row.marque { padding: 0 14px; }
+  .marque-plan { aspect-ratio: 6 / 5; }
+  /* chaque logo est réglé sur son DESSIN, pas sur son fichier : le
+     boulanger n'occupe que 23 % de la largeur du sien (60 % de la hauteur),
+     les mots d'Opulus et de l'ONF 62 %. La case déborde du plan, qui la rogne
+     — le vide seul est rogné, le dessin est au centre. */
+  .marque-plan img { width: 82%; }
+  .marque-plan img[src$="france-boulangerie.svg"] { width: 130%; }
+  .marque-plan img[src$="Opulus_1.svg"], .marque-plan img[src$="LogoONF.svg"] { width: 126%; }
+  .marque-plan img[src$="Logosynapse.svg"] { width: 120%; }
+  .marque-cadre > .fleches { grid-column: 1 / -1; grid-row: 3; }
+  .affiches > .fleches { position: static; }
+  .fleches { display: flex; justify-content: center; gap: 16px; padding-top: 18px; }
+  .fleches .marque-fleche,
+  .affiches .fleches .marque-fleche {
+    position: static; transform: none;
+    background: #fff; border: 1px solid rgba(17,17,20,0.22); box-shadow: none;
+    color: #111114; filter: none;
+  }
+  .fleches .marque-fleche:hover, .affiches .fleches .marque-fleche:hover { transform: none; background: #fff; }
+}
 @media (prefers-reduced-motion: reduce) {
   .affiche-scene img { transition: opacity 0.2s ease; }
 }
@@ -2193,7 +2236,7 @@ footer {
   .proj-panel-pied { font-size: 14px; letter-spacing: 0.06em; }
   .proj-panel.visuel-abord .proj-panel-gallery > .affiches:first-child { margin-top: calc(-1 * var(--ui-y) - 20px); }
   .works-list { width: auto; padding: 64px 1.2rem; }
-  .works-more { padding: 5rem 1.5rem 6rem; }
+  .works-more { padding: 1.6rem 1.5rem 5rem; }   /* « voir plus » au ras de la dernière image */
   .proj-image { inset: var(--project-gap) 0 0 0; }
   .stack-card .proj-info { left: 1rem; right: 1rem; bottom: 1rem; padding: 1.5rem; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
 }
@@ -2497,6 +2540,10 @@ body.zone-foot .about-story {
 /* (text-wrap, plus loin dans la cascade que white-space, l'emporterait) */
 .about-story .drapeau { text-wrap: nowrap; }
 .ab-seul .ab-texte { margin-top: var(--ab-sous-titre); }
+/* (les dossiers du téléphone enveloppent la citation et chaque paragraphe de
+   la vision : au bureau, ces enveloppes ne changent rien) */
+.ab-seul > .plan-tel { align-self: stretch; }
+.ab-texte > .plan-tel + .plan-tel > p { margin-top: 0.85em; }
 
 /* ══ RESPONSIVE ═══════════════════════════════════════════════════════════
    On ne conserve pas artificiellement les deux colonnes : le portrait passe
@@ -2506,8 +2553,8 @@ body.zone-foot .about-story {
 @media (max-width: 900px) {
   .about-story {
     --t-titre:  clamp(40px, 11vw, 56px);
-    --t-titre-liste: clamp(26px, 7vw, 36px);
-    --t-citation: clamp(22px, 6vw, 28px);
+    --t-titre-liste: clamp(30px, 8.6vw, 40px);  /* seul dans son dossier : il tient l'écran */
+    --t-citation: clamp(28px, 8.6vw, 40px);
     --t-texte:  clamp(15px, 4.1vw, 17px);
     --t-repere: 10.5px;
     --ab-entre: clamp(150px, 26vh, 260px);   /* l'air se resserre, il reste */
@@ -2516,17 +2563,21 @@ body.zone-foot .about-story {
   .about-layout { grid-template-columns: 1fr; padding: var(--sp-lg) var(--ab-x); }
   .about-left { height: auto; }
   .about-portrait { position: relative; top: auto; height: auto; aspect-ratio: 3 / 4; }
-  /* AU TÉLÉPHONE, DES DOSSIERS. L'À propos se fige à partir de TB et Index :
-     une bande de la couleur des plans, collée en haut, porte le monogramme
-     et « Index » ; une autre, en bas, les deux mentions. Rien ne passe plus
-     sous l'interface. Entre les deux, la FENÊTRE : chaque chapitre est un
-     dossier opaque qui monte, se pose sous la bande et attend que le suivant
-     le recouvre — une ombre légère en marque le bord. Son repère (filet, nom,
-     numéro) en est le bord haut. Un chapitre plus long que la fenêtre se pose
-     par son BAS (--h, écrite par aboutStory) : son texte passe sous son
-     repère, qui reste en place, puis le dossier suivant arrive. Le parcours
-     range chaque expérience dans un dossier à elle, sous le même repère.
-     Les hauteurs sont en svh : la barre d'adresse ne les fait plus bouger. */
+
+  /* AU TÉLÉPHONE, UN DOSSIER PAR ÉCRAN. L'À propos se fige à partir de TB
+     et Index : une bande de la couleur des plans, collée en haut, porte le
+     monogramme et « Index » ; une autre, en bas, les deux mentions. Entre
+     les deux, la FENÊTRE, et dans la fenêtre UN dossier à la fois : « Qui je
+     suis », puis chaque expérience, chaque passion, chaque savoir-faire,
+     puis la vision en trois temps. Chaque dossier tient exactement la
+     fenêtre ; son repère (le filet, le nom du chapitre et sa place — 1/3 —,
+     le numéro) en est le bord haut, le contenu se pose au milieu. Il monte,
+     se pose sous la bande, reste un instant seul, puis le suivant monte et
+     le recouvre — et lui s'efface en remontant (--recul, voir aboutStory).
+     La structure des chapitres s'efface : seuls les dossiers comptent.
+     Les hauteurs sont en svh : la barre d'adresse ne les fait pas bouger.
+     Un dossier plus haut que la fenêtre (un très petit écran) se pose par
+     son BAS (--h, écrite par aboutStory) : on le lit en entier. */
   .about-story {
     --bande-haut: 58px;
     --bande-bas:  44px;
@@ -2542,82 +2593,83 @@ body.zone-foot .about-story {
   .ab-bande--bas  { bottom: 0; height: var(--bande-bas);  margin-top:    calc(var(--bande-bas) * -1); }
   .about-right { margin-top: var(--sp-lg); height: auto; }
   .about-flow { position: static; height: auto; overflow: visible; }
-  .about-chapter {
-    position: sticky; inset: auto;
-    top: min(var(--bande-haut), calc(100svh - var(--bande-bas) - var(--h, 0px)));
-    display: flex; flex-direction: column;
+  .about-chapter, .about-chapter__corps, .ab-liste,
+  .ab-seul:not(.plan-tel), .ab-seul:not(.plan-tel) > .ab-texte { display: contents; }
+  .about-chapter > .repere { display: none; }
+  .plan-tel {
+    position: sticky;
+    top: min(var(--bande-haut), calc(100svh - var(--bande-bas) - var(--h, 0px) + 1px));
+    box-sizing: border-box;
     min-height: var(--fenetre);
-    padding: 0 0 var(--sp-md);
+    margin: 0 0 12svh;                       /* un instant seul avant le suivant */
+    padding: calc(var(--repere-h) + var(--sp-sm)) 0 var(--sp-lg);
+    display: flex; flex-direction: column; justify-content: center; align-items: stretch;
+    gap: var(--sp-md);
     background: var(--ab-plane);
-    will-change: auto; transform: none !important;
+    border-top: 1px solid var(--ab-encre);
+    transition: background-color var(--zone-duree) var(--zone-courbe),
+                border-color var(--zone-duree) var(--zone-courbe);
   }
-  /* l'ombre ne marque que le bord HAUT du dossier qui arrive : sur les côtés,
-     elle aurait dessiné deux filets le long de la fenêtre */
-  .about-chapter + .about-chapter,
-  .about-chapter--dossiers .ab-rangee + .ab-rangee {
-    margin-top: 0;
-    box-shadow: 0 -18px 26px -22px rgba(70, 40, 0, 0.32);
-    clip-path: inset(-40px 0 0 0);
+  .about-chapter:last-child .plan-tel:last-child { margin-bottom: 0; }
+  /* LE REPÈRE, écrit par le dossier lui-même : le chapitre et sa place à
+     gauche, le numéro à droite — la ligne de signalétique du bureau */
+  .plan-tel::before, .plan-tel::after {
+    position: absolute; top: 16px;
+    font-family: var(--ab-sans); font-weight: 500;
+    font-size: var(--t-repere); line-height: 1.2;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    opacity: calc(1 - var(--recul, 0) * 0.85);
+    transition: color var(--zone-duree) var(--zone-courbe);
   }
-  .about-chapter .repere {
-    position: sticky; top: var(--bande-haut); z-index: 2;
-    box-sizing: border-box; height: var(--repere-h);
-    padding: 16px 0 0; align-items: flex-start;
-    background: var(--ab-plane);
-    transition-property: border-color, background-color;
-  }
-  /* un texte qui passe sous le repère, ou qui arrive par la bande du bas,
-     s'y efface sur quelques pixels au lieu d'y être tranché net */
-  .about-chapter .repere::after, .ab-bande--bas::before {
-    content: ""; position: absolute; left: 0; right: 0; height: 14px; pointer-events: none;
-  }
-  .about-chapter .repere::after { top: 100%; background: linear-gradient(var(--ab-plane), transparent); }
-  .ab-bande--bas::before { bottom: 100%; background: linear-gradient(transparent, var(--ab-plane)); }
-  /* le contenu se pose au milieu de la fenêtre ; trop long, il part d'en
-     haut (une marge automatique ne déborde jamais vers le haut) */
-  .about-chapter__corps { flex: 1; display: flex; flex-direction: column; align-items: stretch; padding: var(--sp-sm) 0 0; }
-  .about-chapter__corps > * { margin-block: auto; }
+  .plan-tel::before { content: attr(data-nom) "\2003" attr(data-pas); left: 0; color: var(--ab-encre); }
+  .plan-tel::after  { content: attr(data-num); right: 0; margin-right: -0.16em; color: var(--ab-signal); font-variant-numeric: tabular-nums; }
+  /* recouvert, le dossier s'efface et remonte un peu : on voit le suivant
+     PASSER DESSUS, même crème sur crème */
+  .plan-tel > * { opacity: calc(1 - var(--recul, 0) * 0.85); translate: 0 calc(var(--recul, 0) * -28px); }
+  .plan-tel .ab-texte { margin-top: 0; }
   .ab-seul { width: auto; }
-  .ab-rangee { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-md); }
-  /* le parcours : une expérience par dossier, collée sous le repère */
-  .about-chapter--dossiers .about-chapter__corps { padding: 0; }
-  .about-chapter--dossiers .ab-liste { gap: 0; margin: 0; }
-  .about-chapter--dossiers .ab-rangee {
-    position: sticky; top: calc(var(--bande-haut) + var(--repere-h));
-    min-height: calc(var(--fenetre) - var(--repere-h) - var(--sp-md));
-    align-content: center;
-    background: var(--ab-plane);
-    transition: background-color var(--zone-duree) var(--zone-courbe);
-  }
+  .ab-tete .ab-fonction { margin-top: 12px; }
 
-  /* la ligne d'informations passe proprement sur trois rangs — et le footer
+  /* la ligne d'informations passe sur DEUX rangs d'une même grille de trois
+     colonnes égales : le nom, LinkedIn et le CV ; puis la ville et l'année,
+     sous le nom et sous LinkedIn. Chaque colonne part de son axe — la
+     première de celui du cadre (TB, « Design graphique »). Le footer
      s'allonge d'autant, pour qu'en bas de page elle soit sortie tout entière */
-  .footer-meta { grid-template-columns: 1fr 1fr; gap: 14px 24px; align-items: start; }
-  .footer-meta > p:first-child { grid-column: 1 / -1; }
+  .footer-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 8px; align-items: baseline;
+    padding-left: 18px; padding-right: 18px;   /* la marge du cadre */
+  }
+  .footer-meta > p:first-child { grid-column: auto; }
   footer { min-height: calc(100vh + 130px); }
+}
+@media (max-width: 768px) { .footer-meta { padding-left: 14px; padding-right: 14px; } }
+/* LE TÉLÉPHONE COUCHÉ : une fenêtre de 300 px ne tient pas un dossier ;
+   ils se suivent simplement, sans bandes */
+@media (max-width: 900px) and (max-height: 500px) {
+  .ab-bande { display: none; }
+  .plan-tel { position: relative; top: auto; min-height: 0; margin-bottom: var(--sp-lg); padding-bottom: 0; }
+  .plan-tel > *, .plan-tel::before, .plan-tel::after { opacity: 1; translate: none; }
 }
 /* AU TÉLÉPHONE, LE DERNIER ÉCRAN N'EST PLUS UN GRAND NOIR VIDE : il tient
    tout entier dans la hauteur de l'écran (svh : la barre d'adresse ne le
    fait pas bouger) — la ligne d'informations sous TB et Index, le contact
-   au milieu, et la signature en bas, sur DEUX lignes : « BONNEAU » touche
-   les deux marges du cadre, comme le nom entier au bureau. Son encre mesure
-   4,57995 cadratins, plus six points d'interlettrage ; les retraits annulent
-   l'approche du T (0,0412) et du B (0,0314), les deux mots partent du même
-   axe que « Design graphique ». */
+   au milieu, et la signature en bas, sur DEUX lignes, CENTRÉE comme le
+   contact au-dessus d'elle. « BONNEAU » y occupe les quatre cinquièmes de
+   la largeur du cadre : son encre mesure 4,57995 cadratins, plus six points
+   d'interlettrage, d'où le corps. */
 @media (max-width: 600px) {
   footer { min-height: 100svh; }
   .footer-haut { min-height: 0; flex: 1; }
   .footer-meta { padding-top: 62px; }
   .footer-cta { padding: 36px var(--foot-pad); }
   .footer-nom {
-    white-space: normal; text-indent: 0;
-    font-size: calc((100cqw - var(--sig-x) * 2 - 6pt) / 4.57995);
+    white-space: normal; text-indent: 0; text-align: center;
+    font-size: calc((100cqw - var(--sig-x) * 2) * 0.8 / 4.57995);
     line-height: 0.86;
-    padding-bottom: 54px;
+    padding-bottom: 58px;
   }
   .footer-nom > span { display: block; }
-  .footer-nom > span:first-child { margin-left: -0.0412em; }
-  .footer-nom > span:last-child  { margin-left: -0.0314em; }
 }
 
 /* MOUVEMENT RÉDUIT — la composition reste, la chorégraphie disparaît */
@@ -2634,9 +2686,9 @@ body.zone-foot .about-story {
     position: relative; inset: auto; display: block; padding-bottom: 0;
     background: none; will-change: auto; transform: none !important;
   }
-  .about-chapter + .about-chapter { margin-top: var(--ab-entre); box-shadow: none; clip-path: none; }
-  .about-chapter .repere, .about-chapter--dossiers .ab-rangee { position: static; min-height: 0; box-shadow: none; clip-path: none; }
-  .about-chapter--dossiers .ab-rangee + .ab-rangee { margin-top: var(--ab-rang-gap); }
+  .about-chapter + .about-chapter { margin-top: var(--ab-entre); }
+  .plan-tel { position: relative; top: auto; min-height: 0; }
+  .plan-tel > *, .plan-tel::before, .plan-tel::after { opacity: 1; translate: none; }
 }
 
 /* ── ÉTAPE 3 — FOOTER (fond transparent : la couleur du fond de page le traverse →
@@ -2945,7 +2997,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
             <span class="repere__num">01</span>
           </header>
           <div class="about-chapter__corps">
-            <div class="ab-seul">
+            <div class="ab-seul plan-tel" data-nom="Qui je suis" data-num="01">
               <h1 class="ab-titre">Thomas Bonneau</h1>
               <div class="ab-texte">
                 <p>Graphiste et directeur artistique, j’ai suivi un Bachelor en design graphique puis un Master en direction artistique, en parallèle de trois années d’expérience en entreprise. Ce parcours m’a permis de développer ma pratique à travers des projets concrets, de la création d’une identité à son déploiement. Je travaille principalement autour de l’identité de marque et de la communication visuelle, sur des supports imprimés et numériques : édition, affiche, signalétique, conception web et motion design.</p>
@@ -2955,28 +3007,28 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
         </section>
 
         <!-- ═══ 02 · PARCOURS ═══ une liste (au téléphone : un dossier par expérience) -->
-        <section class="about-chapter about-chapter--dossiers" data-chapter>
+        <section class="about-chapter" data-chapter>
           <header class="repere">
             <span class="repere__nom">Parcours</span>
             <span class="repere__num">02</span>
           </header>
           <div class="about-chapter__corps">
             <ol class="ab-liste">
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Parcours" data-num="02" data-pas="1/3">
                 <div class="ab-tete">
                   <h3 class="ab-titre">Studio Synapse</h3>
                   <p class="ab-fonction">Direction&nbsp;artistique<br><em>2025–2026</em></p>
                 </div>
                 <div class="ab-texte"><p>Au sein d’un studio graphique de quatre étudiants, j’ai travaillé pendant un an sur des projets pour de véritables commanditaires, de la réflexion à la création d’identités visuelles.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Parcours" data-num="02" data-pas="2/3">
                 <div class="ab-tete">
                   <h3 class="ab-titre">France Boulangerie</h3>
                   <p class="ab-fonction">Communication et design&nbsp;graphique<br><em>2024–2026</em></p>
                 </div>
                 <div class="ab-texte"><p>Pendant deux ans, j’ai conçu des supports de communication pour les adhérents du groupement : réseaux sociaux, affiches, flyers, éditions. J’ai également créé et décliné des identités pour leurs animations commerciales, ainsi que des logos et différents supports selon leurs besoins.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Parcours" data-num="02" data-pas="3/3">
                 <div class="ab-tete">
                   <h3 class="ab-titre">Ouest Gravure</h3>
                   <p class="ab-fonction">Signalétique<br><em>2023–2024</em></p>
@@ -2995,15 +3047,15 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </header>
           <div class="about-chapter__corps">
             <ul class="ab-liste">
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Mes passions" data-num="03" data-pas="1/3">
                 <h3 class="ab-titre">Illustration</h3>
                 <div class="ab-texte"><p>Je dessine depuis toujours, avec un attachement particulier au dessin au graphite. Une pratique qui m’a appris la patience, la précision et l’attention portée aux détails, et qui nourrit encore aujourd’hui ma manière de créer.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Mes passions" data-num="03" data-pas="2/3">
                 <h3 class="ab-titre">Automobile</h3>
                 <div class="ab-texte"><p>L’automobile me passionne depuis toujours, autant pour l’objet que pour ce qu’elle représente. Son design, son image et la manière dont elle se raconte visuellement nourrissent particulièrement mon travail et mon envie de créer.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Mes passions" data-num="03" data-pas="3/3">
                 <h3 class="ab-titre">Sport</h3>
                 <div class="ab-texte"><p>Le sport fait également partie de mon quotidien. J’y retrouve une forme d’équilibre, mais aussi cette envie de progresser, de rester constant et d’aller au bout de ce que j’entreprends.</p></div>
               </li>
@@ -3019,19 +3071,19 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </header>
           <div class="about-chapter__corps">
             <ul class="ab-liste">
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Savoir-faire" data-num="04" data-pas="1/4">
                 <h3 class="ab-titre">Stratégie de&nbsp;marque</h3>
                 <div class="ab-texte"><p>Comprendre un projet, son environnement et ce qui le distingue pour définir une direction claire et une manière juste de communiquer.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Savoir-faire" data-num="04" data-pas="2/4">
                 <h3 class="ab-titre">Identité visuelle</h3>
                 <div class="ab-texte"><p>Traduire une idée en un langage visuel identifiable, de la <strong>direction artistique</strong> au <strong>logotype</strong>, à la <strong>typographie</strong> et au <strong>système graphique</strong>, puis le décliner selon les besoins.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Savoir-faire" data-num="04" data-pas="3/4">
                 <h3 class="ab-titre">Print</h3>
                 <div class="ab-texte"><p>Déployer une identité sur des supports imprimés, de l’<strong>édition</strong> à l’<strong>affiche</strong>, au <strong>flyer</strong>, à la <strong>signalétique</strong> et aux différents formats de communication.</p></div>
               </li>
-              <li class="ab-rangee">
+              <li class="ab-rangee plan-tel" data-nom="Savoir-faire" data-num="04" data-pas="4/4">
                 <h3 class="ab-titre">Digital</h3>
                 <div class="ab-texte"><p>Transposer un univers graphique à l’écran à travers la <strong>conception web</strong>, les <strong>interfaces</strong>, le <strong>motion design</strong> et des <strong>expériences interactives</strong>.</p></div>
               </li>
@@ -3047,10 +3099,10 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </header>
           <div class="about-chapter__corps">
             <div class="ab-seul">
-              <p class="ab-citation">« Une identité naît de ce que l’on choisit de révéler. »</p>
+              <div class="plan-tel" data-nom="Vision" data-num="05" data-pas="1/3"><p class="ab-citation">« Une identité naît de ce que l’on choisit de révéler. »</p></div>
               <div class="ab-texte">
-                <p>Ce qui m’anime dans le design graphique, c’est de partir d’une histoire, d’une personnalité ou d’un détail pour en révéler quelque chose de singulier. J’aime puiser dans ce qui fait l’<strong>ADN</strong> d’un projet pour lui donner une <strong>voix</strong>, une <strong>identité</strong> et une <strong>émotion</strong> qui lui appartiennent.</p>
-                <p>Je crois aussi à un <strong>design</strong> où le <strong>numérique</strong> dialogue avec le geste et la matière. Illustration, expérimentation, outils numériques ou intelligence artificielle sont pour moi différentes façons de créer, tant qu’elles restent guidées par une intention et une <strong>sensibilité humaines</strong>. C’est dans cette rencontre entre savoir-faire, technologie et émotion que j’ai envie de faire évoluer ma pratique.</p>
+                <div class="plan-tel" data-nom="Vision" data-num="05" data-pas="2/3"><p>Ce qui m’anime dans le design graphique, c’est de partir d’une histoire, d’une personnalité ou d’un détail pour en révéler quelque chose de singulier. J’aime puiser dans ce qui fait l’<strong>ADN</strong> d’un projet pour lui donner une <strong>voix</strong>, une <strong>identité</strong> et une <strong>émotion</strong> qui lui appartiennent.</p></div>
+                <div class="plan-tel" data-nom="Vision" data-num="05" data-pas="3/3"><p>Je crois aussi à un <strong>design</strong> où le <strong>numérique</strong> dialogue avec le geste et la matière. Illustration, expérimentation, outils numériques ou intelligence artificielle sont pour moi différentes façons de créer, tant qu’elles restent guidées par une intention et une <strong>sensibilité humaines</strong>. C’est dans cette rencontre entre savoir-faire, technologie et émotion que j’ai envie de faire évoluer ma pratique.</p></div>
               </div>
             </div>
           </div>
@@ -4092,7 +4144,7 @@ function addMarque(src, noms_) {
   const vues = sources.map((f, i) => {
     const im = document.createElement('img');
     const mW = f.match(/^w([\d.]+):/);
-    if (mW) { im.style.width = mW[1] + '%'; f = f.slice(mW[0].length); }
+    if (mW) { im.style.setProperty('--w', mW[1]); f = f.slice(mW[0].length); }
     im.alt = noms[i] || ''; im.decoding = 'async'; im.src = f;
     if (i) im.classList.add('marque-cache');
     plan.appendChild(im);
@@ -4113,6 +4165,10 @@ function addMarque(src, noms_) {
     }
   }
   if (noms[0] && legende) { legende.textContent = noms[0]; panel.classList.add('volet-logos'); }
+  /* les flèches ont leur calque : posé sur le plan au bureau, sous lui au
+     téléphone (voir .marque-cadre > .fleches) */
+  const fleches = document.createElement('div');
+  fleches.className = 'fleches';
   if (vues.length > 1) {
     [[-1, 'g', 'Logo précédent', 'M15 5l-7 7 7 7'], [1, 'd', 'Logo suivant', 'M9 5l7 7-7 7']].forEach(([sens, cote, titre, d]) => {
       const b = document.createElement('button');
@@ -4121,10 +4177,11 @@ function addMarque(src, noms_) {
       b.setAttribute('aria-label', titre);
       b.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + d + '"/></svg>';
       b.addEventListener('click', () => montrer(vu + sens));
-      plan.appendChild(b);
+      fleches.appendChild(b);
     });
   }
   cadre.appendChild(plan);
+  if (fleches.children.length) cadre.appendChild(fleches);
 
   row.appendChild(cadre);
   gallery.appendChild(row);
@@ -4155,6 +4212,15 @@ function addAffiches(liste, mur, place, apercu) {
      affiche ne sont pas chargés ET décodés, on voit leur aperçu flouté ;
      puis tout arrive d'un fondu — plus d'image qui se dessine par bandes. */
   const [pg, ph, pl, pt] = String(place || '').split(/\s+/).map(parseFloat);
+  /* AU TÉLÉPHONE, LE CADRAGE (voir .affiche-cadrage) : la scène est agrandie
+     jusqu'à ce que l'affiche occupe près des quatre cinquièmes de la largeur,
+     centrée sur elle ; le mur autour n'est plus qu'un bord. Au bureau, ces
+     valeurs ne servent pas. */
+  if (isFinite(pl) && pl > 0) {
+    scene.style.setProperty('--cx', pg + pl / 2);
+    scene.style.setProperty('--cy', ph + pt / 2);
+    scene.style.setProperty('--zoom', (78 / pl).toFixed(4));
+  }
   scene.classList.add('en-attente');
   let base = null;
   if (mur) {
@@ -4186,6 +4252,15 @@ function addAffiches(liste, mur, place, apercu) {
     .then(() => requestAnimationFrame(() => scene.classList.remove('en-attente')));
 
   let vu = 0;
+  /* LES FLÈCHES ont leur propre calque : au bureau il recouvre exactement la
+     scène (elles sont posées dessus, à mi-hauteur) ; au téléphone il passe
+     SOUS l'image, et elles s'y alignent au centre */
+  const cadrage = document.createElement('div');
+  cadrage.className = 'affiche-cadrage';
+  cadrage.appendChild(scene);
+  row.appendChild(cadrage);
+  const fleches = document.createElement('div');
+  fleches.className = 'fleches';
   /* une seule affiche : il n'y a nulle part où aller, donc pas de flèche */
   if (liste.length > 1) {
     const bouton = (sens, cote, titre, d) => {
@@ -4195,7 +4270,7 @@ function addAffiches(liste, mur, place, apercu) {
       b.setAttribute('aria-label', titre);
       b.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + d + '"/></svg>';
       b.addEventListener('click', () => montrer(vu + sens));
-      scene.appendChild(b);
+      fleches.appendChild(b);
       return b;
     };
     /* Le parcours BOUCLE : il y a toujours une affiche avant et après celle
@@ -4247,7 +4322,7 @@ function addAffiches(liste, mur, place, apercu) {
       eteindreLesAutres();
     });
   }
-  row.appendChild(scene);
+  if (fleches.children.length) row.appendChild(fleches);
   gallery.appendChild(row);
 }
 
@@ -5507,14 +5582,26 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
   /* ── MESURE : au repos seulement ───────────────────────────────────────── */
   const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1 };
-  /* au téléphone : chaque dossier connaît sa hauteur ; le CSS en déduit s'il
-     se pose sous la bande (il tient dans la fenêtre) ou par son bas */
+  /* AU TÉLÉPHONE, LES DOSSIERS (.plan-tel) : chacun connaît sa hauteur — le
+     CSS en déduit s'il se pose sous la bande (il tient dans la fenêtre) ou
+     par son bas — et la part de lui que le suivant recouvre déjà (--recul,
+     de 0 à 1) : il s'efface d'autant */
+  const plans = [...root.querySelectorAll('.plan-tel')];
+  const auTel = () => !matchMedia('(min-width: 901px)').matches;
   function hauteursDossiers() {
-    const petit = !matchMedia('(min-width: 901px)').matches;
-    chapters.forEach(c => {
+    const petit = auTel();
+    plans.forEach(c => {
       if (petit) c.style.setProperty('--h', c.offsetHeight + 'px');
       else c.style.removeProperty('--h');
     });
+  }
+  function reculer() {
+    const r = plans.map(c => c.getBoundingClientRect());
+    for (let k = 0; k < plans.length; k++) {
+      const p = k + 1 < plans.length && r[k].height ? clamp01((r[k].bottom - r[k + 1].top) / r[k].height) : 0;
+      const v = Math.round(p * 1000) / 1000;
+      if (plans[k]._recul !== v) { plans[k]._recul = v; plans[k].style.setProperty('--recul', v); }
+    }
   }
   function measure() {
     hauteursDossiers();
@@ -5546,7 +5633,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   function peindre() {
     raf = 0;
     if (aMesurer) { aMesurer = false; measure(); }
-    if (!M.on) return;
+    if (!M.on) { if (plans.length && auTel() && !reduced) reculer(); return; }
     /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
        premier plan reste installé seul avant que le second ne commence à
        monter, et le dernier reste calme avant que la section rende la main. */
