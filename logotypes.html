@@ -656,6 +656,8 @@ body.index-ouvert .site-frame .frame-menu:hover .frame-menu__croix { rotate: 90d
 }
 .frame-context.is-out { transform: translateY(-4px); opacity: 0; transition-duration: 160ms; }
 .frame-context.is-in  { transform: translateY(4px);  opacity: 0; transition: none; }
+/* au doigt, les mentions ne bougent pas d'un pixel : le mot change en fondu */
+@media (pointer: coarse) { .frame-context.is-out, .frame-context.is-in { transform: none; } }
 
 /* apparition sobre après la formation du titre — même logique qu'avant */
 nav.header-forming .site-frame__tl, nav.header-forming .site-frame__tr,
@@ -854,6 +856,14 @@ body.refraction-on .hero { position: sticky; top: 0; }
   contain: layout paint;
 }
 .hero-project-transition.is-active { visibility: visible; }
+/* AU DOIGT, la couche ne suit pas la barre d'adresse : en inset: 0, elle
+   grandissait quand la barre se repliait, et tout ce qu'elle dessine (la
+   photo d'Arch'ocktail, la phrase) s'étirait — l'image et la phrase
+   bougeaient en descendant. Elle prend donc la GRANDE hauteur, fixe (100lvh,
+   celle des cartes : 100vh) ; le dessin est calé dessus (voir hauteurCouche). */
+@media (pointer: coarse) {
+  .hero-project-transition { bottom: auto; height: 100lvh; }
+}
 /* LA PRÉSENCE — pendant l'intro et la naissance de la phrase, la couche
    passe au-dessus de tout, en PRODUIT : son blanc est neutre, ce qui est
    noir le reste (le monogramme, la ligne, la phrase du DOM qui sort de la
@@ -888,7 +898,7 @@ body.refraction-on .hero { position: sticky; top: 0; }
 /* temps d'arrêt : chaque projet reste plein écran avant la transition suivante */
 .stack-card:not(:last-child) { margin-bottom: 16vh; }
 /* au doigt, un lancer emportait plusieurs projets : chacun respire davantage */
-@media (pointer: coarse) { .stack-card:not(:last-child) { margin-bottom: 42vh; } }
+@media (pointer: coarse) { .stack-card:not(:last-child) { margin-bottom: 56vh; } }
 /* ARCH'OCKTAIL sort directement de la transition : aucune césure au-dessus */
 .stack-card:first-child { border-top: 0 !important; }
 
@@ -2610,7 +2620,6 @@ body.zone-foot .about-story {
     transition: background-color var(--zone-duree) var(--zone-courbe);
   }
   .ab-bande--haut { top: 0;    height: var(--bande-haut); margin-bottom: calc(var(--bande-haut) * -1); }
-  .ab-bande--bas  { bottom: 0; height: var(--bande-bas);  margin-top:    calc(var(--bande-bas) * -1); }
   .about-right { margin-top: var(--sp-lg); height: auto; }
   .about-flow { position: static; height: auto; overflow: visible; }
   .about-chapter {
@@ -2661,28 +2670,6 @@ body.zone-foot .about-story {
   /* la fonction et ses années sur UNE ligne */
   .ab-fonction br { display: none; }
   .ab-fonction em::before { content: "\2002"; }
-  /* LA FLÈCHE : au milieu de la bande du bas, entre les deux mentions ; un
-     rond d'un demi-pixel à l'encre, une case de 44 px pour le doigt. Elle
-     mène au dossier suivant, et s'efface sur le dernier. */
-  .ab-suivant {
-    display: grid; place-items: center;
-    position: absolute; top: 0; left: calc(50% - 22px);
-    width: 44px; height: 44px; padding: 0; border: 0; background: none;
-    color: var(--ab-encre); cursor: pointer; pointer-events: auto;
-    -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.35s ease, color var(--zone-duree) var(--zone-courbe);
-  }
-  .ab-suivant::before {
-    content: ""; position: absolute; inset: 8px; border-radius: 50%;
-    box-shadow: inset 0 0 0 0.5px currentColor;
-    transition: transform 0.3s var(--ease-smooth);
-  }
-  .ab-suivant:active::before { transform: scale(0.9); }
-  .ab-suivant svg {
-    width: 14px; height: 14px; fill: none; stroke: currentColor;
-    stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
-  }
-  .ab-suivant.est-au-bout { opacity: 0; pointer-events: none; }
   .about-chapter.est-haut > .repere { position: sticky; top: var(--bande-haut); }
   /* un dossier plus haut que l'écran : son texte s'efface sous le repère */
   .about-chapter.est-haut > .repere::after {
@@ -2696,20 +2683,20 @@ body.zone-foot .about-story {
      première de celui du cadre (TB, « Design graphique »). Le footer
      s'allonge d'autant, pour qu'en bas de page elle soit sortie tout entière */
   /* AU TÉLÉPHONE, DEUX COLONNES AUX DEUX MARGES DU CADRE, juste sous le
-     filet : à gauche le CV et l'année, ferrés à gauche sous TB ; à droite les
-     villes, ferrées à droite sous Index. Le nom (la signature le porte déjà)
+     filet : à gauche les villes, ferrées à gauche sous TB ; à droite le CV et
+     l'année, ferrés à droite sous Index. Le nom (la signature le porte déjà)
      et LinkedIn n'y sont plus. */
   .footer-meta {
     grid-template-columns: 1fr 1fr;
-    grid-template-areas: "cv ville" "annee paris";
+    grid-template-areas: "ville cv" "paris annee";
     gap: 8px 26px; align-items: baseline;
     padding-left: 18px; padding-right: 18px;   /* la marge du cadre */
   }
   .footer-meta > .fm-nom, .footer-meta > .fm-linkedin { display: none; }
-  .footer-meta > .fm-cv    { grid-area: cv;    justify-self: start; }
-  .footer-meta > .fm-annee { grid-area: annee; justify-self: start; }
-  .footer-meta > .fm-ville { grid-area: ville; justify-self: end; text-align: right; }
-  .footer-meta > .fm-paris { grid-area: paris; justify-self: end; text-align: right; display: block; }
+  .footer-meta > .fm-ville { grid-area: ville; justify-self: start; }
+  .footer-meta > .fm-paris { grid-area: paris; justify-self: start; display: block; }
+  .footer-meta > .fm-cv    { grid-area: cv;    justify-self: end; text-align: right; }
+  .footer-meta > .fm-annee { grid-area: annee; justify-self: end; text-align: right; }
   footer { min-height: calc(100vh + 130px); }
 }
 @media (max-width: 768px) { .footer-meta { padding-left: 14px; padding-right: 14px; } }
@@ -2733,12 +2720,69 @@ body.zone-foot .about-story {
 }
 @media (pointer: coarse) and (max-width: 900px) {
   .about-story { --bande-bas: 36px; }
-  .ab-suivant { top: 1px; }
-  .ab-bande--bas {
-    height: calc(var(--bande-bas) + 100dvh - 100svh);
-    margin-top: calc((var(--bande-bas) + 100dvh - 100svh) * -1);
-  }
+  /* les dossiers ne s'animent plus pendant le défilement : rien ne doit
+     être recalculé image par image sous le doigt — ils glissent l'un sur
+     l'autre, nativement */
+  .about-chapter > * { opacity: 1; translate: none; }
 }
+/* LA BANDE BASSE DE L'À PROPOS, dans le CADRE (fixe, de la petite hauteur
+   d'écran au doigt) : elle ne bouge donc jamais avec la barre d'adresse.
+   Elle porte la flèche, entre les deux mentions, et couvre aussi ce qui
+   reste dessous quand la barre se replie. Elle ne paraît que pendant les
+   dossiers (body.ab-en-cours, voir aboutStory). */
+.cadre-bas-apropos { display: none; }
+@media (max-width: 900px) and (min-height: 501px) {
+  .cadre-bas-apropos {
+    display: block; position: absolute; left: 0; right: 0;
+    top: calc(100% - 44px);
+    height: calc(44px + 100lvh - 100svh + 40px);
+    background: #fcfaeb;
+    pointer-events: none;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  }
+  body.ab-en-cours .cadre-bas-apropos { opacity: 1; visibility: visible; transition: opacity 0.25s ease; }
+  body.index-ouvert .cadre-bas-apropos { opacity: 0; visibility: hidden; }
+  .cadre-bas-apropos::before {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 12px;
+    background: linear-gradient(rgba(252, 250, 235, 0), #fcfaeb); pointer-events: none;
+  }
+  .cadre-bas-apropos .ab-suivant {
+    display: grid; place-items: center;
+    position: absolute; top: 0; left: calc(50% - 22px);
+    width: 44px; height: 44px; padding: 0; border: 0; background: none;
+    color: #c16700; cursor: pointer; pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.35s ease;
+  }
+  .cadre-bas-apropos .ab-suivant::before {
+    content: ""; position: absolute; inset: 8px; border-radius: 50%;
+    box-shadow: inset 0 0 0 0.5px currentColor;
+    transition: transform 0.3s var(--ease-smooth);
+  }
+  .cadre-bas-apropos .ab-suivant:active::before { transform: scale(0.9); }
+  .cadre-bas-apropos .ab-suivant svg {
+    width: 14px; height: 14px; fill: none; stroke: currentColor;
+    stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .cadre-bas-apropos .ab-suivant.est-au-bout { opacity: 0; pointer-events: none; }
+}
+@media (pointer: coarse) and (max-width: 900px) and (min-height: 501px) {
+  .cadre-bas-apropos { top: calc(100% - 36px); }
+  .cadre-bas-apropos .ab-suivant { top: 1px; }
+}
+/* LES CRANS (voir crans) : des repères invisibles où le défilement natif
+   s'arrête, même lancé ; le reste du parcours reste libre */
+html.a-crans { scroll-snap-type: y proximity; }
+#crans { position: absolute; top: 0; left: 0; width: 1px; height: 0; pointer-events: none; }
+#crans .cran {
+  position: absolute; left: 0; width: 1px; height: 1px;
+  scroll-snap-align: start; scroll-snap-stop: always;
+}
+#crans .cran--fin { scroll-snap-align: end; }
+/* AU DOIGT, PAS DE REBOND : tiré au-delà du bas, le pied ne remonte plus
+   (ni le haut ne descend) — la page s'arrête net à ses deux bouts */
+@media (pointer: coarse) { html, body { overscroll-behavior-y: none; } }
 /* LE TÉLÉPHONE COUCHÉ : une fenêtre de 300 px ne tient pas un dossier ;
    ils se suivent simplement, sans bandes */
 @media (max-width: 900px) and (max-height: 500px) {
@@ -2966,6 +3010,9 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="site-frame__tr">
     <button type="button" class="frame-menu menu-trigger" id="menuTrigger" aria-controls="worksPanel" aria-expanded="false"><span class="frame-menu__mot">Index</span><span class="frame-menu__croix" aria-hidden="true">&#215;</span></button>
   </div>
+  <!-- la bande basse de l'À propos, au téléphone : dans le cadre, donc à
+       hauteur fixe, avec la flèche du dossier suivant (voir aboutStory) -->
+  <div class="cadre-bas-apropos"><button type="button" class="ab-suivant" aria-label="Dossier suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></svg></button></div>
   <div class="site-frame__bl">
     <span class="frame-context" id="frameContextLeft" data-value="Design graphique">Design graphique</span>
   </div>
@@ -3214,7 +3261,6 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     </div>
 
   </div>
-  <div class="ab-bande ab-bande--bas"><button type="button" class="ab-suivant" aria-label="Dossier suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></svg></button></div>
 </section>
 
 
@@ -5746,19 +5792,30 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   };
   /* LA FLÈCHE de la bande du bas : le premier dossier pas encore posé ;
      quand tout est posé (le dernier), elle s'efface */
-  const fleche = root.querySelector('.ab-suivant');
+  const fleche = document.querySelector('.cadre-bas-apropos .ab-suivant');
+  const cadreBas = document.querySelector('.cadre-bas-apropos'), cadre = document.getElementById('siteNav');
+  const auDoigt = matchMedia('(pointer: coarse)').matches;
   const prochain = () => { for (let k = 0; k < chapters.length; k++) if (poseDuDossier(k) > scrollY + 4) return k; return -1; };
   if (fleche) fleche.addEventListener('click', () => {
     const k = prochain();
     if (k >= 0) scrollTo({ top: poseDuDossier(k), behavior: reduced ? 'instant' : 'smooth' });
   });
-  let auBout = null;
+  let auBout = null, enCours = null;
   function reculer() {
     const r = chapters.map(c => c.getBoundingClientRect());
-    for (let k = 0; k < chapters.length; k++) {
+    /* l'effacement du dossier recouvert : à la souris seulement — au doigt,
+       rien ne se recalcule image par image */
+    if (!auDoigt) for (let k = 0; k < chapters.length; k++) {
       const p = k + 1 < chapters.length && r[k].height ? clamp01((r[k].bottom - r[k + 1].top) / r[k].height) : 0;
       const v = Math.round(p * 1000) / 1000;
       if (chapters[k]._recul !== v) { chapters[k]._recul = v; chapters[k].style.setProperty('--recul', v); }
+    }
+    /* la bande basse du cadre : tant que les dossiers passent dessous */
+    if (cadreBas && cadre) {
+      const ligne = cadreBas.offsetHeight ? cadreBas.offsetTop : cadre.clientHeight - 40;
+      const f = flow.getBoundingClientRect();
+      const e = f.top < ligne && f.bottom > ligne - 2;
+      if (e !== enCours) { enCours = e; document.body.classList.toggle('ab-en-cours', e); }
     }
     if (fleche) {
       const b = prochain() < 0;
@@ -5903,14 +5960,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
 /* ══ LES CRANS — AU DOIGT, UN LANCER NE TRAVERSE PLUS TOUT ═══════════════
    Un geste vif emportait plusieurs projets d'un coup. Chaque étape devient
-   un CRAN : la phrase de l'accueil sur l'image qui monte, chaque projet
-   (l'instant où sa carte se pose en haut), « voir plus », le portrait,
-   chaque dossier de l'À propos (l'instant où il se pose sous TB et Index),
-   le bas de la page. Un LANCER s'arrête au cran suivant (voir le frein,
-   plus bas) ; un geste lent reste entièrement libre. (Pas d'aimantation
-   CSS : posée sur des repères qui bougent pendant le chargement, elle
-   tirait la page hors du haut avant même qu'on la touche.) Les positions
-   sont celles du FLUX — une carte collante ne dit pas où elle se pose. */
+   un CRAN où le défilement natif du téléphone s'arrête de lui-même : chaque
+   projet (l'instant où sa carte se pose en haut), chaque dossier de l'À
+   propos (l'instant où il se pose sous TB et Index), le bas de la page.
+   C'est le navigateur qui freine (scroll-snap, avec scroll-snap-stop) :
+   l'élan du doigt est conservé et s'achève exactement sur le cran, sans
+   aucun script qui le contrarie. Entre deux crans le défilement reste
+   libre (proximity) : la réfraction de l'accueil, le portrait, le pied.
+   Les repères ne sont posés qu'une fois la page chargée — posés trop tôt,
+   ils attiraient la page hors du haut — puis seulement DÉPLACÉS. Les
+   positions sont celles du FLUX : une carte collante ne dit pas où elle
+   se pose. */
 (function crans() {
   if (!matchMedia('(pointer: coarse)').matches || motionState.reducedMotion) return;
   const stack = document.querySelector('.projects-stack');
@@ -5919,55 +5979,63 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   const enchaines = els => {               /* les positions de flux de blocs qui se suivent */
     let y = 0; return els.map(el => { const t = y; y += el.offsetHeight + (parseFloat(getComputedStyle(el).marginBottom) || 0); return t; });
   };
-  /* la petite hauteur d'écran, stable (la barre d'adresse n'y fait rien) */
-  const sonde = document.createElement('div');
-  sonde.setAttribute('aria-hidden', 'true');
-  sonde.style.cssText = 'position:absolute;top:0;left:0;visibility:hidden;pointer-events:none;height:100svh;width:0';
-  document.body.appendChild(sonde);
-  let raf = 0;
+  const calque = document.createElement('div');
+  calque.id = 'crans'; calque.setAttribute('aria-hidden', 'true');
+  let pret = false, raf = 0;
   function poser() {
     raf = 0;
-    const svh = sonde.offsetHeight || innerHeight;
+    if (!pret) return;
     const ys = [];
     if (stack) {
       const t = haut(stack);
-      /* dans la réfraction de l'accueil : la phrase encore là, l'image qui
-         monte derrière elle — un lancer s'y arrête avant de tout dévoiler */
-      ys.push([t * 0.3, 0]);
       enchaines([...stack.querySelectorAll('.stack-card')]).forEach(o => ys.push([t + o, 0]));
     }
-    /* entre le dernier projet et l'À propos : « voir plus » sous la dernière
-       image, puis le portrait, posé sous TB et Index */
-    const voir = document.getElementById('worksMoreBtn'), portrait = document.querySelector('.about-portrait');
-    if (voir) ys.push([haut(voir) - svh * 0.62, 0]);
     const dossiers = flow ? [...flow.querySelectorAll('.about-chapter')] : [];
     if (dossiers.length && getComputedStyle(dossiers[0]).position === 'sticky') {
       const bande = parseFloat(getComputedStyle(document.getElementById('apropos')).getPropertyValue('--bande-haut')) || 54;
-      if (portrait) ys.push([haut(portrait) - 20, bande]);
       const t = haut(flow);
       enchaines(dossiers).forEach(o => ys.push([t + o, bande]));
     }
-    /* et le bas de la page : du dernier dossier, un lancer mène droit au pied */
-    ys.push([document.documentElement.scrollHeight - svh, 0]);
-    ys.sort((a, b) => (a[0] - a[1]) - (b[0] - b[1]));
-    window.__crans = ys.map(([y, m]) => Math.round(y - m));
+    /* le bas de la page : la fin du pied */
+    ys.push([document.documentElement.scrollHeight - 1, 0, 'fin']);
+    window.__crans = ys.map(([y, m, fin]) => Math.round(fin ? y + 1 - innerHeight : y - m)).sort((a, b) => a - b);
+    /* on DÉPLACE les repères existants (en recréer ferait re-caler la page) */
+    while (calque.children.length < ys.length) {
+      const c = document.createElement('i'); c.className = 'cran'; calque.appendChild(c);
+    }
+    while (calque.children.length > ys.length) calque.lastChild.remove();
+    ys.forEach(([y, marge, fin], k) => {
+      const c = calque.children[k];
+      c.classList.toggle('cran--fin', !!fin);
+      const top = Math.round(y) + 'px';
+      if (c.style.top !== top) c.style.top = top;
+      const m = marge ? marge + 'px' : '';
+      if (c.style.scrollMarginTop !== m) c.style.scrollMarginTop = m;
+    });
   }
   const relancer = () => { if (!raf) raf = requestAnimationFrame(poser); };
-  addEventListener('load', relancer);
+  const demarrer = () => {
+    if (pret) return;
+    pret = true;
+    document.body.appendChild(calque);
+    poser();
+    document.documentElement.classList.add('a-crans');
+  };
+  if (document.readyState === 'complete') setTimeout(demarrer, 600);
+  else addEventListener('load', () => setTimeout(demarrer, 600), { once: true });
   addEventListener('resize', relancer, { passive: true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(relancer);
   if ('ResizeObserver' in window) new ResizeObserver(relancer).observe(document.body);
-  relancer();
 
-  /* LE FREIN. On mesure la vitesse du doigt ; s'il quitte l'écran en
-     LANÇANT la page (plus de 0,2 px/ms, dans un sens comme dans l'autre),
-     le prochain cran dans le sens du geste devient une butée : dès que
-     l'élan l'atteint, la page s'y arrête net — l'élan est coupé (overflow:
-     hidden le temps de deux images) et la page posée exactement sur le cran.
-     Puis, 0,8 s, un VERROU : si l'élan restant la repousse
-     au-delà, elle y revient — sur un téléphone qui ne lâcherait pas son
-     élan, la page ne file plus. Un geste lent, un appui, un saut programmé
-     (TB, les flèches) ne sont jamais freinés. */
+  /* LE FREIN DE SECOURS. Le navigateur s'arrête de lui-même au cran
+     suivant pour un lancer ordinaire ; un lancer très vif peut en traverser
+     plusieurs. On mesure donc la vitesse du doigt : s'il quitte l'écran en
+     lançant la page, le cran suivant dans le sens du geste devient une
+     butée — si l'élan la dépasse, la page y est posée, et l'élan s'arrête
+     là (une position donnée par le script interrompt l'élan du doigt). Un
+     court verrou la retient si un reste d'élan la repoussait. Rien d'autre :
+     ni blocage du défilement, ni animation. Un geste lent, un appui, un saut
+     programmé (TB, la flèche) ne sont jamais freinés. */
   let doigt = null, lance = null, verrou = null;
   addEventListener('touchstart', e => { lance = null; verrou = null; doigt = { y: e.touches[0].clientY, t: performance.now(), v: 0 }; }, { passive: true });
   addEventListener('touchmove', e => {
@@ -5980,30 +6048,26 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     if (!doigt) return;
     const v = performance.now() - doigt.t > 90 ? 0 : doigt.v;   /* le doigt s'était arrêté avant de partir */
     doigt = null;
-    if (Math.abs(v) < 0.2 || document.body.style.overflow === 'hidden') return;
-    const C = window.__crans || [], y = scrollY, sens = v > 0 ? 1 : -1;
+    const C = window.__crans;
+    if (!C || Math.abs(v) < 0.25 || document.body.style.overflow === 'hidden') return;
+    const y = scrollY, sens = v > 0 ? 1 : -1;
     const butee = sens > 0 ? C.find(c => c > y + 2) : [...C].reverse().find(c => c < y - 2);
     if (butee !== undefined) lance = { sens, butee, fin: performance.now() + 2600 };
   }, { passive: true });
-  const caler = cible => scrollTo({ top: cible, behavior: 'instant' });
+  const caler = y => scrollTo({ top: y, behavior: 'instant' });
   addEventListener('scroll', () => {
-    const y = scrollY;
+    const y = scrollY, t = performance.now();
     if (verrou) {
-      if (performance.now() > verrou.fin) verrou = null;
-      else if (verrou.sens > 0 ? y > verrou.cible + 1 : y < verrou.cible - 1) { caler(verrou.cible); return; }
+      if (t > verrou.fin) verrou = null;
+      else if (verrou.sens > 0 ? y > verrou.y + 1 : y < verrou.y - 1) { caler(verrou.y); return; }
     }
     if (!lance) return;
-    if (performance.now() > lance.fin) { lance = null; return; }
-    if (lance.sens > 0 ? y < lance.butee : y > lance.butee) return;
-    const cible = lance.butee, r = document.documentElement;
-    verrou = { cible, sens: lance.sens, fin: performance.now() + 800 };
+    if (t > lance.fin) { lance = null; return; }
+    /* dépassée de plus d'un pixel : le navigateur ne s'y est pas arrêté */
+    if (lance.sens > 0 ? y <= lance.butee + 1 : y >= lance.butee - 1) return;
+    verrou = { y: lance.butee, sens: lance.sens, fin: t + 400 };
     lance = null;
-    r.style.overflow = 'hidden';
-    caler(cible);
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      r.style.overflow = '';
-      if (Math.abs(scrollY - cible) > 1) caler(cible);
-    }));
+    caler(verrou.y);
   }, { passive: true });
 })();
 
@@ -6535,6 +6599,11 @@ function initHeroProjectRefraction() {
   const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
   const ss = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
   const flowTop = el => { let y = 0; for (let n = el; n; n = n.offsetParent) y += n.offsetTop; return y; };
+  /* LA HAUTEUR DE DESSIN : celle de la couche (au doigt, la grande hauteur
+     d'écran, qui ne change pas quand la barre d'adresse va et vient ; au
+     bureau, la fenêtre). Le canvas, les textures et la course du scrub s'y
+     calent : rien ne s'étire plus en cours de route. */
+  const hauteurCouche = () => holder.clientHeight || innerHeight;
 
   /* l'intro attend la réfraction pour sortir : on lui dit quand elle est
      prête — ou qu'elle ne viendra pas */
@@ -7121,7 +7190,7 @@ void main() {
   }
 
   function buildHeroTexture() {
-    const vw = innerWidth, vh = innerHeight;
+    const vw = innerWidth, vh = hauteurCouche();
     prep(hc, hctx, vw, vh);
     hctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#ffffff';
     hctx.fillRect(0, 0, vw, vh);
@@ -7133,7 +7202,7 @@ void main() {
   }
 
   function buildProjectTexture() {
-    const vw = innerWidth, vh = innerHeight;
+    const vw = innerWidth, vh = hauteurCouche();
     prep(pc, pctx, vw, vh);
 
     // fond de la carte
@@ -7213,7 +7282,7 @@ void main() {
 
   let VW = 1, VH = 1;
   function layout() {
-    const vw = innerWidth, vh = innerHeight;
+    const vw = innerWidth, vh = hauteurCouche();
     VW = vw; VH = vh;
     /* sans geste, l'aura s'ouvre là où la présence de l'intro est née */
     if (!origineVue) { ox = vw * 0.5; oy = vh * PRESENCE_Y; }
