@@ -2662,8 +2662,10 @@ body.zone-foot .about-story {
   /* LE RESSERREMENT : les mêmes trois niveaux qu'au bureau, plus serrés */
   .ab-seul { width: auto; }
   .ab-seul .ab-texte { margin-top: calc(24px * var(--k)); }
+  /* le nom, seul, au milieu de la largeur ; le texte reste ferré à gauche */
+  .ab-seul > .ab-titre { align-self: center; text-align: center; }
   .ab-liste { gap: calc(24px * var(--k)); }
-  .ab-rangee { display: flex; flex-direction: column; align-items: stretch; gap: calc(9px * var(--k)); }
+  .ab-rangee { display: flex; flex-direction: column; align-items: stretch; gap: calc(17px * var(--k)); }
   .ab-texte p { line-height: 1.38; }
   .ab-fonction { margin-top: calc(7px * var(--k)); font-size: var(--t-fonction); line-height: 1.3; }
   .ab-tete .ab-fonction { margin-top: calc(7px * var(--k)); }
@@ -2710,10 +2712,10 @@ body.zone-foot .about-story {
      sous le nom et sous LinkedIn. Chaque colonne part de son axe — la
      première de celui du cadre (TB, « Design graphique »). Le footer
      s'allonge d'autant, pour qu'en bas de page elle soit sortie tout entière */
-  /* AU TÉLÉPHONE, DEUX COLONNES SERRÉES CONTRE L'AXE, comme le contact et
-     la signature, centrés au-dessous : à gauche le CV et l'année, calés à
-     droite ; à droite les villes, calées à gauche. Le nom (la signature le
-     porte déjà) et LinkedIn n'y sont plus. */
+  /* AU TÉLÉPHONE, DEUX COLONNES AUX DEUX MARGES DU CADRE, juste sous le
+     filet : à gauche le CV et l'année, ferrés à gauche sous TB ; à droite les
+     villes, ferrées à droite sous Index. Le nom (la signature le porte déjà)
+     et LinkedIn n'y sont plus. */
   .footer-meta {
     grid-template-columns: 1fr 1fr;
     grid-template-areas: "cv ville" "annee paris";
@@ -2721,10 +2723,10 @@ body.zone-foot .about-story {
     padding-left: 18px; padding-right: 18px;   /* la marge du cadre */
   }
   .footer-meta > .fm-nom, .footer-meta > .fm-linkedin { display: none; }
-  .footer-meta > .fm-cv    { grid-area: cv;    justify-self: end; text-align: right; }
-  .footer-meta > .fm-annee { grid-area: annee; justify-self: end; text-align: right; }
-  .footer-meta > .fm-ville { grid-area: ville; justify-self: start; }
-  .footer-meta > .fm-paris { grid-area: paris; justify-self: start; display: block; }
+  .footer-meta > .fm-cv    { grid-area: cv;    justify-self: start; }
+  .footer-meta > .fm-annee { grid-area: annee; justify-self: start; }
+  .footer-meta > .fm-ville { grid-area: ville; justify-self: end; text-align: right; }
+  .footer-meta > .fm-paris { grid-area: paris; justify-self: end; text-align: right; display: block; }
   footer { min-height: calc(100vh + 130px); }
 }
 @media (max-width: 768px) { .footer-meta { padding-left: 14px; padding-right: 14px; } }
@@ -2770,9 +2772,11 @@ body.zone-foot .about-story {
    la largeur du cadre : son encre mesure 4,57995 cadratins, plus six points
    d'interlettrage, d'où le corps. */
 @media (max-width: 600px) {
-  footer { min-height: 100svh; }
+  /* le dernier écran garde 48 px au-dessus du pied : le filet d'ouverture se
+     voit sous TB et Index, et les mentions se posent juste dessous */
+  footer { min-height: calc(100svh - 48px); }
   .footer-haut { min-height: 0; flex: 1; }
-  .footer-meta { padding-top: 62px; }
+  .footer-meta { padding-top: 16px; }
   .footer-cta { padding: 36px var(--foot-pad); }
   .footer-nom {
     white-space: normal; text-indent: 0; text-align: center;
@@ -3705,7 +3709,11 @@ function poserTailles() {
     if (r.width && r.height && getComputedStyle(img).objectFit === 'cover')
       utile = Math.max(r.width, r.height * v[0] / v[1]);
     img.sizes = Math.ceil(utile) + 'px';
-    img.srcset = v[2].map(w => src.replace(/\.webp$/, '-' + w + '.webp') + ' ' + w + 'w').concat(src + ' ' + v[0] + 'w').join(', ');
+    /* un espace dans un nom de fichier (« Plan de travail 1_2 ») coupait la
+       liste en morceaux : dans srcset, l'espace sépare l'adresse de sa
+       largeur. On l'écrit donc %20. */
+    const url = f => f.replace(/ /g, '%20');
+    img.srcset = v[2].map(w => url(src.replace(/\.webp$/, '-' + w + '.webp')) + ' ' + w + 'w').concat(url(src) + ' ' + v[0] + 'w').join(', ');
     /* à l'ouverture, TOUTES les photos du projet partent : les trois premières
        en priorité, les suivantes derrière — quand on descend, elles sont là */
     img.loading = 'eager';
@@ -6181,7 +6189,17 @@ function lumSous(x, y, signalerInconnu) {
       if (l !== null) return l;
       if (signalerInconnu) return null;
     } else if (signalerInconnu && (tag === 'VIDEO' || tag === 'CANVAS')) return null;
-    const l = lumCouleur(getComputedStyle(el).backgroundColor);
+    const cs = getComputedStyle(el);
+    let fond = cs.backgroundColor;
+    /* les plans de l'À propos portent --ab-plane, qui change avec la zone en
+       FONDU : on lit la couleur VISÉE (la variable ne s'anime pas), comme
+       pour le fond du body — sinon, l'écran immobile, un coin gardait la
+       couleur lue au milieu du fondu (« Index » noir sur le noir du pied) */
+    if (fond !== 'rgba(0, 0, 0, 0)' && el.closest('.about-story')) {
+      const vise = cs.getPropertyValue('--ab-plane').trim();
+      if (vise) fond = vise;
+    }
+    const l = lumCouleur(fond);
     if (l !== null) return l;
   }
   /* Le fond du body est peint par zoneWash, puis FONDU par une transition
@@ -7771,8 +7789,15 @@ initHeroProjectRefraction();
     voile.classList.remove('se-ferme');
     voile.hidden = false;
     document.body.style.overflow = 'hidden';
-    const partir = () => requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
+    let parti = false;
+    const partir = () => {
+      if (parti || voile.hidden || voile.classList.contains('se-ferme')) return;   /* refermé entre-temps */
+      parti = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => voile.classList.add('est-ouvert')));
+    };
     (image.decode ? image.decode().catch(() => {}) : Promise.resolve()).then(partir);
+    /* un téléphone lent peut décoder longtemps : la feuille monte quand même */
+    setTimeout(partir, 1200);
     croix.focus({ preventScroll: true });
   }
   function fermer() {
