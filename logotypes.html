@@ -950,6 +950,10 @@ img.img-posee { transition: filter 900ms cubic-bezier(0.16, 1, 0.3, 1); }
    le fichier. La réfraction de l'accueil lit le même cadrage. */
 @media (max-aspect-ratio: 3/4) {
   .proj-photo--carte { object-position: 44% 50%; }
+  /* SILLAGE en hauteur (web/sillage-portrait2-…) : le livre de près, en
+     entier, avec un peu de noir au-dessus. Calé un peu au-dessus du milieu :
+     le haut du livre reste loin de TB et d'Index, le bas du socle se perd */
+  .photo-cadree .proj-photo--bas { object-position: 50% 42%; }
 }
 
 
@@ -1779,11 +1783,13 @@ footer {
      bord. Un logo aussi : le plan de points passe en 6/5 et la marque y
      grandit d'un quart. Le texte ne passe plus devant l'image. Les flèches
      ne sont plus posées SUR l'image : elles passent dessous, au centre. */
-  .affiche-cadrage { position: relative; overflow: hidden; aspect-ratio: 3 / 4; }
-  /* (12 px plus bas que le milieu : la case remonte sous TB et la croix, le
-     haut du cadre noir reste dessous) */
+  /* la case descend sous l'affiche : le mur et l'ombre portée du cadre
+     restent visibles, rien n'est tranché au ras du cadre noir. L'affiche est
+     posée 20 px au-dessus du milieu de la case — son haut sous TB et la
+     croix, l'air de l'ombre dessous. */
+  .affiche-cadrage { position: relative; overflow: hidden; aspect-ratio: 2 / 3; }
   .affiche-cadrage > .affiche-scene {
-    position: absolute; left: 50%; top: calc(50% + 12px);
+    position: absolute; left: 50%; top: calc(50% - 20px);
     width: calc(var(--zoom, 1) * 100%);
     translate: calc(var(--cx, 50) * -1%) calc(var(--cy, 50) * -1%);
   }
@@ -2341,7 +2347,7 @@ body {
   --sp-md:  clamp(26px, 3.4vh, 40px);
   --sp-lg:  clamp(44px, 6vh, 72px);
 }
-.ab-bande, .plan-suivant { display: none; }
+.ab-bande { display: none; }
 .about-story {
   position: relative;
   background: transparent;
@@ -2555,37 +2561,43 @@ body.zone-foot .about-story {
    son filet. La hiérarchie ne change pas — seule la grille se replie : l'axe
    micro passe AU-DESSUS du sujet au lieu d'être à côté. */
 @media (max-width: 900px) {
+  /* LA TYPOGRAPHIE DU TÉLÉPHONE se règle d'un seul facteur, --k, écrit par
+     aboutStory : le même pour les cinq dossiers (ils gardent tous le même
+     corps), choisi pour que le plus chargé — le parcours — tienne l'écran.
+     De 0,88 à 1,12 : plus grand sur un grand téléphone, jamais illisible. */
   .about-story {
-    --t-titre:  clamp(40px, 11vw, 56px);
-    --t-titre-liste: clamp(30px, 8.6vw, 40px);  /* seul dans son dossier : il tient l'écran */
-    --t-citation: clamp(28px, 8.6vw, 40px);
-    --t-texte:  clamp(15px, 4.1vw, 17px);
-    --t-repere: 10.5px;
+    --k: 1;
+    --t-titre:  calc(36px * var(--k));
+    --t-titre-liste: calc(22px * var(--k));
+    --t-citation: calc(23px * var(--k));
+    --t-texte:  calc(13.5px * var(--k));
+    --t-fonction: calc(12.5px * var(--k));
+    --t-repere: 10px;
     --ab-entre: clamp(150px, 26vh, 260px);   /* l'air se resserre, il reste */
   }
-  .about-story { padding-top: 0; padding-bottom: calc(var(--sp-lg) * 2); }
-  .about-layout { grid-template-columns: 1fr; padding: var(--sp-lg) var(--ab-x); }
+  /* aucun vide après le dernier dossier : le pied le suit directement */
+  .about-story { padding-top: 0; padding-bottom: 0; }
+  .about-layout { grid-template-columns: 1fr; padding: var(--sp-lg) var(--ab-x) 0; }
   .about-left { height: auto; }
   .about-portrait { position: relative; top: auto; height: auto; aspect-ratio: 3 / 4; }
 
-  /* AU TÉLÉPHONE, UN DOSSIER PAR ÉCRAN. L'À propos se fige à partir de TB
-     et Index : une bande de la couleur des plans, collée en haut, porte le
-     monogramme et « Index » ; une autre, en bas, les deux mentions. Entre
-     les deux, la FENÊTRE, et dans la fenêtre UN dossier à la fois : « Qui je
-     suis », puis chaque expérience, chaque passion, chaque savoir-faire,
-     puis la vision en trois temps. Chaque dossier tient exactement la
-     fenêtre ; son repère (le filet, le nom du chapitre et sa place — 1/3 —,
-     le numéro) en est le bord haut, le contenu se pose au milieu. Il monte,
-     se pose sous la bande, reste un instant seul, puis le suivant monte et
-     le recouvre — et lui s'efface en remontant (--recul, voir aboutStory).
-     La structure des chapitres s'efface : seuls les dossiers comptent.
-     Les hauteurs sont en svh : la barre d'adresse ne les fait pas bouger.
-     Un dossier plus haut que la fenêtre (un très petit écran) se pose par
-     son BAS (--h, écrite par aboutStory) : on le lit en entier. */
+  /* AU TÉLÉPHONE, CINQ DOSSIERS — un par chapitre, comme au bureau : « Qui
+     je suis », le parcours, les passions, les savoir-faire, la vision, chacun
+     avec TOUT son contenu. L'À propos se fige à partir de TB et Index : une
+     bande de la couleur des plans, collée en haut, porte le monogramme et
+     « Index » ; une autre, en bas, les deux mentions — et, entre elles, la
+     flèche du dossier suivant. Entre les deux bandes, la FENÊTRE : chaque
+     dossier la remplit ; son repère (le filet, le nom, le numéro) en est le
+     bord haut, son contenu se pose au milieu. Il monte, se pose sous la
+     bande, reste un instant seul, puis le suivant monte et le recouvre — et
+     lui s'efface en remontant (--recul, voir aboutStory). Un dossier plus
+     haut que la fenêtre (un très petit écran) se pose par son BAS (--h) :
+     son repère reste en haut, le texte passe dessous. Les hauteurs sont en
+     svh : la barre d'adresse ne les fait pas bouger. */
   .about-story {
-    --bande-haut: 58px;
+    --bande-haut: 54px;
     --bande-bas:  44px;
-    --repere-h:   46px;
+    --repere-h:   40px;
     --fenetre:    calc(100svh - var(--bande-haut) - var(--bande-bas));
   }
   .ab-bande {
@@ -2597,61 +2609,74 @@ body.zone-foot .about-story {
   .ab-bande--bas  { bottom: 0; height: var(--bande-bas);  margin-top:    calc(var(--bande-bas) * -1); }
   .about-right { margin-top: var(--sp-lg); height: auto; }
   .about-flow { position: static; height: auto; overflow: visible; }
-  .about-chapter, .about-chapter__corps, .ab-liste,
-  .ab-seul:not(.plan-tel), .ab-seul:not(.plan-tel) > .ab-texte { display: contents; }
-  .about-chapter > .repere { display: none; }
-  .plan-tel {
-    position: sticky;
+  .about-chapter {
+    position: sticky; inset: auto;
     top: min(var(--bande-haut), calc(100svh - var(--bande-bas) - var(--h, 0px) + 1px));
     box-sizing: border-box;
     min-height: var(--fenetre);
     margin: 0 0 12svh;                       /* un instant seul avant le suivant */
-    padding: calc(var(--repere-h) + var(--sp-sm)) 0 64px;   /* la flèche dessous */
-    display: flex; flex-direction: column; justify-content: center; align-items: stretch;
-    gap: var(--sp-md);
+    padding: 0 0 18px;
+    display: flex; flex-direction: column;
     background: var(--ab-plane);
-    border-top: 1px solid var(--ab-encre);
-    transition: background-color var(--zone-duree) var(--zone-courbe),
-                border-color var(--zone-duree) var(--zone-courbe);
+    will-change: auto; transform: none !important;
   }
-  .about-chapter:last-child .plan-tel:last-child { margin-bottom: 0; }
-  /* LE REPÈRE, écrit par le dossier lui-même : le chapitre et sa place à
-     gauche, le numéro à droite — la ligne de signalétique du bureau */
-  .plan-tel::before, .plan-tel::after {
-    position: absolute; top: 16px;
-    font-family: var(--ab-sans); font-weight: 500;
-    font-size: var(--t-repere); line-height: 1.2;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    opacity: calc(1 - var(--recul, 0) * 0.85);
-    transition: color var(--zone-duree) var(--zone-courbe);
+  .about-chapter + .about-chapter { margin-top: 0; }
+  .about-chapter:last-child { margin-bottom: 0; }
+  /* le repère ne colle sous la bande que pour un dossier plus haut que la
+     fenêtre (.est-haut) : les autres partent d'un bloc, repère compris */
+  .about-chapter > .repere {
+    position: relative; z-index: 2;
+    box-sizing: border-box; height: var(--repere-h);
+    padding: 14px 0 0; align-items: flex-start;
+    background: var(--ab-plane);
+    transition-property: border-color, background-color;
   }
-  .plan-tel::before { content: attr(data-nom) "\2003" attr(data-pas); left: 0; color: var(--ab-encre); }
-  .plan-tel::after  { content: attr(data-num); right: 0; margin-right: -0.16em; color: var(--ab-signal); font-variant-numeric: tabular-nums; }
   /* recouvert, le dossier s'efface et remonte un peu : on voit le suivant
      PASSER DESSUS, même crème sur crème */
-  .plan-tel > * { opacity: calc(1 - var(--recul, 0) * 0.85); translate: 0 calc(var(--recul, 0) * -28px); }
-  .plan-tel .ab-texte { margin-top: 0; }
-  /* LA FLÈCHE : un rond d'un demi-pixel, à l'encre, au milieu du bas du
-     dossier ; la case fait 44 px pour le doigt, le rond 32 */
-  .plan-suivant {
+  .about-chapter > * { opacity: calc(1 - var(--recul, 0) * 0.85); translate: 0 calc(var(--recul, 0) * -24px); }
+  /* le contenu au milieu de la fenêtre (une marge automatique ne déborde
+     jamais vers le haut) */
+  .about-chapter__corps { flex: 1; display: flex; flex-direction: column; align-items: stretch; padding: 10px 0 0; }
+  .about-chapter__corps > * { margin-block: auto; }
+  /* LE RESSERREMENT : les mêmes trois niveaux qu'au bureau, plus serrés */
+  .ab-seul { width: auto; }
+  .ab-seul .ab-texte { margin-top: calc(24px * var(--k)); }
+  .ab-liste { gap: calc(24px * var(--k)); }
+  .ab-rangee { display: flex; flex-direction: column; align-items: stretch; gap: calc(9px * var(--k)); }
+  .ab-texte p { line-height: 1.38; }
+  .ab-fonction { margin-top: calc(7px * var(--k)); font-size: var(--t-fonction); line-height: 1.3; }
+  .ab-tete .ab-fonction { margin-top: calc(7px * var(--k)); }
+  /* la fonction et ses années sur UNE ligne */
+  .ab-fonction br { display: none; }
+  .ab-fonction em::before { content: "\2002"; }
+  /* LA FLÈCHE : au milieu de la bande du bas, entre les deux mentions ; un
+     rond d'un demi-pixel à l'encre, une case de 44 px pour le doigt. Elle
+     mène au dossier suivant, et s'efface sur le dernier. */
+  .ab-suivant {
     display: grid; place-items: center;
-    position: absolute; left: calc(50% - 22px); bottom: 10px;
+    position: absolute; top: 0; left: calc(50% - 22px);
     width: 44px; height: 44px; padding: 0; border: 0; background: none;
-    color: var(--ab-encre); cursor: pointer;
+    color: var(--ab-encre); cursor: pointer; pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.35s ease, color var(--zone-duree) var(--zone-courbe);
   }
-  .plan-suivant::before {
-    content: ""; position: absolute; inset: 6px; border-radius: 50%;
+  .ab-suivant::before {
+    content: ""; position: absolute; inset: 8px; border-radius: 50%;
     box-shadow: inset 0 0 0 0.5px currentColor;
     transition: transform 0.3s var(--ease-smooth);
   }
-  .plan-suivant:active::before { transform: scale(0.9); }
-  .plan-suivant svg {
-    width: 15px; height: 15px; fill: none; stroke: currentColor;
+  .ab-suivant:active::before { transform: scale(0.9); }
+  .ab-suivant svg {
+    width: 14px; height: 14px; fill: none; stroke: currentColor;
     stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
   }
-  .ab-seul { width: auto; }
-  .ab-tete .ab-fonction { margin-top: 12px; }
+  .ab-suivant.est-au-bout { opacity: 0; pointer-events: none; }
+  .about-chapter.est-haut > .repere { position: sticky; top: var(--bande-haut); }
+  /* un dossier plus haut que l'écran : son texte s'efface sous le repère */
+  .about-chapter.est-haut > .repere::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 10px;
+    background: linear-gradient(var(--ab-plane), transparent); pointer-events: none;
+  }
 
   /* la ligne d'informations passe sur DEUX rangs d'une même grille de trois
      colonnes égales : le nom, LinkedIn et le CV ; puis la ville et l'année,
@@ -2680,26 +2705,26 @@ body.zone-foot .about-story {
   .proj-panel, .works-panel { padding-bottom: calc(100lvh - 100svh); }
   .site-frame { bottom: auto; height: 100svh; }
 }
+/* les deux mentions du bas, un peu plus bas au doigt (6 px du bord de la
+   petite hauteur) ; la bande du bas de l'À propos et sa flèche les suivent */
+@media (pointer: coarse) {
+  .site-frame__bl, .site-frame__br { bottom: 6px; }
+}
 @media (pointer: coarse) and (max-width: 900px) {
+  .about-story { --bande-bas: 36px; }
+  .ab-suivant { top: 1px; }
   .ab-bande--bas {
     height: calc(var(--bande-bas) + 100dvh - 100svh);
     margin-top: calc((var(--bande-bas) + 100dvh - 100svh) * -1);
   }
 }
-/* les crans (voir crans) : des repères invisibles où le défilement
-   s'arrête, même lancé — le reste du parcours reste libre */
-html.a-crans { scroll-snap-type: y proximity; }
-#crans { position: absolute; top: 0; left: 0; width: 1px; height: 0; pointer-events: none; }
-#crans .cran {
-  position: absolute; left: 0; width: 1px; height: 1px;
-  scroll-snap-align: start; scroll-snap-stop: always;
-}
 /* LE TÉLÉPHONE COUCHÉ : une fenêtre de 300 px ne tient pas un dossier ;
    ils se suivent simplement, sans bandes */
 @media (max-width: 900px) and (max-height: 500px) {
-  .ab-bande, .plan-suivant { display: none; }
-  .plan-tel { position: relative; top: auto; min-height: 0; margin-bottom: var(--sp-lg); padding-bottom: 0; }
-  .plan-tel > *, .plan-tel::before, .plan-tel::after { opacity: 1; translate: none; }
+  .ab-bande { display: none; }
+  .about-chapter { position: relative; top: auto; min-height: 0; margin-bottom: var(--sp-lg); }
+  .about-chapter > .repere { position: static; }
+  .about-chapter > * { opacity: 1; translate: none; }
 }
 /* AU TÉLÉPHONE, LE DERNIER ÉCRAN N'EST PLUS UN GRAND NOIR VIDE : il tient
    tout entier dans la hauteur de l'écran (svh : la barre d'adresse ne le
@@ -2737,8 +2762,9 @@ html.a-crans { scroll-snap-type: y proximity; }
     background: none; will-change: auto; transform: none !important;
   }
   .about-chapter + .about-chapter { margin-top: var(--ab-entre); }
-  .plan-tel { position: relative; top: auto; min-height: 0; }
-  .plan-tel > *, .plan-tel::before, .plan-tel::after { opacity: 1; translate: none; }
+  .about-chapter { min-height: 0; }
+  .about-chapter > .repere { position: static; }
+  .about-chapter > * { opacity: 1; translate: none; }
 }
 
 /* ── ÉTAPE 3 — FOOTER (fond transparent : la couleur du fond de page le traverse →
@@ -2975,7 +3001,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
       </div>
     </div>
     <div class="stack-card" data-bg="#D5E2EC" data-fg="#213A52" data-num="04" data-title="Sillage" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000308000000000000000000000000000000000000000000000000000000000321232302000000000000000000000000000000000000000000000000000222403732270300000000000000000000000000000000000000000000000014535250464129020000000000000000000000000000000000000000000008526261595754523302000000000000000000000000000000000000000000006373706967656461340200000000000000000000000000000000000000000000718178757270696735020000000000000000000000000000000000000000000078888681767372693502000000000000000000000000000000000000000000008394918578747471370100000000000000000000000000000000000000000000859592867976757137010000000000000000000000010101010101010101010185969589817672714002010101010101010101010103040304030303030404058797948881757370410403040404040403030404030808080808080808080910879592867974737143080808080808080808080808141313131313141314151686928983777574714513131314141413131313131420202020202020202021248589825348535451311719192020202020202019202727272727272727282931767364724550505240252728272727272727272727363636363636363636363874766971736661605232323335363636363636363649494949494949494910215782929698451212121212123549494949494949496666666666666666660712376481929738020202010101436666666666666666" data-cat="Design éditorial · Mémoire" data-desc="*Sillage, entre image et automobile* est un mémoire réalisé pour ma dernière année de master en direction artistique, né de ma passion pour l’automobile et de l’envie d’interroger l’évolution de son image. À travers différentes époques, il explore la manière dont le design graphique accompagne les transformations de l’automobile et les enjeux auxquels elle se confronte aujourd’hui : environnement, représentations, place des femmes et responsabilité des marques face à l’avenir. L’objet éditorial prolonge cette réflexion en empruntant directement au langage automobile : une couverture gris métallisé pensée comme une carrosserie, un titre débossé à la manière d’un emblème, et une typographie variable qui évolue de l’empattement vers le sans-serif, en écho à la simplification progressive des identités automobiles. Une trace traverse enfin les trois grandes périodes du mémoire et s’efface peu à peu, jusqu’à disparaître dans la dernière partie. Comme un sillage qui raconte ce que l’automobile laisse derrière elle, tout en questionnant ce qu’il reste encore à écrire." data-tags="Design éditorial, Mémoire, Mise en page, Direction artistique" data-imgs="web/PRESENTATION_SILLAGE.webp,v:z106:web/zfdsqdf.webp,z106:web/mockup mémoire.webp,p:web/automotive-clay-modeling-studio-tool.webp,stop6.7:Composition 1.mp4,nat:web/sillage-couverture-2.webp,v:web/81615901-3d1f-4473-8d54-ac4e5065790b.webp,web/Couverture 3 carré.webp,v:loop:entier:ABCArizona-News-MysteryTeapotQuantity-02.mp4,web/Silllage_.webp,sillon:web/sillage-page1.webp|web/sillage-page2.webp|web/sillage-page3.webp,nat:web/Plan de travail 1_2.webp,v:web/Mocup123.webp,web/qfdqefd_f_d.webp,nat:web/sillage-plan-de-travail-1.webp,feuillet:web/sillage-planche-14.webp|web/sillage-planche-04.webp|web/sillage-planche-08.webp|web/sillage-planche-13.webp|web/sillage-planche-16.webp|web/sillage-planche-17.webp|web/sillage-planche-22.webp|web/sillage-planche-24.webp|web/sillage-planche-25.webp|web/sillage-planche-26.webp|web/sillage-planche-33.webp|web/sillage-planche-35.webp|web/sillage-planche-36.webp|web/sillage-planche-38.webp|lien:Voir le mémoire intégral>memoire-sillage-thomas-bonneau.pdf,web/qcdw.webp">
-      <div class="proj-image"><picture class="photo-cadree"><source media="(max-aspect-ratio: 3/4)" srcset="web/sillage-portrait-w750.webp 750w, web/sillage-portrait-w1100.webp 1100w, web/sillage-portrait-w1500.webp 1500w" sizes="100vw"><img src="web/PRESENTATION_SILLAGE_1.webp" srcset="web/PRESENTATION_SILLAGE_1-w960.webp 960w, web/PRESENTATION_SILLAGE_1-w1036.webp 1036w, web/PRESENTATION_SILLAGE_1-w1119.webp 1119w, web/PRESENTATION_SILLAGE_1-w1209.webp 1209w, web/PRESENTATION_SILLAGE_1-w1306.webp 1306w, web/PRESENTATION_SILLAGE_1-w1410.webp 1410w, web/PRESENTATION_SILLAGE_1-w1523.webp 1523w, web/PRESENTATION_SILLAGE_1-w1645.webp 1645w, web/PRESENTATION_SILLAGE_1-w1776.webp 1776w, web/PRESENTATION_SILLAGE_1-w1919.webp 1919w, web/PRESENTATION_SILLAGE_1-w2072.webp 2072w, web/PRESENTATION_SILLAGE_1-w2238.webp 2238w, web/PRESENTATION_SILLAGE_1-w2417.webp 2417w, web/PRESENTATION_SILLAGE_1-w2610.webp 2610w, web/PRESENTATION_SILLAGE_1-w2819.webp 2819w, web/PRESENTATION_SILLAGE_1-w3045.webp 3045w, web/PRESENTATION_SILLAGE_1-w3288.webp 3288w, web/PRESENTATION_SILLAGE_1-w3552.webp 3552w, web/PRESENTATION_SILLAGE_1-w3836.webp 3836w, web/PRESENTATION_SILLAGE_1-w4143.webp 4143w, web/PRESENTATION_SILLAGE_1-w4474.webp 4474w, web/PRESENTATION_SILLAGE_1-w4716.webp 4716w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(223vh * 0.67), (min-aspect-ratio: 2222/1000) 100vw, 223vh" alt="Sillage — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--bas" decoding="async" fetchpriority="low"></picture></div>
+      <div class="proj-image"><picture class="photo-cadree"><source media="(max-aspect-ratio: 3/4)" srcset="web/sillage-portrait2-w750.webp 750w, web/sillage-portrait2-w1000.webp 1000w, web/sillage-portrait2-w1246.webp 1246w" sizes="100vw"><img src="web/PRESENTATION_SILLAGE_1.webp" srcset="web/PRESENTATION_SILLAGE_1-w960.webp 960w, web/PRESENTATION_SILLAGE_1-w1036.webp 1036w, web/PRESENTATION_SILLAGE_1-w1119.webp 1119w, web/PRESENTATION_SILLAGE_1-w1209.webp 1209w, web/PRESENTATION_SILLAGE_1-w1306.webp 1306w, web/PRESENTATION_SILLAGE_1-w1410.webp 1410w, web/PRESENTATION_SILLAGE_1-w1523.webp 1523w, web/PRESENTATION_SILLAGE_1-w1645.webp 1645w, web/PRESENTATION_SILLAGE_1-w1776.webp 1776w, web/PRESENTATION_SILLAGE_1-w1919.webp 1919w, web/PRESENTATION_SILLAGE_1-w2072.webp 2072w, web/PRESENTATION_SILLAGE_1-w2238.webp 2238w, web/PRESENTATION_SILLAGE_1-w2417.webp 2417w, web/PRESENTATION_SILLAGE_1-w2610.webp 2610w, web/PRESENTATION_SILLAGE_1-w2819.webp 2819w, web/PRESENTATION_SILLAGE_1-w3045.webp 3045w, web/PRESENTATION_SILLAGE_1-w3288.webp 3288w, web/PRESENTATION_SILLAGE_1-w3552.webp 3552w, web/PRESENTATION_SILLAGE_1-w3836.webp 3836w, web/PRESENTATION_SILLAGE_1-w4143.webp 4143w, web/PRESENTATION_SILLAGE_1-w4474.webp 4474w, web/PRESENTATION_SILLAGE_1-w4716.webp 4716w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(223vh * 0.67), (min-aspect-ratio: 2222/1000) 100vw, 223vh" alt="Sillage — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--bas" decoding="async" fetchpriority="low"></picture></div>
       <div class="proj-info">
         <div>
           <p class="proj-num">04</p>
@@ -3161,7 +3187,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     </div>
 
   </div>
-  <div class="ab-bande ab-bande--bas" aria-hidden="true"></div>
+  <div class="ab-bande ab-bande--bas"><button type="button" class="ab-suivant" aria-label="Dossier suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></svg></button></div>
 </section>
 
 
@@ -5632,45 +5658,83 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
   /* ── MESURE : au repos seulement ───────────────────────────────────────── */
   const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1 };
-  /* AU TÉLÉPHONE, LES DOSSIERS (.plan-tel) : chacun connaît sa hauteur — le
-     CSS en déduit s'il se pose sous la bande (il tient dans la fenêtre) ou
-     par son bas — et la part de lui que le suivant recouvre déjà (--recul,
-     de 0 à 1) : il s'efface d'autant */
-  const plans = [...root.querySelectorAll('.plan-tel')];
+  /* AU TÉLÉPHONE, LES DOSSIERS — les cinq chapitres. Chacun connaît sa
+     hauteur : le CSS en déduit s'il se pose sous la bande (il tient dans la
+     fenêtre) ou par son bas ; et la part de lui que le suivant recouvre déjà
+     (--recul, de 0 à 1) : il s'efface d'autant. */
   const auTel = () => !matchMedia('(min-width: 901px)').matches;
+  const colles = () => auTel() && getComputedStyle(chapters[0]).position === 'sticky';
+  const bandeHaut = () => parseFloat(getComputedStyle(root).getPropertyValue('--bande-haut')) || 54;
   function hauteursDossiers() {
     const petit = auTel();
-    plans.forEach(c => {
+    chapters.forEach(c => {
       if (petit) c.style.setProperty('--h', c.offsetHeight + 'px');
       else c.style.removeProperty('--h');
+      c.classList.toggle('est-haut', petit && c.offsetHeight > (parseFloat(getComputedStyle(c).minHeight) || 0) + 1);
     });
   }
-  /* LA FLÈCHE du bas de chaque dossier (sauf le dernier) : un appui, et le
-     dossier suivant monte se poser sous la bande. On vise sa position de
-     FLUX — un dossier collant ne dit pas où il se pose. */
-  const poseDuPlan = k => {
+  /* LE CORPS QUI TIENT : un seul facteur pour les cinq dossiers (--k), pour
+     qu'ils gardent tous le même corps. On mesure ce que chacun demande et ce
+     que la fenêtre lui offre ; la hauteur d'un texte suit à peu près le carré
+     du corps (des lignes plus petites, et moins nombreuses), d'où la racine.
+     Trois passes suffisent ; à chacune, les paragraphes sont recomposés à
+     leur nouveau corps. On ne recommence que si la fenêtre a changé. */
+  let cleFit = '';
+  function ajuster() {
+    if (!colles()) { root.style.removeProperty('--k'); cleFit = ''; return; }
+    const cle = innerWidth + '×' + getComputedStyle(chapters[0]).minHeight;
+    if (cle === cleFit) return;
+    cleFit = cle;
+    const poser = k => { root.style.setProperty('--k', k.toFixed(3)); aComposer.forEach(p => { p._mesure = 0; composer(p); }); };
+    let k = 1;
+    for (let passe = 0; passe < 3; passe++) {
+      poser(k);
+      let pire = Infinity;
+      chapters.forEach(c => {
+        const corps = c.querySelector('.about-chapter__corps'), contenu = corps && corps.firstElementChild;
+        if (!contenu || !contenu.offsetHeight) return;
+        const offert = parseFloat(getComputedStyle(c).minHeight) - c.querySelector('.repere').offsetHeight
+                     - (parseFloat(getComputedStyle(corps).paddingTop) || 0)
+                     - (parseFloat(getComputedStyle(c).paddingBottom) || 0) - 12;
+        pire = Math.min(pire, offert / contenu.offsetHeight);
+      });
+      if (!isFinite(pire)) break;
+      const suivant = Math.min(1.12, Math.max(0.88, k * Math.sqrt(pire) * 0.99));
+      if (Math.abs(suivant - k) < 0.005) break;
+      k = suivant;
+    }
+    poser(k);
+  }
+  /* la position de FLUX d'un dossier (un dossier collant ne dit pas où il
+     se pose), ramenée à l'instant où il se pose sous la bande */
+  const poseDuDossier = k => {
     let y = flow.getBoundingClientRect().top + scrollY;
-    for (let i = 0; i < k; i++) y += plans[i].offsetHeight + (parseFloat(getComputedStyle(plans[i]).marginBottom) || 0);
-    return Math.round(y - (parseFloat(getComputedStyle(root).getPropertyValue('--bande-haut')) || 58));
+    for (let i = 0; i < k; i++) y += chapters[i].offsetHeight + (parseFloat(getComputedStyle(chapters[i]).marginBottom) || 0);
+    return Math.round(y - bandeHaut());
   };
-  plans.slice(0, -1).forEach((c, k) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'plan-suivant';
-    b.setAttribute('aria-label', 'Suivant');
-    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></svg>';
-    b.addEventListener('click', () => scrollTo({ top: poseDuPlan(k + 1), behavior: reduced ? 'instant' : 'smooth' }));
-    c.appendChild(b);
+  /* LA FLÈCHE de la bande du bas : le premier dossier pas encore posé ;
+     quand tout est posé (le dernier), elle s'efface */
+  const fleche = root.querySelector('.ab-suivant');
+  const prochain = () => { for (let k = 0; k < chapters.length; k++) if (poseDuDossier(k) > scrollY + 4) return k; return -1; };
+  if (fleche) fleche.addEventListener('click', () => {
+    const k = prochain();
+    if (k >= 0) scrollTo({ top: poseDuDossier(k), behavior: reduced ? 'instant' : 'smooth' });
   });
+  let auBout = null;
   function reculer() {
-    const r = plans.map(c => c.getBoundingClientRect());
-    for (let k = 0; k < plans.length; k++) {
-      const p = k + 1 < plans.length && r[k].height ? clamp01((r[k].bottom - r[k + 1].top) / r[k].height) : 0;
+    const r = chapters.map(c => c.getBoundingClientRect());
+    for (let k = 0; k < chapters.length; k++) {
+      const p = k + 1 < chapters.length && r[k].height ? clamp01((r[k].bottom - r[k + 1].top) / r[k].height) : 0;
       const v = Math.round(p * 1000) / 1000;
-      if (plans[k]._recul !== v) { plans[k]._recul = v; plans[k].style.setProperty('--recul', v); }
+      if (chapters[k]._recul !== v) { chapters[k]._recul = v; chapters[k].style.setProperty('--recul', v); }
+    }
+    if (fleche) {
+      const b = prochain() < 0;
+      if (b !== auBout) { auBout = b; fleche.classList.toggle('est-au-bout', b); }
     }
   }
   function measure() {
+    ajuster();
     hauteursDossiers();
     M.on = matchMedia('(min-width: 901px)').matches && !reduced;
     if (!M.on) {
@@ -5700,7 +5764,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   function peindre() {
     raf = 0;
     if (aMesurer) { aMesurer = false; measure(); }
-    if (!M.on) { if (plans.length && auTel() && !reduced) reculer(); return; }
+    if (!M.on) { if (auTel() && !reduced) reculer(); return; }
     /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
        premier plan reste installé seul avant que le second ne commence à
        monter, et le dernier reste calme avant que la section rende la main. */
@@ -5806,30 +5870,28 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 })();
 
 /* ══ LES CRANS — AU DOIGT, UN LANCER NE TRAVERSE PLUS TOUT ═══════════════
-   Un geste vif emportait plusieurs projets d'un coup. Chaque projet de
-   l'accueil (l'instant où sa carte se pose en haut) et chaque dossier de
-   l'À propos (l'instant où il se pose sous TB et Index) devient un CRAN : le
-   défilement s'y arrête, même lancé (scroll-snap-stop: always), puis repart
-   au geste suivant. Entre deux crans, le défilement reste libre (proximity) :
-   la réfraction de l'accueil, le portrait, le pied se parcourent comme avant.
-   Les crans sont de simples repères invisibles, posés à la position du
-   flux — une carte collante ne dit pas où elle se pose. */
+   Un geste vif emportait plusieurs projets d'un coup. Chaque étape devient
+   un CRAN : la phrase de l'accueil sur l'image qui monte, chaque projet
+   (l'instant où sa carte se pose en haut), « voir plus », le portrait,
+   chaque dossier de l'À propos (l'instant où il se pose sous TB et Index),
+   le bas de la page. Un LANCER s'arrête au cran suivant (voir le frein,
+   plus bas) ; un geste lent reste entièrement libre. (Pas d'aimantation
+   CSS : posée sur des repères qui bougent pendant le chargement, elle
+   tirait la page hors du haut avant même qu'on la touche.) Les positions
+   sont celles du FLUX — une carte collante ne dit pas où elle se pose. */
 (function crans() {
   if (!matchMedia('(pointer: coarse)').matches || motionState.reducedMotion) return;
   const stack = document.querySelector('.projects-stack');
   const flow = document.getElementById('aboutFlow');
-  const calque = document.createElement('div');
-  calque.id = 'crans'; calque.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(calque);
-  document.documentElement.classList.add('a-crans');
   const haut = el => el.getBoundingClientRect().top + scrollY;
   const enchaines = els => {               /* les positions de flux de blocs qui se suivent */
     let y = 0; return els.map(el => { const t = y; y += el.offsetHeight + (parseFloat(getComputedStyle(el).marginBottom) || 0); return t; });
   };
   /* la petite hauteur d'écran, stable (la barre d'adresse n'y fait rien) */
   const sonde = document.createElement('div');
-  sonde.style.cssText = 'position:absolute;visibility:hidden;height:100svh;width:0';
-  calque.appendChild(sonde);
+  sonde.setAttribute('aria-hidden', 'true');
+  sonde.style.cssText = 'position:absolute;top:0;left:0;visibility:hidden;pointer-events:none;height:100svh;width:0';
+  document.body.appendChild(sonde);
   let raf = 0;
   function poser() {
     raf = 0;
@@ -5837,28 +5899,25 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     const ys = [];
     if (stack) {
       const t = haut(stack);
+      /* dans la réfraction de l'accueil : la phrase encore là, l'image qui
+         monte derrière elle — un lancer s'y arrête avant de tout dévoiler */
+      ys.push([t * 0.3, 0]);
       enchaines([...stack.querySelectorAll('.stack-card')]).forEach(o => ys.push([t + o, 0]));
     }
     /* entre le dernier projet et l'À propos : « voir plus » sous la dernière
        image, puis le portrait, posé sous TB et Index */
     const voir = document.getElementById('worksMoreBtn'), portrait = document.querySelector('.about-portrait');
     if (voir) ys.push([haut(voir) - svh * 0.62, 0]);
-    const plans = flow ? [...flow.querySelectorAll('.plan-tel')] : [];
-    if (plans.length && getComputedStyle(plans[0]).position === 'sticky') {
-      const bande = parseFloat(getComputedStyle(document.getElementById('apropos')).getPropertyValue('--bande-haut')) || 58;
+    const dossiers = flow ? [...flow.querySelectorAll('.about-chapter')] : [];
+    if (dossiers.length && getComputedStyle(dossiers[0]).position === 'sticky') {
+      const bande = parseFloat(getComputedStyle(document.getElementById('apropos')).getPropertyValue('--bande-haut')) || 54;
       if (portrait) ys.push([haut(portrait) - 20, bande]);
       const t = haut(flow);
-      enchaines(plans).forEach((o, k) => { ys.push([t + o, bande]); plans[k]._cran = Math.round(t + o - bande); });
+      enchaines(dossiers).forEach(o => ys.push([t + o, bande]));
     }
+    /* et le bas de la page : du dernier dossier, un lancer mène droit au pied */
+    ys.push([document.documentElement.scrollHeight - svh, 0]);
     ys.sort((a, b) => (a[0] - a[1]) - (b[0] - b[1]));
-    calque.querySelectorAll('.cran').forEach(c => c.remove());
-    ys.forEach(([y, marge]) => {
-      const c = document.createElement('i');
-      c.className = 'cran';
-      c.style.top = Math.round(y) + 'px';
-      if (marge) c.style.scrollMarginTop = marge + 'px';
-      calque.appendChild(c);
-    });
     window.__crans = ys.map(([y, m]) => Math.round(y - m));
   }
   const relancer = () => { if (!raf) raf = requestAnimationFrame(poser); };
@@ -5868,8 +5927,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   if ('ResizeObserver' in window) new ResizeObserver(relancer).observe(document.body);
   relancer();
 
-  /* LE FREIN. Le cran seul ne suffit pas : lancé, le défilement le
-     traversait. On mesure donc la vitesse du doigt ; s'il quitte l'écran
+  /* LE FREIN. On mesure la vitesse du doigt ; s'il quitte l'écran
      en LANÇANT la page (plus de 0,35 px/ms), le prochain cran dans le sens
      du geste devient une butée : dès que l'élan l'atteint, la page s'y
      arrête net — l'élan est coupé (overflow: hidden le temps de deux
@@ -7176,8 +7234,10 @@ void main() {
   const voletProjet = document.getElementById('projPanel'), voletIndex = document.getElementById('worksPanel');
   const recouvert = () => (voletProjet && voletProjet.classList.contains('open')) ||
                           (voletIndex && voletIndex.classList.contains('open'));
+  /* au doigt aussi (voir plus bas, « AU DOIGT ») */
+  const doigt = matchMedia('(pointer: coarse)');
   function gestePossible(p) {
-    return souris.matches && heroPret && tEvt > 0 && p < 0.25 && !recouvert();
+    return (souris.matches || doigt.matches) && heroPret && tEvt > 0 && p < 0.25 && !recouvert();
   }
 
   function creerChamp(w, h) {
@@ -7598,6 +7658,26 @@ void main() {
     tEvt = t;
     if (installed && gestePossible(smoothProgress)) kick();
   });
+  /* AU DOIGT, LE MÊME GESTE : le doigt posé sur le blanc y ouvre l'image, la
+     vapeur et son aurore le suivent ; levé, l'ouverture tient un instant puis
+     se défait — comme la souris qui s'arrête. On écoute le toucher et non le
+     pointeur : le pointeur s'interrompt dès que la page se met à défiler, le
+     toucher continue — le doigt qui fait défiler ouvre donc son chemin, et
+     l'ouverture du défilement s'agrandit depuis là. */
+  if (doigt.matches) {
+    const toucher = e => {
+      const q = e.touches && e.touches[0];
+      if (!q) return;
+      const P = motionState.pointer;
+      P.x = q.clientX; P.y = q.clientY;
+      const t = performance.now() / 1000;
+      if (e.type === 'touchstart' || t - tEvt > 0.25) mx = my = null;
+      tEvt = t;
+      if (installed && gestePossible(smoothProgress)) kick();
+    };
+    addEventListener('touchstart', toucher, { passive: true });
+    addEventListener('touchmove', toucher, { passive: true });
+  }
 }
 
 initHeroProjectRefraction();
