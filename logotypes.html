@@ -1779,9 +1779,11 @@ footer {
      bord. Un logo aussi : le plan de points passe en 6/5 et la marque y
      grandit d'un quart. Le texte ne passe plus devant l'image. Les flèches
      ne sont plus posées SUR l'image : elles passent dessous, au centre. */
-  .affiche-cadrage { position: relative; overflow: hidden; aspect-ratio: 4 / 5; }
+  .affiche-cadrage { position: relative; overflow: hidden; aspect-ratio: 3 / 4; }
+  /* (12 px plus bas que le milieu : la case remonte sous TB et la croix, le
+     haut du cadre noir reste dessous) */
   .affiche-cadrage > .affiche-scene {
-    position: absolute; left: 50%; top: 50%;
+    position: absolute; left: 50%; top: calc(50% + 12px);
     width: calc(var(--zoom, 1) * 100%);
     translate: calc(var(--cx, 50) * -1%) calc(var(--cy, 50) * -1%);
   }
@@ -1792,18 +1794,23 @@ footer {
      les mots d'Opulus et de l'ONF 62 %. La case déborde du plan, qui la rogne
      — le vide seul est rogné, le dessin est au centre. */
   .marque-plan img { width: 82%; }
-  .marque-plan img[src$="france-boulangerie.svg"] { width: 130%; }
-  .marque-plan img[src$="Opulus_1.svg"], .marque-plan img[src$="LogoONF.svg"] { width: 126%; }
-  .marque-plan img[src$="Logosynapse.svg"] { width: 120%; }
+  .marque-plan img[src$="france-boulangerie.svg"] { width: 140%; }
+  .marque-plan img[src$="Opulus_1.svg"], .marque-plan img[src$="LogoONF.svg"] { width: 134%; }
+  .marque-plan img[src$="Logosynapse.svg"] { width: 128%; }
   .marque-cadre > .fleches { grid-column: 1 / -1; grid-row: 3; }
   .affiches > .fleches { position: static; }
-  .fleches { display: flex; justify-content: center; gap: 16px; padding-top: 18px; }
+  .fleches { display: flex; justify-content: center; gap: 12px; padding-top: 12px; }
   .fleches .marque-fleche,
   .affiches .fleches .marque-fleche {
     position: static; transform: none;
+    width: 36px; height: 36px;
     background: #fff; border: 1px solid rgba(17,17,20,0.22); box-shadow: none;
     color: #111114; filter: none;
   }
+  .fleches .marque-fleche svg { width: 15px; height: 15px; stroke-width: 1.4; }
+  /* le titre remonte contre le visuel : il en est la légende */
+  .proj-panel.visuel-abord.volet-logos .proj-panel-intro,
+  .proj-panel.visuel-abord.volet-affiches .proj-panel-intro { padding-top: 26px; }
   .fleches .marque-fleche:hover, .affiches .fleches .marque-fleche:hover { transform: none; background: #fff; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2233,7 +2240,7 @@ footer {
   .proj-panel-pied { font-size: 14px; letter-spacing: 0.06em; }
   .proj-panel.visuel-abord .proj-panel-gallery > .affiches:first-child { margin-top: calc(-1 * var(--ui-y) - 20px); }
   .works-list { width: auto; padding: 64px 1.2rem; }
-  .works-more { padding: 1.6rem 1.5rem 5rem; }   /* « voir plus » au ras de la dernière image */
+  .works-more { padding: 1rem 1.5rem 5rem; }   /* « voir plus » au ras de la dernière image */
   .proj-image { inset: var(--project-gap) 0 0 0; }
   .stack-card .proj-info { left: 1rem; right: 1rem; bottom: 1rem; padding: 1.5rem; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
 }
@@ -2334,7 +2341,7 @@ body {
   --sp-md:  clamp(26px, 3.4vh, 40px);
   --sp-lg:  clamp(44px, 6vh, 72px);
 }
-.ab-bande { display: none; }
+.ab-bande, .plan-suivant { display: none; }
 .about-story {
   position: relative;
   background: transparent;
@@ -2599,7 +2606,7 @@ body.zone-foot .about-story {
     box-sizing: border-box;
     min-height: var(--fenetre);
     margin: 0 0 12svh;                       /* un instant seul avant le suivant */
-    padding: calc(var(--repere-h) + var(--sp-sm)) 0 var(--sp-lg);
+    padding: calc(var(--repere-h) + var(--sp-sm)) 0 64px;   /* la flèche dessous */
     display: flex; flex-direction: column; justify-content: center; align-items: stretch;
     gap: var(--sp-md);
     background: var(--ab-plane);
@@ -2624,6 +2631,25 @@ body.zone-foot .about-story {
      PASSER DESSUS, même crème sur crème */
   .plan-tel > * { opacity: calc(1 - var(--recul, 0) * 0.85); translate: 0 calc(var(--recul, 0) * -28px); }
   .plan-tel .ab-texte { margin-top: 0; }
+  /* LA FLÈCHE : un rond d'un demi-pixel, à l'encre, au milieu du bas du
+     dossier ; la case fait 44 px pour le doigt, le rond 32 */
+  .plan-suivant {
+    display: grid; place-items: center;
+    position: absolute; left: calc(50% - 22px); bottom: 10px;
+    width: 44px; height: 44px; padding: 0; border: 0; background: none;
+    color: var(--ab-encre); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .plan-suivant::before {
+    content: ""; position: absolute; inset: 6px; border-radius: 50%;
+    box-shadow: inset 0 0 0 0.5px currentColor;
+    transition: transform 0.3s var(--ease-smooth);
+  }
+  .plan-suivant:active::before { transform: scale(0.9); }
+  .plan-suivant svg {
+    width: 15px; height: 15px; fill: none; stroke: currentColor;
+    stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
+  }
   .ab-seul { width: auto; }
   .ab-tete .ab-fonction { margin-top: 12px; }
 
@@ -2641,10 +2667,37 @@ body.zone-foot .about-story {
   footer { min-height: calc(100vh + 130px); }
 }
 @media (max-width: 768px) { .footer-meta { padding-left: 14px; padding-right: 14px; } }
+/* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
+   un calque « plein écran » (inset: 0) s'arrêtait AU-DESSUS d'elle, et l'on
+   voyait l'accueil au travers, en bas d'un projet ouvert. Les calques
+   descendent donc jusqu'au bas de l'écran (100lvh, la plus grande hauteur) ;
+   ce qui défile dedans garde, en fin de course, de quoi repasser au-dessus
+   de la barre. Les quatre coins, eux, sont posés dans la PETITE hauteur
+   (100svh) : la barre qui va et vient ne les fait plus bouger. La bande du
+   bas de l'À propos les suit, et couvre ce qui reste dessous. */
+@media (pointer: coarse) {
+  .proj-panel, .works-panel, .cv-voile, .voile-saut { bottom: auto; height: 100lvh; }
+  .proj-panel, .works-panel { padding-bottom: calc(100lvh - 100svh); }
+  .site-frame { bottom: auto; height: 100svh; }
+}
+@media (pointer: coarse) and (max-width: 900px) {
+  .ab-bande--bas {
+    height: calc(var(--bande-bas) + 100dvh - 100svh);
+    margin-top: calc((var(--bande-bas) + 100dvh - 100svh) * -1);
+  }
+}
+/* les crans (voir crans) : des repères invisibles où le défilement
+   s'arrête, même lancé — le reste du parcours reste libre */
+html.a-crans { scroll-snap-type: y proximity; }
+#crans { position: absolute; top: 0; left: 0; width: 1px; height: 0; pointer-events: none; }
+#crans .cran {
+  position: absolute; left: 0; width: 1px; height: 1px;
+  scroll-snap-align: start; scroll-snap-stop: always;
+}
 /* LE TÉLÉPHONE COUCHÉ : une fenêtre de 300 px ne tient pas un dossier ;
    ils se suivent simplement, sans bandes */
 @media (max-width: 900px) and (max-height: 500px) {
-  .ab-bande { display: none; }
+  .ab-bande, .plan-suivant { display: none; }
   .plan-tel { position: relative; top: auto; min-height: 0; margin-bottom: var(--sp-lg); padding-bottom: 0; }
   .plan-tel > *, .plan-tel::before, .plan-tel::after { opacity: 1; translate: none; }
 }
@@ -4216,7 +4269,7 @@ function addAffiches(liste, mur, place, apercu) {
   if (isFinite(pl) && pl > 0) {
     scene.style.setProperty('--cx', pg + pl / 2);
     scene.style.setProperty('--cy', ph + pt / 2);
-    scene.style.setProperty('--zoom', (78 / pl).toFixed(4));
+    scene.style.setProperty('--zoom', (84 / pl).toFixed(4));
   }
   scene.classList.add('en-attente');
   let base = null;
@@ -5592,6 +5645,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
       else c.style.removeProperty('--h');
     });
   }
+  /* LA FLÈCHE du bas de chaque dossier (sauf le dernier) : un appui, et le
+     dossier suivant monte se poser sous la bande. On vise sa position de
+     FLUX — un dossier collant ne dit pas où il se pose. */
+  const poseDuPlan = k => {
+    let y = flow.getBoundingClientRect().top + scrollY;
+    for (let i = 0; i < k; i++) y += plans[i].offsetHeight + (parseFloat(getComputedStyle(plans[i]).marginBottom) || 0);
+    return Math.round(y - (parseFloat(getComputedStyle(root).getPropertyValue('--bande-haut')) || 58));
+  };
+  plans.slice(0, -1).forEach((c, k) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'plan-suivant';
+    b.setAttribute('aria-label', 'Suivant');
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></svg>';
+    b.addEventListener('click', () => scrollTo({ top: poseDuPlan(k + 1), behavior: reduced ? 'instant' : 'smooth' }));
+    c.appendChild(b);
+  });
   function reculer() {
     const r = plans.map(c => c.getBoundingClientRect());
     for (let k = 0; k < plans.length; k++) {
@@ -5733,6 +5803,109 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     }, 340);
   });
 
+})();
+
+/* ══ LES CRANS — AU DOIGT, UN LANCER NE TRAVERSE PLUS TOUT ═══════════════
+   Un geste vif emportait plusieurs projets d'un coup. Chaque projet de
+   l'accueil (l'instant où sa carte se pose en haut) et chaque dossier de
+   l'À propos (l'instant où il se pose sous TB et Index) devient un CRAN : le
+   défilement s'y arrête, même lancé (scroll-snap-stop: always), puis repart
+   au geste suivant. Entre deux crans, le défilement reste libre (proximity) :
+   la réfraction de l'accueil, le portrait, le pied se parcourent comme avant.
+   Les crans sont de simples repères invisibles, posés à la position du
+   flux — une carte collante ne dit pas où elle se pose. */
+(function crans() {
+  if (!matchMedia('(pointer: coarse)').matches || motionState.reducedMotion) return;
+  const stack = document.querySelector('.projects-stack');
+  const flow = document.getElementById('aboutFlow');
+  const calque = document.createElement('div');
+  calque.id = 'crans'; calque.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(calque);
+  document.documentElement.classList.add('a-crans');
+  const haut = el => el.getBoundingClientRect().top + scrollY;
+  const enchaines = els => {               /* les positions de flux de blocs qui se suivent */
+    let y = 0; return els.map(el => { const t = y; y += el.offsetHeight + (parseFloat(getComputedStyle(el).marginBottom) || 0); return t; });
+  };
+  /* la petite hauteur d'écran, stable (la barre d'adresse n'y fait rien) */
+  const sonde = document.createElement('div');
+  sonde.style.cssText = 'position:absolute;visibility:hidden;height:100svh;width:0';
+  calque.appendChild(sonde);
+  let raf = 0;
+  function poser() {
+    raf = 0;
+    const svh = sonde.offsetHeight || innerHeight;
+    const ys = [];
+    if (stack) {
+      const t = haut(stack);
+      enchaines([...stack.querySelectorAll('.stack-card')]).forEach(o => ys.push([t + o, 0]));
+    }
+    /* entre le dernier projet et l'À propos : « voir plus » sous la dernière
+       image, puis le portrait, posé sous TB et Index */
+    const voir = document.getElementById('worksMoreBtn'), portrait = document.querySelector('.about-portrait');
+    if (voir) ys.push([haut(voir) - svh * 0.62, 0]);
+    const plans = flow ? [...flow.querySelectorAll('.plan-tel')] : [];
+    if (plans.length && getComputedStyle(plans[0]).position === 'sticky') {
+      const bande = parseFloat(getComputedStyle(document.getElementById('apropos')).getPropertyValue('--bande-haut')) || 58;
+      if (portrait) ys.push([haut(portrait) - 20, bande]);
+      const t = haut(flow);
+      enchaines(plans).forEach((o, k) => { ys.push([t + o, bande]); plans[k]._cran = Math.round(t + o - bande); });
+    }
+    ys.sort((a, b) => (a[0] - a[1]) - (b[0] - b[1]));
+    calque.querySelectorAll('.cran').forEach(c => c.remove());
+    ys.forEach(([y, marge]) => {
+      const c = document.createElement('i');
+      c.className = 'cran';
+      c.style.top = Math.round(y) + 'px';
+      if (marge) c.style.scrollMarginTop = marge + 'px';
+      calque.appendChild(c);
+    });
+    window.__crans = ys.map(([y, m]) => Math.round(y - m));
+  }
+  const relancer = () => { if (!raf) raf = requestAnimationFrame(poser); };
+  addEventListener('load', relancer);
+  addEventListener('resize', relancer, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relancer);
+  if ('ResizeObserver' in window) new ResizeObserver(relancer).observe(document.body);
+  relancer();
+
+  /* LE FREIN. Le cran seul ne suffit pas : lancé, le défilement le
+     traversait. On mesure donc la vitesse du doigt ; s'il quitte l'écran
+     en LANÇANT la page (plus de 0,35 px/ms), le prochain cran dans le sens
+     du geste devient une butée : dès que l'élan l'atteint, la page s'y
+     arrête net — l'élan est coupé (overflow: hidden le temps de deux
+     images) et la page posée exactement sur le cran. Un geste lent, un
+     appui, un saut programmé (TB, les flèches) ne sont jamais freinés. */
+  let doigt = null, lance = null;
+  addEventListener('touchstart', e => { lance = null; doigt = { y: e.touches[0].clientY, t: performance.now(), v: 0 }; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (!doigt) return;
+    const y = e.touches[0].clientY, t = performance.now(), dt = t - doigt.t;
+    if (dt > 0) doigt.v = 0.6 * ((doigt.y - y) / dt) + 0.4 * doigt.v;
+    doigt.y = y; doigt.t = t;
+  }, { passive: true });
+  addEventListener('touchend', () => {
+    if (!doigt) return;
+    const v = performance.now() - doigt.t > 90 ? 0 : doigt.v;   /* le doigt s'était arrêté avant de partir */
+    doigt = null;
+    if (Math.abs(v) < 0.35 || document.body.style.overflow === 'hidden') return;
+    const C = window.__crans || [], y = scrollY, sens = v > 0 ? 1 : -1;
+    const butee = sens > 0 ? C.find(c => c > y + 2) : [...C].reverse().find(c => c < y - 2);
+    if (butee !== undefined) lance = { sens, butee, fin: performance.now() + 2600 };
+  }, { passive: true });
+  addEventListener('scroll', () => {
+    if (!lance) return;
+    if (performance.now() > lance.fin) { lance = null; return; }
+    const y = scrollY;
+    if (lance.sens > 0 ? y < lance.butee : y > lance.butee) return;
+    const cible = lance.butee, r = document.documentElement;
+    lance = null;
+    r.style.overflow = 'hidden';
+    scrollTo({ top: cible, behavior: 'instant' });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      r.style.overflow = '';
+      if (Math.abs(scrollY - cible) > 1) scrollTo({ top: cible, behavior: 'instant' });
+    }));
+  }, { passive: true });
 })();
 
 // ── COULEUR PAR ÉTAPE : le fond bascule d'un coup (fondu rapide via CSS) quand on
