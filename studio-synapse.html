@@ -1162,6 +1162,23 @@ footer {
   color: var(--muted);
 }
 .footer-meta > * { margin: 0; line-height: 1.5; }
+/* L'ARRIVÉE SUR LA LIGNE (voir filetDuPied) : le filet du haut du pied se
+   trace depuis le milieu, vers la gauche et vers la droite ; puis les mots
+   de la ligne arrivent l'un après l'autre, lettre à lettre — flous, dédoublés
+   en rouge et en bleu, puis nets (l'apparition de « Faites défiler »). Le
+   filet reprend la couleur du bord du pied, qui suit la zone. */
+footer.filet-anime { border-top-color: transparent; }
+footer.filet-anime::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; z-index: 2;
+  background: var(--border);
+  transform: scaleX(0); transform-origin: 50% 50%;
+  transition: transform 1.25s cubic-bezier(0.65, 0, 0.35, 1), background-color var(--zone-duree) var(--zone-courbe);
+}
+footer.filet-anime.pied-arrive::before { transform: scaleX(1); }
+footer.filet-anime .fcv-arrow { opacity: 0; transition: opacity 0.6s ease var(--d-fleche, 0s), transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+footer.filet-anime.pied-arrive .fcv-arrow { opacity: 1; }
+footer.filet-anime.sans-anim::before, footer.filet-anime.sans-anim .lettre,
+footer.filet-anime.sans-anim .fcv-arrow { transition: none !important; }
 .footer-meta > .fm-pays { display: none; }
 .footer-meta strong { font-weight: 500; color: var(--text); }
 .footer-social {
@@ -6244,6 +6261,54 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
 })();
 
+/* ══ LE FILET DU PIED — l'arrivée sur la ligne d'informations ═════════════
+   On découpe une fois, au chargement, chaque mot de la ligne en lettres
+   (lettres), dans l'ORDRE OÙ ON LES LIT — à l'écran, de gauche à droite et
+   de haut en bas, ce qui diffère au téléphone. Les liens ne sont pas
+   touchés : seul le texte qu'ils portent est découpé (le CV et LinkedIn
+   gardent leur écouteur). L'effet se rejoue à chaque arrivée ; si la page se
+   recharge déjà en bas, tout est posé sans animation. */
+(function filetDuPied() {
+  const pied = document.querySelector('body > footer');
+  const meta = pied && pied.querySelector('.footer-meta');
+  if (!meta || motionState.reducedMotion || !('IntersectionObserver' in window)) return;
+  /* l'année d'abord : découpée, elle ne doit plus être réécrite */
+  const an = document.getElementById('footerYear');
+  if (an) an.textContent = new Date().getFullYear();
+  const items = [...meta.children].filter(p => p.offsetParent !== null);
+  if (!items.length) return;
+  const rangs = items.map(p => ({ p, r: p.getBoundingClientRect() }))
+    .sort((a, b) => Math.abs(a.r.top - b.r.top) > 4 ? a.r.top - b.r.top : a.r.left - b.r.left);
+  const DEBUT = 520, ECART = 190;
+  rangs.forEach(({ p }, k) => {
+    const cible = p.querySelector('.swap') || p.querySelector('strong') || p;
+    const fin = lettres(cible, { debut: DEBUT + k * ECART });
+    if (p.querySelector('.fcv-arrow')) pied.style.setProperty('--d-fleche', (fin / 1000 - 0.6).toFixed(2) + 's');
+  });
+  pied.classList.add('filet-anime');
+  const RESTAURATION = 1200;
+  let dedans = false, charge = 0;
+  addEventListener('load', () => { charge = performance.now(); }, { once: true });
+  new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting && !dedans) {
+        dedans = true;
+        const direct = !charge || performance.now() - charge < RESTAURATION;
+        pied.classList.toggle('sans-anim', direct);
+        pied.classList.add('pied-arrive');
+        meta.classList.add('lettres-in');
+        if (direct) requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
+      } else if (!en.isIntersecting && dedans) {
+        dedans = false;
+        pied.classList.add('sans-anim');
+        pied.classList.remove('pied-arrive');
+        meta.classList.remove('lettres-in');
+        requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
+      }
+    });
+  }, { rootMargin: '0px 0px -14% 0px' }).observe(meta);
+})();
+
 // ── COULEUR PAR ÉTAPE : le fond bascule d'un coup (fondu rapide via CSS) quand on
 //    entre dans une zone, déclenché un peu en avance, et re-bascule dès qu'on revient ──
 (function zoneWash() {
@@ -6632,7 +6697,8 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
 // Footer — année courante
 (function footerMeta() {
   const yearEl = document.getElementById('footerYear');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  const an = String(new Date().getFullYear());
+  if (yearEl && yearEl.textContent.trim() !== an) yearEl.textContent = an;
 })();
 
 /* LA SIGNATURE SORT DE LA LUMIÈRE — quand on ARRIVE sur elle en défilant,
