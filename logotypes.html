@@ -2707,11 +2707,13 @@ body.zone-foot .about-story {
        en blanc, qui passe au crème et à l'ocre dès qu'on descend un peu —
        puis tout le reste défile comme avant. Le premier temps mort de la
        narration s'allonge d'autant (voir aboutStory).
-   3 · L'INDEX EN DÉFILÉ : les noms dans la moitié gauche, celui du milieu
-       est le projet regardé, son image carrée dans la moitié droite ; on
-       fait défiler, un nom à la fois, et les autres s'estompent en
-       s'éloignant (voir indexDefile). ═══════════════════════════════════ */
-.works-carre { display: none; }
+   3 · L'INDEX EN GALERIE (sa référence : le « Notre travail » de Koto) :
+       à gauche, une colonne fixe — « Index », le nom du projet regardé en
+       gris, son texte en petit, sa légende en bas ; à droite, les grandes
+       images de tous les projets défilent l'une sous l'autre. Le texte de
+       gauche suit l'image qui passe au milieu de l'écran ; un clic sur une
+       image ouvre le projet (voir indexBureau). ══════════════════════════ */
+.index-bureau { display: none; }
 @media (min-width: 901px) {
   .works-more { height: 0; padding: 0; }
   .works-more-btn {
@@ -2732,34 +2734,76 @@ body.zone-foot .about-story {
   }
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre)); }
 
-  .works-panel { scroll-snap-type: y mandatory; }
-  .works-aura { display: none; }
-  .works-list {
-    --corps: clamp(2.6rem, 4.4vw, 5.2rem);
-    --ligne: calc(var(--corps) * 1.55);
-    display: block; width: 50%; min-height: 0;
-    padding: calc(50vh - var(--ligne) / 2) 0;
+  .works-list, .works-aura { display: none; }
+  .index-bureau {
+    --ib-x: clamp(18px, 1.35vw, 26px);          /* la marge du cadre */
+    display: grid; grid-template-columns: 34vw minmax(0, 1fr);
+    min-height: 100vh;
   }
-  .works-list .works-line {
-    display: flex; justify-content: center; align-items: center;
-    width: 100%; height: var(--ligne);
-    font-size: var(--corps); line-height: 1;
-    scroll-snap-align: center;
+  .ib-texte {
+    position: sticky; top: 0; height: 100vh; box-sizing: border-box;
+    display: flex; flex-direction: column;
+    padding: 0 4vw 0 var(--ib-x);
   }
-  .works-list .works-line > * { transition: opacity 0.25s linear, filter 0.25s linear; }
-  .works-carre {
-    display: block; position: fixed; z-index: 3;
-    left: 75%; top: 50%; translate: -50% -50%;
-    width: min(34vw, 62vh); aspect-ratio: 1 / 1;
+  .ib-titre {
+    margin: 31vh 0 0;
+    display: flex; flex-direction: column;
+    font-family: 'Castillon', serif; font-weight: 160;
+    font-size: clamp(22px, 1.95vw, 32px); line-height: 1.12; letter-spacing: 0.005em;
+    color: #111114;
+  }
+  .ib-nom { color: rgba(17, 17, 20, 0.36); }
+  .ib-desc {
+    margin: auto 0 0; max-width: 31em;
+    font-family: 'Castillon', serif; font-weight: 300;
+    font-size: 13px; line-height: 1.55; color: rgba(17, 17, 20, 0.62);
+  }
+  .ib-legende {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0 calc(clamp(16px, 1.2vw, 24px) + 46px);
+    font-family: var(--ab-sans, 'LumaSans', sans-serif); font-weight: 500;
+    font-size: 10px; line-height: 1.5; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #111114;
+  }
+  .ib-legende img { width: 30px; height: 30px; object-fit: cover; display: block; flex: none; }
+  .ib-legende > span { display: flex; flex-direction: column; }
+  .ib-leg-meta { color: rgba(17, 17, 20, 0.45); }
+  /* le texte change en fondu, d'un projet à l'autre */
+  .ib-nom, .ib-desc, .ib-legende { transition: opacity 0.18s ease; }
+  .index-bureau.ib-change .ib-nom, .index-bureau.ib-change .ib-desc,
+  .index-bureau.ib-change .ib-legende { opacity: 0; }
+  .ib-images {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 13vh var(--ib-x) 34vh 0;
+  }
+  .ib-carte {
+    position: relative; display: block; width: 100%; aspect-ratio: 16 / 10;
+    margin: 0; padding: 0; border: 0; overflow: hidden; cursor: pointer;
+    background: #f1f0ec;
+  }
+  .ib-carte img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 1.1s var(--ease-smooth), opacity 0.6s ease;
+  }
+  .ib-carte img:not(.est-charge) { opacity: 0; }
+  .ib-carte:hover img { transform: scale(1.02); }
+  .ib-voir {
+    position: absolute; top: 18px; left: 50%; translate: -50% 0;
+    font-family: var(--ab-sans, 'LumaSans', sans-serif); font-weight: 500;
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #fff; opacity: 0; transition: opacity 0.3s ease;
     pointer-events: none;
   }
-  .works-carre img {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; display: block;
-    opacity: 0; transition: opacity 0.45s ease;
+  .ib-carte:hover .ib-voir, .ib-carte:focus-visible .ib-voir { opacity: 1; }
+  /* les images passent sous deux bandes blanches : la croix et « Direction
+     artistique » restent toujours sur le blanc */
+  .ib-images::before, .ib-images::after {
+    content: ""; position: fixed; right: 0; width: 66vw; z-index: 4; pointer-events: none;
+    background: #fff;
   }
-  .works-carre img.est-la { opacity: 1; }
-  .works-panel:not(.open) .works-carre img { transition: none; }
+  .ib-images::before { top: 0; height: 9vh; }
+  .ib-images::after  { bottom: 0; height: 7vh; }
+
 }
 /* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
    un calque « plein écran » (inset: 0) s'arrêtait AU-DESSUS d'elle, et l'on
@@ -2984,8 +3028,15 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- WORKS PANEL -->
 <div class="works-panel" id="worksPanel">
   <div class="works-list" id="worksPanelGrid"></div>
-  <!-- au bureau (essai du 27/10) : l'image carrée du projet au centre de la liste -->
-  <div class="works-carre" aria-hidden="true"><img alt=""><img alt=""></div>
+  <!-- au bureau (essai du 27/10) : l'Index en galerie, construit par buildIndexBureau -->
+  <div class="index-bureau">
+    <aside class="ib-texte">
+      <p class="ib-titre"><span class="ib-label">Index</span><span class="ib-nom"></span></p>
+      <p class="ib-desc"></p>
+      <p class="ib-legende"><img alt=""><span><span class="ib-leg-nom"></span><span class="ib-leg-meta"></span></span></p>
+    </aside>
+    <div class="ib-images"></div>
+  </div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
     <figure class="works-trace"><img alt=""></figure>
     <figure class="works-trace"><img alt=""></figure>
@@ -5128,9 +5179,8 @@ function buildWorksPanel() {
     row.appendChild(idx);
     row.appendChild(word);
 
-    row.dataset.vignette = src;
-    row.addEventListener('pointerenter', () => { if (!indexDefile.matches) worksEnter(i, row, src); prechargerProjet(card); });
-    row.addEventListener('focus', () => { if (!indexDefile.matches) worksEnter(i, row, src, true); });
+    row.addEventListener('pointerenter', () => { worksEnter(i, row, src); prechargerProjet(card); });
+    row.addEventListener('focus', () => worksEnter(i, row, src, true));
     row.addEventListener('pointerleave', worksLeave);
     row.addEventListener('blur', worksLeave);
 
@@ -5151,6 +5201,7 @@ function buildWorksPanel() {
      sans qu'aucune valeur ne soit à tenir à jour ailleurs */
   worksPanelGrid.style.setProperty('--n', cards.length);
   presencesPrecharger(cards.map(vignetteFiche));
+  if (indexBureau.matches) buildIndexBureau(cards);
 }
 
 function openWorksPanel() {
@@ -5160,56 +5211,86 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (indexDefile.matches) { worksPanel.scrollTop = 0; carreActif = -1; defilePeindre(); }
+  if (indexBureau.matches) { worksPanel.scrollTop = 0; ibActif = -1; ibPeindre(); }
 }
 
-/* ══ L'INDEX EN DÉFILÉ (essai du 27/10, au bureau) ═════════════════════════
-   Les noms occupent la moitié gauche ; on les fait défiler un à un (le
-   volet s'arrête sur chaque nom, au milieu de l'écran). Le nom du milieu est
-   le projet regardé : il est pleinement à l'encre, et son image CARRÉE est
-   dans la moitié droite. Les autres s'estompent et se brouillent à mesure
-   qu'ils s'éloignent du milieu — on les voit, jusqu'à une limite. L'image
-   change en fondu, une fois la suivante décodée. Un clic ouvre le projet. */
-const indexDefile = matchMedia('(min-width: 901px)');
-const carreImgs = [...document.querySelectorAll('.works-carre img')];
-let carreActif = -1, carreFace = 0, defileRaf = 0;
-function carreMontrer(src) {
-  if (carreImgs.length < 2) return;
-  const suivante = carreImgs[1 - carreFace], courante = carreImgs[carreFace];
-  const voulu = src ? varianteProche(src, 1100) : '';
-  suivante.dataset.voulu = voulu;
-  if (!voulu) { courante.classList.remove('est-la'); return; }
-  if (suivante.getAttribute('src') !== voulu) suivante.setAttribute('src', voulu);
-  decodee(suivante).then(() => {
-    if (suivante.dataset.voulu !== voulu) return;          /* on a déjà défilé plus loin */
-    suivante.classList.add('est-la');
-    courante.classList.remove('est-la');
-    carreFace = 1 - carreFace;
+/* ══ L'INDEX EN GALERIE (essai du 27/10, au bureau) ════════════════════════
+   À droite, la grande image de chaque projet, l'une sous l'autre ; à
+   gauche, fixe, ce qui la nomme : « Index », le nom du projet en gris, son
+   premier texte en petit, sa légende (vignette, année, domaines). Le texte
+   suit l'image qui passe au milieu de l'écran, en fondu. Un clic sur une
+   image ouvre le projet, l'Index restant dessous, comme pour un nom. */
+const indexBureau = matchMedia('(min-width: 901px)');
+const ib = document.querySelector('.index-bureau');
+const ibImages = ib && ib.querySelector('.ib-images');
+let ibActif = -1, ibRaf = 0, ibFondu = 0, ibCartes = [];
+const ibTexte = t => String(t || '').split('|').map(x => x.replace(/[*_]/g, '').replace(/\s+/g, ' ').trim()).find(Boolean) || '';
+function ibCourt(t, n) {
+  if (t.length <= n) return t;
+  const coupe = t.slice(0, n), fin = Math.max(coupe.lastIndexOf('. '), coupe.lastIndexOf('! '), coupe.lastIndexOf('? '));
+  return fin > n * 0.5 ? coupe.slice(0, fin + 1) : coupe.slice(0, coupe.lastIndexOf(' ')) + '…';
+}
+function buildIndexBureau(cards) {
+  if (!ibImages) return;
+  ibImages.innerHTML = '';
+  ibCartes = cards.map((card, i) => {
+    /* l'image que l'accueil a DÉJÀ chargée pour la carte (la bonne taille,
+       en cache) : elle paraît tout de suite ; sinon la vignette du projet */
+    const photo = card.querySelector('.proj-photo');
+    const deja = photo && (photo.currentSrc || '');
+    const src = vignetteFiche(card);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ib-carte';
+    b.setAttribute('aria-label', (card.dataset.title || '') + ' — voir le projet');
+    const im = document.createElement('img');
+    im.alt = ''; im.decoding = 'async'; im.loading = i < 2 ? 'eager' : 'lazy';
+    if (deja || src) {
+      im.addEventListener('load', () => im.classList.add('est-charge'), { once: true });
+      im.src = deja || varianteProche(src, 1700);
+      if (im.complete && im.naturalWidth) im.classList.add('est-charge');
+    }
+    const voir = document.createElement('span');
+    voir.className = 'ib-voir'; voir.textContent = 'Voir le projet ↗';
+    b.appendChild(im); b.appendChild(voir);
+    b.addEventListener('pointerenter', () => prechargerProjet(card));
+    b.addEventListener('click', () => {
+      worksDepart = true;
+      projetDepuisIndex = true;
+      if (pageCurtain) pageCurtain.open(card, null); else openPanel(card);
+    });
+    ibImages.appendChild(b);
+    return { card, b, src: deja || src };
   });
 }
-function defilePeindre() {
-  defileRaf = 0;
-  if (!indexDefile.matches || !worksPanel.classList.contains('open')) return;
-  const rows = [...worksPanelGrid.querySelectorAll('.works-line')];
-  if (!rows.length) return;
+function ibPoser(k) {
+  const c = ibCartes[k]; if (!c || !ib) return;
+  const d = c.card.dataset;
+  ib.querySelector('.ib-nom').textContent = d.title || '';
+  ib.querySelector('.ib-desc').textContent = ibCourt(ibTexte(d.desc), 430);
+  ib.querySelector('.ib-leg-nom').textContent = d.title || '';
+  ib.querySelector('.ib-leg-meta').textContent = (d.year || '2026') + (d.cat ? ' · ' + d.cat : '');
+  const v = ib.querySelector('.ib-legende img');
+  if (c.src) v.src = c.src.indexOf('://') > 0 ? c.src : varianteProche(c.src, 120); else v.removeAttribute('src');
+}
+function ibPeindre() {
+  ibRaf = 0;
+  if (!indexBureau.matches || !worksPanel.classList.contains('open') || !ibCartes.length) return;
   const milieu = innerHeight / 2;
-  let actif = 0, ecart = Infinity;
-  rows.forEach((row, i) => {
-    const r = row.getBoundingClientRect();
-    const d = (r.top + r.height / 2 - milieu) / (r.height || 1);
-    if (Math.abs(d) < ecart) { ecart = Math.abs(d); actif = i; }
-    const a = Math.abs(d);
-    const op = Math.max(0.1, 1 - a * 0.34);
-    const flou = motionState.reducedMotion || a <= 0.5 ? 0 : Math.min(5, (a - 0.5) * 2.2);
-    for (const el of row.children) { el.style.opacity = op.toFixed(3); el.style.filter = flou ? 'blur(' + flou.toFixed(2) + 'px)' : ''; }
+  let k = 0, ecart = Infinity;
+  ibCartes.forEach((c, i) => {
+    const r = c.b.getBoundingClientRect();
+    const e = r.top <= milieu && r.bottom >= milieu ? 0 : Math.min(Math.abs(r.top - milieu), Math.abs(r.bottom - milieu));
+    if (e < ecart) { ecart = e; k = i; }
   });
-  if (actif !== carreActif) {
-    carreActif = actif;
-    rows.forEach((row, i) => row.classList.toggle('is-active', i === actif));
-    carreMontrer(rows[actif].dataset.vignette);
-  }
+  if (k === ibActif) return;
+  const premier = ibActif < 0;
+  ibActif = k;
+  clearTimeout(ibFondu);
+  if (premier) { ibPoser(k); return; }
+  ib.classList.add('ib-change');
+  ibFondu = setTimeout(() => { ibPoser(ibActif); ib.classList.remove('ib-change'); }, 180);
 }
-worksPanel.addEventListener('scroll', () => { if (!defileRaf) defileRaf = requestAnimationFrame(defilePeindre); }, { passive: true });
+worksPanel.addEventListener('scroll', () => { if (!ibRaf) ibRaf = requestAnimationFrame(ibPeindre); }, { passive: true });
 
 let worksVidage = 0;
 function closeWorksPanel() {
