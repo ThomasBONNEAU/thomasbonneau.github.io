@@ -653,7 +653,7 @@ body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.
   font-size: 2.1em;
   font-weight: 100;
   line-height: 1;
-  translate: 0 -50%;                     /* centrée sur le monogramme d'en face */
+  translate: -1.5px -50%;                /* centrée sur le monogramme d'en face ; un rien rentrée (28/10) */
   opacity: 0;
   filter: blur(4px);
   pointer-events: none;
@@ -1317,27 +1317,53 @@ footer {
   top: 50%;
   font-size: 2.1em;
   font-weight: 100;
-  translate: 0 -50%;
+  translate: -1.5px -50%;                /* au pixel de celle de l'Index */
   transition: rotate 0.55s cubic-bezier(0.16,1,0.3,1);
 }
 .proj-panel-cross:hover .ppg-cross { rotate: 90deg; }
 
-/* TOUT EN BAS du volet, dans le vide qui suit le dernier visuel : les deux
-   mentions des coins bas de l'accueil, à leurs places. Elles défilent avec le
-   volet : on ne les voit qu'arrivé au bout. */
+/* LE PIED DU VOLET — comme la révélation de l'accueil : un écran NOIR posé
+   sous le projet (collé au bas, derrière), que le contenu, opaque, recouvre ;
+   le dernier visuel remonte comme un rideau et le découvre, immobile. Au
+   milieu, « THOMAS BONNEAU » en blanc — la signature du pied de l'accueil,
+   même dessin, même mesure ; aux coins bas, les deux mentions, en blanc. */
+.proj-panel-intro, .proj-panel-gallery { position: relative; z-index: 1; background: #fff; }
 .proj-panel-pied {
-  position: relative;
-  height: 0;
+  --sig-x: var(--ui-x);
+  position: sticky; bottom: 0; z-index: 0;
+  height: 100vh;
+  display: grid; place-items: center;
+  background: #000; color: #fff;
+  container-type: inline-size;
   font-family: 'Castillon', Georgia, serif;
-  font-size: 19px;
-  font-weight: 160;
-  letter-spacing: 0.05em;
-  line-height: 1;
-  color: var(--text, #0a0a0a);
+  font-size: 19px; font-weight: 160; letter-spacing: 0.05em; line-height: 1;
 }
-.proj-panel-pied span { position: absolute; bottom: var(--ui-y); white-space: nowrap; }
-.proj-panel-pied span:first-child { left: var(--ui-x); }
-.proj-panel-pied span:last-child { right: var(--ui-x); }
+.ppp-nom {
+  margin: 0; width: 100%; box-sizing: border-box;
+  padding: 0 var(--sig-x);
+  font-family: 'Castillon', serif; font-weight: 160;
+  font-size: calc((100cqw - var(--sig-x) * 2 - 13pt) / 8.9043);
+  line-height: 0.9; letter-spacing: calc(-0.035em + 1pt);
+  text-transform: uppercase; white-space: nowrap; text-indent: -0.0412em;
+  text-align: center; color: #fff;
+}
+.ppp-mention { position: absolute; bottom: var(--ui-y); white-space: nowrap; color: #fff; }
+.ppp-g { left: var(--ui-x); }
+.ppp-d { right: var(--ui-x); }
+@media (max-width: 600px) {
+  .ppp-nom {
+    white-space: normal; text-indent: 0;
+    font-size: calc((100cqw - var(--sig-x) * 2) * 0.84 / 4.57995);
+    line-height: 0.86;
+  }
+  .ppp-nom > span { display: block; }
+}
+/* au doigt : l'écran noir prend la grande hauteur (sous la barre de Safari),
+   les mentions restent au-dessus de la barre */
+@media (pointer: coarse) {
+  .proj-panel-pied { height: 100lvh; }
+  .ppp-mention { bottom: calc(var(--ui-y) + 100lvh - 100svh); }
+}
 
 /* intro */
 .proj-panel-intro {
@@ -2275,6 +2301,7 @@ footer {
   .proj-panel { --ui-x: 14px; --ui-y: 14px; }
   .proj-panel-topbar { font-size: 14px; letter-spacing: 0.06em; }
   .proj-panel-pied { font-size: 14px; letter-spacing: 0.06em; }
+  .proj-panel-pied .ppp-nom { letter-spacing: calc(-0.035em + 1pt); }
   .proj-panel.visuel-abord .proj-panel-gallery > .affiches:first-child { margin-top: calc(-1 * var(--ui-y) - 20px); }
   .works-list { width: auto; padding: 64px 1.2rem; }
   .works-more { padding: 1rem 1.5rem 5rem; }   /* « voir plus » au ras de la dernière image */
@@ -2804,14 +2831,8 @@ body.zone-foot .about-story {
   .ib-carte.est-actif img { filter: none; opacity: 1; scale: 1; }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   .ib-carte { cursor: none; }
-  /* les images passent sous deux bandes blanches : la croix et « Direction
-     artistique » restent toujours sur le blanc */
-  .ib-images::before, .ib-images::after {
-    content: ""; position: fixed; right: 0; width: 66vw; z-index: 4; pointer-events: none;
-    background: #fff;
-  }
-  .ib-images::before { top: 0; height: 9vh; }
-  .ib-images::after  { bottom: 0; height: 7vh; }
+  /* (les images défilent jusqu'aux bords de l'écran, sous TB, la croix et
+     les mentions : plus de bande qui les coupe) */
 
 }
 /* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
@@ -2824,7 +2845,7 @@ body.zone-foot .about-story {
    bas de l'À propos les suit, et couvre ce qui reste dessous. */
 @media (pointer: coarse) {
   .proj-panel, .works-panel, .cv-voile, .voile-saut { bottom: auto; height: 100lvh; }
-  .proj-panel, .works-panel { padding-bottom: calc(100lvh - 100svh); }
+  .works-panel { padding-bottom: calc(100lvh - 100svh); }   /* (le volet projet finit sur son pied noir, en grande hauteur) */
   .site-frame { bottom: auto; height: 100svh; }
 }
 /* les deux mentions du bas, un peu plus bas au doigt (6 px du bord de la
@@ -3076,7 +3097,13 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   </div>
 
   <div class="proj-panel-gallery" id="projPanelGallery"></div>
-  <div class="proj-panel-pied"><span>Design graphique</span><span>Direction artistique</span></div>
+  <!-- LE PIED DU VOLET : un écran noir, posé SOUS le projet ; le dernier
+       visuel remonte comme un rideau et le découvre -->
+  <div class="proj-panel-pied" aria-label="Thomas Bonneau">
+    <p class="ppp-nom"><span>Thomas</span> <span>Bonneau</span></p>
+    <span class="ppp-mention ppp-g">Design graphique</span>
+    <span class="ppp-mention ppp-d">Direction artistique</span>
+  </div>
 </div>
 
 <!-- LE CV : la page se floute et la page du PDF, en VECTORIEL (le PDF converti
