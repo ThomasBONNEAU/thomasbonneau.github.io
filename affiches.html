@@ -1162,11 +1162,9 @@ footer {
   color: var(--muted);
 }
 .footer-meta > * { margin: 0; line-height: 1.5; }
-/* L'ARRIVÉE SUR LA LIGNE (voir filetDuPied) : le filet du haut du pied se
-   trace depuis le milieu, vers la gauche et vers la droite ; puis les mots
-   de la ligne arrivent l'un après l'autre, lettre à lettre — flous, dédoublés
-   en rouge et en bleu, puis nets (l'apparition de « Faites défiler »). Le
-   filet reprend la couleur du bord du pied, qui suit la zone. */
+/* L'ARRIVÉE SUR LA LIGNE (voir filetDuPied) : une seule fois, le filet du
+   haut du pied se trace depuis le milieu, vers la gauche et vers la droite ;
+   les mots sont déjà là. Le filet reprend la couleur du bord du pied. */
 footer.filet-anime { border-top-color: transparent; }
 footer.filet-anime::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; z-index: 2;
@@ -1175,10 +1173,7 @@ footer.filet-anime::before {
   transition: transform 1.25s cubic-bezier(0.65, 0, 0.35, 1), background-color var(--zone-duree) var(--zone-courbe);
 }
 footer.filet-anime.pied-arrive::before { transform: scaleX(1); }
-footer.filet-anime .fcv-arrow { opacity: 0; transition: opacity 0.6s ease var(--d-fleche, 0s), transform 0.5s cubic-bezier(0.16,1,0.3,1); }
-footer.filet-anime.pied-arrive .fcv-arrow { opacity: 1; }
-footer.filet-anime.sans-anim::before, footer.filet-anime.sans-anim .lettre,
-footer.filet-anime.sans-anim .fcv-arrow { transition: none !important; }
+footer.filet-anime.sans-anim::before { transition: none !important; }
 .footer-meta > .fm-pays { display: none; }
 .footer-meta strong { font-weight: 500; color: var(--text); }
 .footer-social {
@@ -2455,7 +2450,7 @@ body {
   --sp-md:  clamp(26px, 3.4vh, 40px);
   --sp-lg:  clamp(44px, 6vh, 72px);
 }
-.ab-bande { display: none; }
+.ab-bande, .ab-cache-bas { display: none; }
 .about-story {
   position: relative;
   background: transparent;
@@ -2831,6 +2826,42 @@ body.zone-foot .about-story {
     transition-property: color, background-color;
   }
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre) + var(--ab-repos)); }
+}
+/* ══ LES PLANS GLISSENT NATIVEMENT (29/10) ════════════════════════════════
+   Un script déplaçait chaque plan, image par image, d'après le défilement.
+   Safari fait défiler la page sur un fil À PART : le script avait toujours
+   une image de retard sur la fenêtre collée, et le filet du plan qui monte
+   tremblait (le « grésillement »). Désormais AUCUN script : les plans sont
+   dans le flux, chacun COLLÉ au même point (--ab-colle), à la hauteur de la
+   photo, et le suivant monte et le recouvre tout seul — c'est le navigateur
+   qui le fait, sur le même fil que le défilement. Le second plan attend la
+   révélation, le repos et la pose (sa marge haute) ; les suivants partent
+   quand le précédent se pose ; une pose finit la narration (le bas de la
+   fenêtre). Sous la fenêtre, le bas de l'écran est couvert par un cache
+   collé, de la couleur des plans : un plan qui arrive y passe caché, il
+   apparaît exactement au bas de la photo. */
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .about-right { height: auto; }
+  .about-flow {
+    position: relative; top: auto; height: auto; overflow: visible; isolation: auto;
+  }
+  /* la pose finale : un espace DANS le flux après le dernier plan (une marge
+     ou un retrait ne comptent pas pour un élément collé) */
+  .about-flow::after { content: ""; display: block; height: var(--ab-pose); }
+  .about-chapter {
+    inset: auto; position: sticky; top: var(--ab-colle);
+    height: var(--ab-photo);
+    will-change: auto; transform: none !important;
+  }
+  .about-chapter:nth-child(2) { margin-top: calc(var(--ab-recouvre, 0px) + var(--ab-repos, 0px) + var(--ab-pose)); }
+  .ab-cache-bas {
+    display: block; position: sticky; bottom: 0; z-index: 3;
+    height: calc(100vh - var(--ab-colle) - var(--ab-photo));
+    background: var(--ab-plane);
+    transition: background-color var(--zone-duree) var(--zone-courbe);
+  }
+}
+@media (min-width: 901px) {
 
   .works-list, .works-aura { display: none; }
   /* FOND BLANC, ENCRE NOIRE ; à gauche, seul, le nom du projet regardé — Castillon Thin,
@@ -2868,16 +2899,19 @@ body.zone-foot .about-story {
     display: flex; flex-direction: column; gap: 12px;
     padding: 0;
   }
-  /* LA LIASSE (voir ibDefileOuverture) : posée exactement sur la première
-     grande image ; chaque feuille porte un filet blanc à son bord haut */
+  /* LA VAGUE D'OUVERTURE (voir ibDefileOuverture) : posée exactement sur la
+     première grande image ; chaque feuille se découvre derrière un masque
+     courbe, l'image glisse et se pose dedans */
   .ib-liasse { position: fixed; z-index: 4; overflow: hidden; pointer-events: none; background: #fff; }
   .ib-feuille {
     position: absolute; inset: 0; overflow: hidden;
-    border-top: 12px solid #fff;
-    will-change: transform; backface-visibility: hidden;
+    clip-path: ellipse(85% 0% at 50% 100%);
+    will-change: clip-path;
   }
-  .ib-feuille:first-child { border-top: 0; }
-  .ib-feuille img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ib-feuille img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transform-origin: 50% 60%; will-change: transform; backface-visibility: hidden;
+  }
   .index-bureau.ib-en-liasse .ib-titre { opacity: 0; transition: none; }
   .index-bureau.ib-en-liasse .ib-images { visibility: hidden; }
   .ib-carte.sans-zoom img { transition: none !important; }
@@ -3447,6 +3481,9 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </div>
         </section>
       </div>
+      <!-- au bureau : le bas de l'écran, sous la fenêtre, où les plans qui
+           arrivent passent cachés (voir .ab-cache-bas) -->
+      <div class="ab-cache-bas" aria-hidden="true"></div>
     </div>
 
   </div>
@@ -5397,18 +5434,19 @@ function ibPeindre() {
   ibFondu = setTimeout(() => { ibFondu = 0; ibPoser(ibActif); ib.classList.remove('ib-change'); }, 180);
 }
 worksPanel.addEventListener('scroll', () => { if (!ibRaf) ibRaf = requestAnimationFrame(ibPeindre); }, { passive: true });
-/* L'OUVERTURE — UNE LIASSE QU'ON FEUILLETTE. Les visuels des projets, du
-   dernier au premier, montent l'un après l'autre et s'empilent, comme des
-   feuilles qu'on tire d'une liasse : chacune arrive vite et freine en se
-   posant (une seule courbe, la même pour toutes, sans rebond), chevauchant
-   la précédente — un départ toutes les 70 ms, chaque montée en 560 ms. La
-   feuille recouverte s'assombrit un peu : on lit l'épaisseur de la pile ; un
-   filet blanc borde le haut de chacune. La dernière posée est le premier
-   projet, exactement à la place de sa grande image : on la retire, la vraie
-   page est dessous, et le nom vient alors, seul. Pendant l'animation, la
-   colonne de gauche reste vide. Tout se fait en transformations (GPU) sur
-   des images déjà décodées : rien n'est recalculé. Le moindre geste la
-   termine net. */
+/* L'OUVERTURE — UNE VAGUE D'IMAGES. Les visuels des projets, du dernier au
+   premier, se découvrent l'un sur l'autre, au même endroit : chacun monte
+   derrière un bord COURBE — une ellipse large qui naît au bas du cadre,
+   s'arrondit en montant puis s'aplatit en remplissant tout —, pendant que
+   la photo, à l'intérieur, descend légèrement et se pose de 1,22 à 1 (le
+   cadre et l'image ne vont pas à la même vitesse : c'est ce décalage qui
+   rend le mouvement fluide). Une seule courbe d'accélération pour tous,
+   lente aux deux bouts ; les départs se chevauchent de près (75 ms) et
+   s'accélèrent vers la fin. La dernière découverte est le premier projet,
+   exactement à la place de sa grande image : on la retire, la vraie page
+   est dessous, et le nom vient alors. Pendant ce temps, la colonne de
+   gauche reste vide. Tout est en transformations et en masques, sur des
+   images déjà décodées. Le moindre geste termine net. */
 let ibLiasse = null;
 function ibDefileOuverture() {
   ibFinLiasse(true);
@@ -5420,8 +5458,7 @@ function ibDefileOuverture() {
   liasse.className = 'ib-liasse';
   const zone = cartes[0].getBoundingClientRect();
   Object.assign(liasse.style, { left: zone.left + 'px', top: zone.top + 'px', width: zone.width + 'px', height: zone.height + 'px' });
-  const PAS = 70, DUREE = 560, COURBE = 'cubic-bezier(0.19, 1, 0.22, 1)';
-  const feuilles = cartes.slice().reverse().map((c, k) => {
+  const feuilles = cartes.slice().reverse().map(c => {
     const f = document.createElement('div');
     f.className = 'ib-feuille';
     const im = c.querySelector('img');
@@ -5433,20 +5470,25 @@ function ibDefileOuverture() {
     return f;
   });
   worksPanel.appendChild(liasse);
+  const n = feuilles.length, DUREE = 900;
+  const MASQUE = 'cubic-bezier(0.77, 0, 0.18, 1)', IMAGE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  /* les départs se resserrent : 95 ms entre les premiers, 60 entre les derniers */
+  let t = 0;
+  const departs = feuilles.map((f, k) => { const d = t; t += 95 - 35 * (k / Math.max(1, n - 2)); return d; });
   const anims = [];
   feuilles.forEach((f, k) => {
     anims.push(f.animate([
-      { transform: 'translate3d(0, 104%, 0) scale(1.04)' },
+      { clipPath: 'ellipse(85% 0% at 50% 100%)' },
+      { clipPath: 'ellipse(110% 70% at 50% 100%)', offset: 0.55 },
+      { clipPath: 'ellipse(160% 160% at 50% 100%)' }
+    ], { duration: DUREE, delay: departs[k], easing: MASQUE, fill: 'both' }));
+    anims.push(f.querySelector('img').animate([
+      { transform: 'translate3d(0, -9%, 0) scale(1.22)' },
       { transform: 'translate3d(0, 0, 0) scale(1)' }
-    ], { duration: DUREE, delay: k * PAS, easing: COURBE, fill: 'both' }));
-    /* recouverte par la suivante, elle s'assombrit d'un cran */
-    if (k < feuilles.length - 1) anims.push(f.querySelector('img').animate([
-      { filter: 'brightness(1)' }, { filter: 'brightness(0.72)' }
-    ], { duration: DUREE * 0.8, delay: (k + 1) * PAS + DUREE * 0.1, easing: 'ease-out', fill: 'both' }));
+    ], { duration: DUREE + 250, delay: departs[k], easing: IMAGE, fill: 'both' }));
   });
   ibLiasse = { liasse, anims };
-  const derniere = anims.filter(a => a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains('ib-feuille')).pop();
-  derniere.finished.then(() => ibFinLiasse(false)).catch(() => {});
+  anims[anims.length - 2].finished.then(() => ibFinLiasse(false)).catch(() => {});
 }
 function ibFinLiasse(net) {
   if (!ibLiasse) return;
@@ -6184,6 +6226,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
       if (p !== auPied) { auPied = p; document.body.classList.toggle('pied-en-cours', p); }
     }
   }
+  const natif = () => getComputedStyle(chapters[0]).position === 'sticky';
   function measure() {
     ajuster();
     hauteursDossiers();
@@ -6212,6 +6255,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     M.recouvre = Math.max(0, -(parseFloat(getComputedStyle(root).marginTop) || 0));
     M.repos = M.recouvre ? px('var(--ab-repos, 0px)') : 0;
     M.prog = -1;
+    if (natif()) chapters.forEach(c => { c.style.transform = ''; });
   }
 
   /* ── LA FRAME : une position, rien d'autre ─────────────────────────────── */
@@ -6223,6 +6267,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
        premier plan reste installé seul avant que le second ne commence à
        monter, et le dernier reste calme avant que la section rende la main. */
+    /* (au bureau, les plans glissent nativement : rien à écrire — voir
+       « LES PLANS GLISSENT NATIVEMENT » dans le CSS) */
+    if (natif()) return;
     const y = (window.scrollY || 0) - M.top - M.recouvre - M.repos;
     const t = clamp01((y - M.pose) / (M.pas * relais)) * relais;
     if (t === M.prog) return;
@@ -6327,51 +6374,28 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 })();
 
 /* ══ LE FILET DU PIED — l'arrivée sur la ligne d'informations ═════════════
-   On découpe une fois, au chargement, chaque mot de la ligne en lettres
-   (lettres), dans l'ORDRE OÙ ON LES LIT — à l'écran, de gauche à droite et
-   de haut en bas, ce qui diffère au téléphone. Les liens ne sont pas
-   touchés : seul le texte qu'ils portent est découpé (le CV et LinkedIn
-   gardent leur écouteur). L'effet se rejoue à chaque arrivée ; si la page se
-   recharge déjà en bas, tout est posé sans animation. */
+   UNE SEULE FOIS par visite : la première fois qu'on arrive sur la ligne, le
+   filet se trace depuis le milieu vers les deux bords. Les mots, eux, sont
+   déjà là, fixes (sa demande du 28/10). En remontant puis redescendant,
+   plus rien ne se rejoue. Si la page se recharge déjà en bas, le filet est
+   posé tel quel. */
 (function filetDuPied() {
   const pied = document.querySelector('body > footer');
   const meta = pied && pied.querySelector('.footer-meta');
   if (!meta || motionState.reducedMotion || !('IntersectionObserver' in window)) return;
-  /* l'année d'abord : découpée, elle ne doit plus être réécrite */
-  const an = document.getElementById('footerYear');
-  if (an) an.textContent = new Date().getFullYear();
-  const items = [...meta.children].filter(p => p.offsetParent !== null);
-  if (!items.length) return;
-  const rangs = items.map(p => ({ p, r: p.getBoundingClientRect() }))
-    .sort((a, b) => Math.abs(a.r.top - b.r.top) > 4 ? a.r.top - b.r.top : a.r.left - b.r.left);
-  const DEBUT = 520, ECART = 190;
-  rangs.forEach(({ p }, k) => {
-    const cible = p.querySelector('.swap') || p.querySelector('strong') || p;
-    const fin = lettres(cible, { debut: DEBUT + k * ECART });
-    if (p.querySelector('.fcv-arrow')) pied.style.setProperty('--d-fleche', (fin / 1000 - 0.6).toFixed(2) + 's');
-  });
   pied.classList.add('filet-anime');
   const RESTAURATION = 1200;
-  let dedans = false, charge = 0;
+  let charge = 0;
   addEventListener('load', () => { charge = performance.now(); }, { once: true });
-  new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (en.isIntersecting && !dedans) {
-        dedans = true;
-        const direct = !charge || performance.now() - charge < RESTAURATION;
-        pied.classList.toggle('sans-anim', direct);
-        pied.classList.add('pied-arrive');
-        meta.classList.add('lettres-in');
-        if (direct) requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
-      } else if (!en.isIntersecting && dedans) {
-        dedans = false;
-        pied.classList.add('sans-anim');
-        pied.classList.remove('pied-arrive');
-        meta.classList.remove('lettres-in');
-        requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
-      }
-    });
-  }, { rootMargin: '0px 0px -14% 0px' }).observe(meta);
+  const io = new IntersectionObserver(entries => {
+    if (!entries.some(en => en.isIntersecting)) return;
+    io.disconnect();
+    const direct = !charge || performance.now() - charge < RESTAURATION;
+    pied.classList.toggle('sans-anim', direct);
+    pied.classList.add('pied-arrive');
+    if (direct) requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
+  }, { rootMargin: '0px 0px -14% 0px' });
+  io.observe(meta);
 })();
 
 // ── COULEUR PAR ÉTAPE : le fond bascule d'un coup (fondu rapide via CSS) quand on
