@@ -2747,12 +2747,16 @@ body.zone-foot .about-story {
      passe au crème et à l'ocre (voir zoneWash) */
   .about-story {
     --ab-recouvre: 100vh;
+    /* LE REPOS : la carte partie, « Qui je suis » reste seul, immobile, sur
+       45 % d'écran de défilement — un petit geste du pavé tactile, vers le
+       haut ou vers le bas, n'y change rien */
+    --ab-repos: 45vh;
     position: relative; z-index: 1;
     margin-top: calc(var(--ab-recouvre) * -1);
     background: var(--ab-plane);
     transition-property: color, background-color;
   }
-  .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre)); }
+  .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre) + var(--ab-repos)); }
 
   .works-list, .works-aura { display: none; }
   /* FOND BLANC, ENCRE NOIRE ; à gauche, seul, le nom du projet regardé — Castillon Thin,
@@ -5916,7 +5920,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   addEventListener('resize', () => { if (!rafCompo) rafCompo = requestAnimationFrame(() => { rafCompo = 0; composerTout(); }); }, { passive: true });
 
   /* ── MESURE : au repos seulement ───────────────────────────────────────── */
-  const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1, recouvre: 0 };
+  const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1, recouvre: 0, repos: 0 };
   /* AU TÉLÉPHONE, LES DOSSIERS — les cinq chapitres. Chacun connaît sa
      hauteur : le CSS en déduit s'il se pose sous la bande (il tient dans la
      fenêtre) ou par son bas ; et la part de lui que le suivant recouvre déjà
@@ -6017,6 +6021,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* l'À propos glissé sous la dernière carte (essai du 27/10) : tant que la
        carte le recouvre, la narration attend */
     M.recouvre = Math.max(0, -(parseFloat(getComputedStyle(root).marginTop) || 0));
+    M.repos = M.recouvre ? px('var(--ab-repos, 0px)') : 0;
     M.prog = -1;
   }
 
@@ -6029,7 +6034,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
        premier plan reste installé seul avant que le second ne commence à
        monter, et le dernier reste calme avant que la section rende la main. */
-    const y = (window.scrollY || 0) - M.top - M.recouvre;
+    const y = (window.scrollY || 0) - M.top - M.recouvre - M.repos;
     const t = clamp01((y - M.pose) / (M.pas * relais)) * relais;
     if (t === M.prog) return;
     M.prog = t;
@@ -6107,6 +6112,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     measure(); relancer();
     /* au bureau : au milieu du temps mort du chapitre 01, le crème déjà posé
        (il arrive un dixième d'écran après que la photo se fige) */
+    /* (après la révélation, au milieu du repos : loin de la carte comme du chapitre suivant) */
+    if (M.on && M.repos) return Math.round(M.top + M.recouvre + (M.repos + M.pose) / 2);
     if (M.on) return Math.round(M.top + M.recouvre + Math.min(M.pose - 8, Math.max(M.pose / 2, innerHeight * 0.1 + 24)));
     /* au téléphone : le dossier « Qui je suis » posé sous la bande de TB et
        Index — la fenêtre suit le flux, son haut est celui du premier dossier */
@@ -6167,6 +6174,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     let bg = '';                                    // zone haute : couleur du thème (blanc / nuit)
     if (y >= blackStart)      bg = BLACK;           // footer → tout noir
     else if (y >= ocreStart)  bg = OCRE;            // présentation → tout ocre
+    /* (révélation) UNE MARGE, PAS UNE LIGNE : le crème venu, il ne repart que
+       si la carte redescend franchement (un tiers d'écran). Un petit geste du
+       pavé tactile autour du seuil ne fait plus battre blanc / crème. */
+    else if (recouvre && zone === OCRE && y >= fige - vh * 0.33) bg = OCRE;
     /* la zone change : le temps du fondu, le cadre et la flèche prennent la
        même durée que le fond (--zone-duree) au lieu de leur bascule rapide */
     if (bg !== zone) {
