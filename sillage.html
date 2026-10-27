@@ -1333,17 +1333,22 @@ footer {
 .proj-panel-intro, .proj-panel-gallery { position: relative; z-index: 1; background: #fff; }
 .proj-panel-pied {
   --sig-x: var(--ui-x);
+  /* le blanc du projet s'arrête sous TB et la croix : l'écran noir laisse
+     au-dessus de lui la bande de la barre */
+  --pied-marge: calc(var(--ui-y) * 3 + 45px);
   position: sticky; bottom: 0; z-index: 0;
-  height: 100vh;
-  display: grid; place-items: center;
+  height: calc(100vh - var(--pied-marge));
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end;
   background: #000; color: #fff;
   container-type: inline-size;
   font-family: 'Castillon', Georgia, serif;
   font-size: 19px; font-weight: 160; letter-spacing: 0.05em; line-height: 1;
 }
+/* le nom posé en bas, juste au-dessus des deux mentions — comme au pied de
+   l'accueil */
 .ppp-nom {
   margin: 0; width: 100%; box-sizing: border-box;
-  padding: 0 var(--sig-x);
+  padding: 0 var(--sig-x) clamp(64px, 9vh, 104px);
   font-family: 'Castillon', serif; font-weight: 160;
   font-size: calc((100cqw - var(--sig-x) * 2 - 13pt) / 8.9043);
   line-height: 0.9; letter-spacing: calc(-0.035em + 1pt);
@@ -1351,10 +1356,38 @@ footer {
   text-align: center; color: #fff;
 }
 .ppp-mention { position: absolute; bottom: var(--ui-y); white-space: nowrap; color: #fff; }
+/* PROJET PRÉCÉDENT / PROJET SUIVANT : au milieu de l'écran noir */
+.ppp-nav {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: clamp(40px, 7vw, 120px);
+}
+.ppp-lien {
+  display: inline-flex; align-items: baseline; gap: 0.45em;
+  background: none; border: 0; padding: 8px 4px; cursor: pointer;
+  font: inherit; letter-spacing: inherit; color: #fff;
+  font-style: italic; font-size: clamp(18px, 1.5vw, 24px);
+  position: relative;
+}
+.ppp-lien::after {
+  content: ""; position: absolute; left: 4px; right: 4px; bottom: 4px; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ppp-lien:hover::after, .ppp-lien:focus-visible::after { transform: scaleX(1); }
+.ppp-fleche { font-style: normal; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.ppp-prec:hover .ppp-fleche { transform: translateX(-4px); }
+.ppp-suiv:hover .ppp-fleche { transform: translateX(4px); }
+/* le volet change de projet : le contenu s'éteint puis revient */
+.proj-panel.change-projet > :not(.proj-panel-topbar) { opacity: 0; transition: opacity 0.22s ease; }
+.proj-panel > .proj-panel-intro, .proj-panel > .proj-panel-gallery, .proj-panel > .proj-panel-pied { transition: opacity 0.35s ease; }
 .ppp-g { left: var(--ui-x); }
 .ppp-d { right: var(--ui-x); }
 @media (max-width: 600px) {
+  .proj-panel-pied { --pied-marge: calc(var(--ui-y) * 3 + 40px); }
+  .ppp-nav { flex-direction: column; gap: 18px; }
+  .ppp-lien { font-size: 18px; }
   .ppp-nom {
+    padding-bottom: 58px;
     white-space: normal; text-indent: 0;
     font-size: calc((100cqw - var(--sig-x) * 2) * 0.84 / 4.57995);
     line-height: 0.86;
@@ -1364,7 +1397,7 @@ footer {
 /* au doigt : l'écran noir prend la grande hauteur (sous la barre de Safari),
    les mentions restent au-dessus de la barre */
 @media (pointer: coarse) {
-  .proj-panel-pied { height: 100lvh; }
+  .proj-panel-pied { height: calc(100lvh - var(--pied-marge)); padding-bottom: calc(100lvh - 100svh); box-sizing: border-box; }
   .ppp-mention { bottom: calc(var(--ui-y) + 100lvh - 100svh); }
 }
 
@@ -3103,6 +3136,10 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- LE PIED DU VOLET : un écran noir, posé SOUS le projet ; le dernier
        visuel remonte comme un rideau et le découvre -->
   <div class="proj-panel-pied" aria-label="Thomas Bonneau">
+    <nav class="ppp-nav" aria-label="Projets">
+      <button type="button" class="ppp-lien ppp-prec" data-sens="-1"><span class="ppp-fleche" aria-hidden="true">←</span>Projet précédent</button>
+      <button type="button" class="ppp-lien ppp-suiv" data-sens="1">Projet suivant<span class="ppp-fleche" aria-hidden="true">→</span></button>
+    </nav>
     <p class="ppp-nom"><span>Thomas</span> <span>Bonneau</span></p>
     <span class="ppp-mention ppp-g">Design graphique</span>
     <span class="ppp-mention ppp-d">Direction artistique</span>
@@ -5252,7 +5289,7 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (indexBureau.matches) { worksPanel.scrollTop = 0; ibActif = -1; ibPeindre(); }
+  if (indexBureau.matches) { ibActif = -1; ibDefileOuverture(); }
 }
 
 /* ══ L'INDEX EN GALERIE (essai du 27/10, au bureau) ════════════════════════
@@ -5321,12 +5358,34 @@ function ibPeindre() {
   const premier = ibActif < 0;
   ibActif = k;
   ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
-  clearTimeout(ibFondu);
-  if (premier) { ibPoser(k); return; }
+  if (premier) { clearTimeout(ibFondu); ibFondu = 0; ib.classList.remove('ib-change'); ibPoser(k); return; }
+  /* un fondu en cours n'est pas relancé : en défilant vite, les noms se
+     succèdent au lieu d'attendre qu'on s'arrête */
+  if (ibFondu) return;
   ib.classList.add('ib-change');
-  ibFondu = setTimeout(() => { ibPoser(ibActif); ib.classList.remove('ib-change'); }, 180);
+  ibFondu = setTimeout(() => { ibFondu = 0; ibPoser(ibActif); ib.classList.remove('ib-change'); }, 180);
 }
 worksPanel.addEventListener('scroll', () => { if (!ibRaf) ibRaf = requestAnimationFrame(ibPeindre); }, { passive: true });
+/* L'OUVERTURE : l'Index s'ouvre sur le DERNIER projet et remonte d'un trait,
+   vite, jusqu'au premier — un aperçu de tout ce qu'il y a à voir, puis il
+   se pose. Le moindre geste (molette, doigt, touche) l'arrête net. */
+let ibAnim = 0;
+function ibDefileOuverture() {
+  cancelAnimationFrame(ibAnim);
+  const max = worksPanel.scrollHeight - worksPanel.clientHeight;
+  if (motionState.reducedMotion || max <= 0) { worksPanel.scrollTop = 0; ibPeindre(); return; }
+  worksPanel.scrollTop = max;
+  ibPeindre();
+  const DUREE = 1300, t0 = performance.now() + 250;          /* un quart de seconde sur le dernier, puis il remonte */
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const pas = now => {
+    const t = Math.min(1, Math.max(0, (now - t0) / DUREE));
+    worksPanel.scrollTop = Math.round(max * (1 - ease(t)));
+    if (t < 1) ibAnim = requestAnimationFrame(pas); else ibAnim = 0;
+  };
+  ibAnim = requestAnimationFrame(pas);
+}
+['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(t => worksPanel.addEventListener(t, () => { cancelAnimationFrame(ibAnim); ibAnim = 0; }, { passive: true }));
 /* les visuels de l'Index qu'aucune carte de l'accueil n'a chargés (ONF,
    Logotypes, Affiches) partent dès que la page est posée : à l'ouverture de
    l'Index, tout est déjà là */
@@ -5759,7 +5818,31 @@ const pageCurtain = (function () {
     openPanel(deep);
   }
 
-  return { open: open, close: close, state: () => pt.state };
+  /* PROJET PRÉCÉDENT / SUIVANT (le pied noir du volet) : le volet reste
+     ouvert ; son contenu s'éteint, le projet voisin s'y installe — dans
+     l'ordre de l'Index, en boucle —, le volet repart du haut, et le contenu
+     revient. L'adresse suit, sans ajouter d'étape à l'historique. */
+  let changeEnCours = false;
+  function voisin(sens) {
+    if (pt.state !== 'project' || changeEnCours) return;
+    const i = CARDS.indexOf(pt.card);
+    const card = CARDS[((i < 0 ? 0 : i) + sens + CARDS.length) % CARDS.length];
+    if (!card) return;
+    changeEnCours = true;
+    panel.classList.add('change-projet');
+    setTimeout(() => {
+      pt.card = card; pt.projectIndex = CARDS.indexOf(card);
+      openPanel(card);
+      try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        panel.classList.remove('change-projet');
+        changeEnCours = false;
+      }));
+    }, 240);
+  }
+  panel.querySelectorAll('.ppp-lien').forEach(b => b.addEventListener('click', () => voisin(+b.dataset.sens)));
+
+  return { open: open, close: close, state: () => pt.state, voisin: voisin };
 })();
 
 document.querySelectorAll('.stack-card').forEach(card => {
