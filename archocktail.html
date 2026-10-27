@@ -902,6 +902,7 @@ body.refraction-on .hero { position: sticky; top: 0; }
 .projects-stack {
   position: relative;
 }
+.projects-stack.est-passee { visibility: hidden; }
 
 .stack-card {
   position: sticky;
@@ -2738,7 +2739,7 @@ body.zone-foot .about-story {
   .works-more-btn {
     position: absolute; left: 50%; bottom: calc(clamp(16px, 1.2vw, 24px) + 1px);
     translate: -50% 0;
-    font-size: 14px; line-height: 1; font-weight: 300; letter-spacing: 0.04em;
+    font-size: 18px; line-height: 1; font-weight: 300; letter-spacing: 0.04em;
     color: #fff;
   }
   .projects { position: relative; z-index: 2; }
@@ -2794,11 +2795,12 @@ body.zone-foot .about-story {
      (agrandis d'un rien : le flou ne laisse pas de bord clair) */
   .ib-carte img {
     width: 100%; height: 100%; object-fit: cover; display: block;
-    filter: blur(5px);
-    scale: 1.05;
+    filter: blur(10px);
+    opacity: 0.4;
+    scale: 1.08;
     transition: transform 1.1s var(--ease-smooth), opacity 0.6s ease, filter 0.6s ease, scale 0.6s ease;
   }
-  .ib-carte.est-actif img { filter: none; scale: 1; }
+  .ib-carte.est-actif img { filter: none; opacity: 1; scale: 1; }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   .ib-carte { cursor: none; }
   /* les images passent sous deux bandes blanches : la croix et « Direction
@@ -6187,6 +6189,27 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(apply); });   // scroll CENTRAL
   addEventListener('resize', apply);
   apply();
+})();
+
+/* LA PILE PASSÉE NE SE PEINT PLUS. Au bureau, l'À propos est glissé SOUS la
+   dernière carte ; Safari gardait la carte collante de Studio Synapse dans
+   un calque qu'il ne déplaçait pas toujours : posé sur « Qui je suis », on
+   la voyait revenir par éclairs, par-dessus (le « grésillement »). Une fois
+   la pile entièrement sortie par le haut, elle est donc retirée de l'écran
+   (visibility) — rien ne peut plus réapparaître ; elle revient avant même
+   qu'on la rejoigne en remontant. */
+(function pilePassee() {
+  const pile = document.querySelector('.projects-stack');
+  if (!pile) return;
+  let etat = null, raf = 0;
+  const voir = () => {
+    raf = 0;
+    const passee = pile.getBoundingClientRect().bottom < -innerHeight * 0.25;
+    if (passee !== etat) { etat = passee; pile.classList.toggle('est-passee', passee); }
+  };
+  onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(voir); });
+  addEventListener('resize', voir, { passive: true });
+  voir();
 })();
 
 /* ══ CONTRASTE DES QUATRE COINS ═══════════════════════════════════════════
