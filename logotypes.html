@@ -6198,19 +6198,24 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
 
 /* LA PILE PASSÉE NE SE PEINT PLUS. Au bureau, l'À propos est glissé SOUS la
    dernière carte ; Safari gardait la carte collante de Studio Synapse dans
-   un calque qu'il ne déplaçait pas toujours : posé sur « Qui je suis », on
-   la voyait revenir par éclairs, par-dessus (le « grésillement »). Une fois
-   la pile entièrement sortie par le haut, elle est donc retirée de l'écran
-   (visibility) — rien ne peut plus réapparaître ; elle revient avant même
-   qu'on la rejoigne en remontant. */
+   un calque qu'il ne déplaçait pas toujours (le « grésillement »). Loin sous
+   la pile — plus d'un écran —, elle est retirée de l'écran (visibility).
+   Mais Safari décharge les photos d'un élément masqué : revenue trop tard,
+   une carte paraissait NOIRE le temps de redécoder sa photo, avec un
+   à-coup. Elle revient donc dès qu'on est à un écran d'elle, et ses photos
+   sont redécodées aussitôt — en arrivant, tout est prêt. */
 (function pilePassee() {
   const pile = document.querySelector('.projects-stack');
   if (!pile) return;
   let etat = null, raf = 0;
   const voir = () => {
     raf = 0;
-    const passee = pile.getBoundingClientRect().bottom < -innerHeight * 0.25;
-    if (passee !== etat) { etat = passee; pile.classList.toggle('est-passee', passee); }
+    const passee = pile.getBoundingClientRect().bottom < -innerHeight * 1.2;
+    if (passee !== etat) {
+      etat = passee;
+      pile.classList.toggle('est-passee', passee);
+      if (!passee) pile.querySelectorAll('img').forEach(im => { if (im.decode) im.decode().catch(() => {}); });
+    }
   };
   onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(voir); });
   addEventListener('resize', voir, { passive: true });
@@ -7669,6 +7674,8 @@ void main() {
   }
 
   function kick() { if (!raf && installed) raf = requestAnimationFrame(frame); }
+  /* lecture seule, pour les essais : où en est la transition */
+  window.__refractionEtat = () => ({ p: +smoothProgress.toFixed(4), cible: +targetProgress.toFixed(4), actif: active, raf: !!raf, champ: champSale, depot: +(performance.now() / 1000 - dernierDepot).toFixed(2), tEvt: +tEvt.toFixed(2), presence: +presence.toFixed(3), presenceCible, heroPret, enPresence, encre });
 
   /* ── INSTALLATION ──────────────────────────────────────────────────────── */
   /* les textures sont inutilisables (file://) → on rend la main au DOM :
@@ -7686,23 +7693,27 @@ void main() {
      et Safari y vient bien avant Chrome. Sans ce garde-fou l'effet du hero
      meurt en silence : plus aucune image n'est dessinée et rien ne le relance.
      On repasse à la révélation sobre, et on réinstalle si le contexte revient. */
+  /* (Safari retire le contexte d'une couche restée longtemps au repos —
+     typiquement pendant qu'on lit le bas de la page —, puis le rend quand on
+     remonte.) Avant, on repassait au repli : la piste du hero perdait d'un
+     coup sa hauteur (la page SAUTAIT de plus d'un écran), puis la reprise
+     réinstallait avec des programmes et des textures devenus invalides :
+     un écran NOIR à l'arrivée sur le premier projet. Désormais la mise en
+     page ne bouge JAMAIS : la couche s'efface simplement, le hero du DOM
+     (blanc, la phrase) reste dessous, collé, et la carte d'Arch'ocktail
+     arrive à sa place. L'effet revient au prochain chargement. */
   let perdu = false;
   canvas.addEventListener('webglcontextlost', e => {
     e.preventDefault();
     perdu = true;
-    disableRefraction();
+    installed = false;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    active = false;
+    holder.classList.remove('is-active', 'en-presence');
+    holder.style.display = 'none';
+    stackInstant = false;
+    annoncer();
   });
-  canvas.addEventListener('webglcontextrestored', () => {
-    if (!perdu) return;
-    perdu = false;
-    try {
-      fallbackTried = false;   // la copie embarquée redevient disponible
-      texturesOk = true;
-      installed = false;
-      install();
-    } catch (e) { disableRefraction(); }
-  });
-
   /* En file:// le navigateur traite l'image locale comme une origine étrangère :
      elle « tainte » le canvas 2D et WebGL refuse la texture. On rebascule alors
      sur la copie embarquée en data: (même cadrage, même ratio) — aucune lecture
