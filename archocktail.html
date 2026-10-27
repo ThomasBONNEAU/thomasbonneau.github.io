@@ -5360,7 +5360,9 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (indexBureau.matches) { ibActif = -1; ibDefileOuverture(); }
+  /* (29/10 : plus d'animation d'ouverture — l'Index s'ouvre posé sur le
+     premier projet ; ibDefileOuverture reste disponible si on la veut) */
+  if (indexBureau.matches) { worksPanel.scrollTop = 0; ibActif = -1; ibPeindre(); }
 }
 
 /* ══ L'INDEX EN GALERIE (essai du 27/10, au bureau) ════════════════════════
