@@ -656,6 +656,11 @@ body.curtain-live .proj-panel.open { transition: none; }
 body.index-cadre .site-frame { z-index: 160; }
 body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
 body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #101014; }
+/* au bureau, l'Index est sur le noir (essai du 28/10) : le cadre y est blanc */
+@media (min-width: 901px) {
+  body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
+  body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #fff; }
+}
 .site-frame .frame-menu__mot {
   display: inline-block;
   transition: opacity 0.35s ease, filter 0.35s ease;
@@ -2850,7 +2855,7 @@ body.zone-foot .about-story {
   /* FOND BLANC, ENCRE NOIRE ; à gauche, seul, le nom du projet regardé — Castillon Thin,
      grand, son numéro en italique devant, comme l'ancienne liste —, au
      milieu de la colonne */
-  .works-panel { background: #fff; }
+  .works-panel { background: #000; }
   .index-bureau {
     --ib-x: clamp(18px, 1.35vw, 26px);          /* la marge du cadre */
     display: grid; grid-template-columns: 38vw minmax(0, 1fr);
@@ -2865,13 +2870,13 @@ body.zone-foot .about-story {
     margin: 0; display: inline-flex; align-items: baseline; gap: 0.55rem;
     font-family: 'Castillon', serif; font-weight: 100;
     font-size: clamp(2.6rem, 4.4vw, 5.6rem); line-height: 1.05; letter-spacing: -0.01em;
-    color: #111114; text-align: center;
+    color: #fff; text-align: center;
     transition: opacity 0.18s ease;
   }
   .ib-num {
     font-style: italic; font-weight: 200; font-size: max(0.19em, 10px);
     letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
-    color: rgba(17, 17, 20, 0.74);
+    color: rgba(255, 255, 255, 0.74);
   }
   .index-bureau.ib-change .ib-titre { opacity: 0; }
   .ib-images {
@@ -2881,7 +2886,7 @@ body.zone-foot .about-story {
   .ib-carte {
     position: relative; display: block; width: 100%; aspect-ratio: 16 / 10;
     margin: 0; padding: 0; border: 0; overflow: hidden; cursor: pointer;
-    background: #fff;
+    background: #000;
   }
   /* le projet regardé, net ; les autres, flous, dans leurs couleurs
      (agrandis d'un rien : le flou ne laisse pas de bord clair) */
