@@ -629,6 +629,11 @@ body.curtain-live .proj-panel.open { transition: none; }
 body.index-cadre .site-frame { z-index: 160; }
 body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
 body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #101014; }
+/* au bureau, l'Index est sur le noir (essai du 27/10) : le cadre y est blanc */
+@media (min-width: 901px) {
+  body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
+  body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #fff; }
+}
 .site-frame .frame-menu__mot {
   display: inline-block;
   transition: opacity 0.35s ease, filter 0.35s ease;
@@ -2738,43 +2743,33 @@ body.zone-foot .about-story {
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre)); }
 
   .works-list, .works-aura { display: none; }
+  /* FOND NOIR ; à gauche, seul, le nom du projet regardé — Castillon Thin,
+     grand, son numéro en italique devant, comme l'ancienne liste —, au
+     milieu de la colonne */
+  .works-panel { background: #000; }
   .index-bureau {
     --ib-x: clamp(18px, 1.35vw, 26px);          /* la marge du cadre */
-    display: grid; grid-template-columns: 34vw minmax(0, 1fr);
+    display: grid; grid-template-columns: 38vw minmax(0, 1fr);
     min-height: 100vh;
   }
   .ib-texte {
     position: sticky; top: 0; height: 100vh; box-sizing: border-box;
-    display: flex; flex-direction: column;
-    padding: 0 4vw 0 var(--ib-x);
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 2vw 0 var(--ib-x);
   }
   .ib-titre {
-    margin: 31vh 0 0;
-    display: flex; flex-direction: column;
-    font-family: 'Castillon', serif; font-weight: 160;
-    font-size: clamp(22px, 1.95vw, 32px); line-height: 1.12; letter-spacing: 0.005em;
-    color: #111114;
+    margin: 0; display: inline-flex; align-items: baseline; gap: 0.55rem;
+    font-family: 'Castillon', serif; font-weight: 100;
+    font-size: clamp(2.6rem, 4.4vw, 5.6rem); line-height: 1.05; letter-spacing: -0.01em;
+    color: #fff; text-align: center;
+    transition: opacity 0.18s ease;
   }
-  .ib-nom { color: rgba(17, 17, 20, 0.36); }
-  .ib-desc {
-    margin: auto 0 0; max-width: 31em;
-    font-family: 'Castillon', serif; font-weight: 300;
-    font-size: 13px; line-height: 1.55; color: rgba(17, 17, 20, 0.62);
+  .ib-num {
+    font-style: italic; font-weight: 200; font-size: max(0.19em, 10px);
+    letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.74);
   }
-  .ib-legende {
-    display: flex; align-items: center; gap: 12px;
-    margin: 22px 0 calc(clamp(16px, 1.2vw, 24px) + 46px);
-    font-family: var(--ab-sans, 'LumaSans', sans-serif); font-weight: 500;
-    font-size: 10px; line-height: 1.5; letter-spacing: 0.08em; text-transform: uppercase;
-    color: #111114;
-  }
-  .ib-legende img { width: 30px; height: 30px; object-fit: cover; display: block; flex: none; }
-  .ib-legende > span { display: flex; flex-direction: column; }
-  .ib-leg-meta { color: rgba(17, 17, 20, 0.45); }
-  /* le texte change en fondu, d'un projet à l'autre */
-  .ib-nom, .ib-desc, .ib-legende { transition: opacity 0.18s ease; }
-  .index-bureau.ib-change .ib-nom, .index-bureau.ib-change .ib-desc,
-  .index-bureau.ib-change .ib-legende { opacity: 0; }
+  .index-bureau.ib-change .ib-titre { opacity: 0; }
   .ib-images {
     display: flex; flex-direction: column; gap: 10px;
     padding: 13vh var(--ib-x) 34vh 0;
@@ -2782,12 +2777,15 @@ body.zone-foot .about-story {
   .ib-carte {
     position: relative; display: block; width: 100%; aspect-ratio: 16 / 10;
     margin: 0; padding: 0; border: 0; overflow: hidden; cursor: pointer;
-    background: #f1f0ec;
+    background: #111;
   }
+  /* le projet regardé en pleine lumière ; les autres, grisés */
   .ib-carte img {
     width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: transform 1.1s var(--ease-smooth), opacity 0.6s ease;
+    filter: grayscale(1) brightness(0.42);
+    transition: transform 1.1s var(--ease-smooth), opacity 0.6s ease, filter 0.6s ease;
   }
+  .ib-carte.est-actif img { filter: none; }
   .ib-carte img:not(.est-charge) { opacity: 0; }
   .ib-carte:hover img { transform: scale(1.02); }
   .ib-voir {
@@ -2798,11 +2796,11 @@ body.zone-foot .about-story {
     pointer-events: none;
   }
   .ib-carte:hover .ib-voir, .ib-carte:focus-visible .ib-voir { opacity: 1; }
-  /* les images passent sous deux bandes blanches : la croix et « Direction
-     artistique » restent toujours sur le blanc */
+  /* les images passent sous deux bandes noires : la croix et « Direction
+     artistique » restent toujours sur le noir */
   .ib-images::before, .ib-images::after {
     content: ""; position: fixed; right: 0; width: 66vw; z-index: 4; pointer-events: none;
-    background: #fff;
+    background: #000;
   }
   .ib-images::before { top: 0; height: 9vh; }
   .ib-images::after  { bottom: 0; height: 7vh; }
@@ -3034,9 +3032,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- au bureau (essai du 27/10) : l'Index en galerie, construit par buildIndexBureau -->
   <div class="index-bureau">
     <aside class="ib-texte">
-      <p class="ib-titre"><span class="ib-label">Index</span><span class="ib-nom"></span></p>
-      <p class="ib-desc"></p>
-      <p class="ib-legende"><img alt=""><span><span class="ib-leg-nom"></span><span class="ib-leg-meta"></span></span></p>
+      <p class="ib-titre"><em class="ib-num"></em><span class="ib-nom"></span></p>
     </aside>
     <div class="ib-images"></div>
   </div>
@@ -5267,13 +5263,8 @@ function buildIndexBureau(cards) {
 }
 function ibPoser(k) {
   const c = ibCartes[k]; if (!c || !ib) return;
-  const d = c.card.dataset;
-  ib.querySelector('.ib-nom').textContent = d.title || '';
-  ib.querySelector('.ib-desc').textContent = ibCourt(ibTexte(d.desc), 430);
-  ib.querySelector('.ib-leg-nom').textContent = d.title || '';
-  ib.querySelector('.ib-leg-meta').textContent = (d.year || '2026') + (d.cat ? ' · ' + d.cat : '');
-  const v = ib.querySelector('.ib-legende img');
-  if (c.src) v.src = c.src.indexOf('://') > 0 ? c.src : varianteProche(c.src, 120); else v.removeAttribute('src');
+  ib.querySelector('.ib-num').textContent = String(k + 1).padStart(2, '0');
+  ib.querySelector('.ib-nom').textContent = c.card.dataset.title || '';
 }
 function ibPeindre() {
   ibRaf = 0;
@@ -5288,6 +5279,7 @@ function ibPeindre() {
   if (k === ibActif) return;
   const premier = ibActif < 0;
   ibActif = k;
+  ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
   clearTimeout(ibFondu);
   if (premier) { ibPoser(k); return; }
   ib.classList.add('ib-change');
