@@ -2709,7 +2709,8 @@ body.zone-foot .about-story {
        milieu de la ligne des deux mentions du bas.
    2 · L'À PROPOS EST SOUS LA DERNIÈRE CARTE : il remonte d'un écran sous
        Studio Synapse (--ab-recouvre), déjà crème, déjà figé ; la carte part
-       vers le haut comme un rideau et découvre « Qui je suis » en place —
+       vers le haut comme un rideau et découvre « Qui je suis » en place,
+       en blanc, qui passe au crème et à l'ocre dès qu'on descend un peu —
        puis tout le reste défile comme avant. Le premier temps mort de la
        narration s'allonge d'autant (voir aboutStory).
    3 · L'INDEX EN DÉFILÉ : les noms dans la moitié gauche, celui du milieu
@@ -2726,11 +2727,10 @@ body.zone-foot .about-story {
     color: #fff;
   }
   .projects { position: relative; z-index: 2; }
+  /* découvert, il est BLANC (encre noire) ; dès qu'on descend un peu, il
+     passe au crème et à l'ocre (voir zoneWash) */
   .about-story {
     --ab-recouvre: 100vh;
-    --ab-encre:  var(--ocre);
-    --ab-signal: var(--ocre);
-    --ab-plane:  #fcfaeb;
     position: relative; z-index: 1;
     margin-top: calc(var(--ab-recouvre) * -1);
     background: var(--ab-plane);
@@ -6063,7 +6063,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
        découvre qu'une fois la carte partie */
     const recouvre  = Math.max(0, -(parseFloat(getComputedStyle(pres).marginTop) || 0));
     const fige      = absTop(pres) + padHaut - stick + recouvre;
-    const ocreStart = fige + vh * 0.10;
+    const ocreStart = fige + vh * (recouvre ? 0.04 : 0.10);   /* découvert sous la carte : le crème vient tout de suite */
     // ── NOIR : plus tard qu'avant — le bord haut du footer à 30 % du haut de
     //    l'écran, contre 40 % auparavant. Le second terme est un garde-fou : si le
     //    footer est plus court que l'écran, son bord haut ne peut PAS monter jusqu'au
