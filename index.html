@@ -2714,6 +2714,70 @@ body.zone-foot .about-story {
   footer { min-height: calc(100vh + 130px); }
 }
 @media (max-width: 768px) { .footer-meta { padding-left: 14px; padding-right: 14px; } }
+/* ══ ESSAI DU 27/10 — AU BUREAU SEULEMENT ═══════════════════════════════
+   (la version d'avant est dans portfolio-sauvegardes : index-avant-essai-…)
+   1 · « voir plus » se pose SUR la dernière image, en petit, en blanc, au
+       milieu de la ligne des deux mentions du bas.
+   2 · L'À PROPOS EST SOUS LA DERNIÈRE CARTE : il remonte d'un écran sous
+       Studio Synapse (--ab-recouvre), déjà crème, déjà figé ; la carte part
+       vers le haut comme un rideau et découvre « Qui je suis » en place —
+       puis tout le reste défile comme avant. Le premier temps mort de la
+       narration s'allonge d'autant (voir aboutStory).
+   3 · L'INDEX EN DÉFILÉ : les noms dans la moitié gauche, celui du milieu
+       est le projet regardé, son image carrée dans la moitié droite ; on
+       fait défiler, un nom à la fois, et les autres s'estompent en
+       s'éloignant (voir indexDefile). ═══════════════════════════════════ */
+.works-carre { display: none; }
+@media (min-width: 901px) {
+  .works-more { height: 0; padding: 0; }
+  .works-more-btn {
+    position: absolute; left: 50%; bottom: calc(clamp(16px, 1.2vw, 24px) + 1px);
+    translate: -50% 0;
+    font-size: 14px; line-height: 1; font-weight: 300; letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .projects { position: relative; z-index: 2; }
+  .about-story {
+    --ab-recouvre: 100vh;
+    --ab-encre:  var(--ocre);
+    --ab-signal: var(--ocre);
+    --ab-plane:  #fcfaeb;
+    position: relative; z-index: 1;
+    margin-top: calc(var(--ab-recouvre) * -1);
+    background: var(--ab-plane);
+    transition-property: color, background-color;
+  }
+  .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre)); }
+
+  .works-panel { scroll-snap-type: y mandatory; }
+  .works-aura { display: none; }
+  .works-list {
+    --corps: clamp(2.6rem, 4.4vw, 5.2rem);
+    --ligne: calc(var(--corps) * 1.55);
+    display: block; width: 50%; min-height: 0;
+    padding: calc(50vh - var(--ligne) / 2) 0;
+  }
+  .works-list .works-line {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; height: var(--ligne);
+    font-size: var(--corps); line-height: 1;
+    scroll-snap-align: center;
+  }
+  .works-list .works-line > * { transition: opacity 0.25s linear, filter 0.25s linear; }
+  .works-carre {
+    display: block; position: fixed; z-index: 3;
+    left: 75%; top: 50%; translate: -50% -50%;
+    width: min(34vw, 62vh); aspect-ratio: 1 / 1;
+    pointer-events: none;
+  }
+  .works-carre img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    opacity: 0; transition: opacity 0.45s ease;
+  }
+  .works-carre img.est-la { opacity: 1; }
+  .works-panel:not(.open) .works-carre img { transition: none; }
+}
 /* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
    un calque « plein écran » (inset: 0) s'arrêtait AU-DESSUS d'elle, et l'on
    voyait l'accueil au travers, en bas d'un projet ouvert. Les calques
@@ -2937,6 +3001,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- WORKS PANEL -->
 <div class="works-panel" id="worksPanel">
   <div class="works-list" id="worksPanelGrid"></div>
+  <!-- au bureau (essai du 27/10) : l'image carrée du projet au centre de la liste -->
+  <div class="works-carre" aria-hidden="true"><img alt=""><img alt=""></div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
     <figure class="works-trace"><img alt=""></figure>
     <figure class="works-trace"><img alt=""></figure>
@@ -5079,8 +5145,9 @@ function buildWorksPanel() {
     row.appendChild(idx);
     row.appendChild(word);
 
-    row.addEventListener('pointerenter', () => { worksEnter(i, row, src); prechargerProjet(card); });
-    row.addEventListener('focus', () => worksEnter(i, row, src, true));
+    row.dataset.vignette = src;
+    row.addEventListener('pointerenter', () => { if (!indexDefile.matches) worksEnter(i, row, src); prechargerProjet(card); });
+    row.addEventListener('focus', () => { if (!indexDefile.matches) worksEnter(i, row, src, true); });
     row.addEventListener('pointerleave', worksLeave);
     row.addEventListener('blur', worksLeave);
 
@@ -5110,7 +5177,56 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (indexDefile.matches) { worksPanel.scrollTop = 0; carreActif = -1; defilePeindre(); }
 }
+
+/* ══ L'INDEX EN DÉFILÉ (essai du 27/10, au bureau) ═════════════════════════
+   Les noms occupent la moitié gauche ; on les fait défiler un à un (le
+   volet s'arrête sur chaque nom, au milieu de l'écran). Le nom du milieu est
+   le projet regardé : il est pleinement à l'encre, et son image CARRÉE est
+   dans la moitié droite. Les autres s'estompent et se brouillent à mesure
+   qu'ils s'éloignent du milieu — on les voit, jusqu'à une limite. L'image
+   change en fondu, une fois la suivante décodée. Un clic ouvre le projet. */
+const indexDefile = matchMedia('(min-width: 901px)');
+const carreImgs = [...document.querySelectorAll('.works-carre img')];
+let carreActif = -1, carreFace = 0, defileRaf = 0;
+function carreMontrer(src) {
+  if (carreImgs.length < 2) return;
+  const suivante = carreImgs[1 - carreFace], courante = carreImgs[carreFace];
+  const voulu = src ? varianteProche(src, 1100) : '';
+  suivante.dataset.voulu = voulu;
+  if (!voulu) { courante.classList.remove('est-la'); return; }
+  if (suivante.getAttribute('src') !== voulu) suivante.setAttribute('src', voulu);
+  decodee(suivante).then(() => {
+    if (suivante.dataset.voulu !== voulu) return;          /* on a déjà défilé plus loin */
+    suivante.classList.add('est-la');
+    courante.classList.remove('est-la');
+    carreFace = 1 - carreFace;
+  });
+}
+function defilePeindre() {
+  defileRaf = 0;
+  if (!indexDefile.matches || !worksPanel.classList.contains('open')) return;
+  const rows = [...worksPanelGrid.querySelectorAll('.works-line')];
+  if (!rows.length) return;
+  const milieu = innerHeight / 2;
+  let actif = 0, ecart = Infinity;
+  rows.forEach((row, i) => {
+    const r = row.getBoundingClientRect();
+    const d = (r.top + r.height / 2 - milieu) / (r.height || 1);
+    if (Math.abs(d) < ecart) { ecart = Math.abs(d); actif = i; }
+    const a = Math.abs(d);
+    const op = Math.max(0.1, 1 - a * 0.34);
+    const flou = motionState.reducedMotion || a <= 0.5 ? 0 : Math.min(5, (a - 0.5) * 2.2);
+    for (const el of row.children) { el.style.opacity = op.toFixed(3); el.style.filter = flou ? 'blur(' + flou.toFixed(2) + 'px)' : ''; }
+  });
+  if (actif !== carreActif) {
+    carreActif = actif;
+    rows.forEach((row, i) => row.classList.toggle('is-active', i === actif));
+    carreMontrer(rows[actif].dataset.vignette);
+  }
+}
+worksPanel.addEventListener('scroll', () => { if (!defileRaf) defileRaf = requestAnimationFrame(defilePeindre); }, { passive: true });
 
 let worksVidage = 0;
 function closeWorksPanel() {
@@ -5719,7 +5835,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   addEventListener('resize', () => { if (!rafCompo) rafCompo = requestAnimationFrame(() => { rafCompo = 0; composerTout(); }); }, { passive: true });
 
   /* ── MESURE : au repos seulement ───────────────────────────────────────── */
-  const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1 };
+  const M = { on: false, top: 0, haut: 0, win: 0, pose: 0, pas: 0, prog: -1, recouvre: 0 };
   /* AU TÉLÉPHONE, LES DOSSIERS — les cinq chapitres. Chacun connaît sa
      hauteur : le CSS en déduit s'il se pose sous la bande (il tient dans la
      fenêtre) ou par son bas ; et la part de lui que le suivant recouvre déjà
@@ -5817,6 +5933,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     M.pas  = px('var(--ab-pas)');
     /* la piste commence à coller quand son haut atteint ce décalage */
     M.top  = piste.getBoundingClientRect().top + (window.scrollY || 0) - y;
+    /* l'À propos glissé sous la dernière carte (essai du 27/10) : tant que la
+       carte le recouvre, la narration attend */
+    M.recouvre = Math.max(0, -(parseFloat(getComputedStyle(root).marginTop) || 0));
     M.prog = -1;
   }
 
@@ -5829,7 +5948,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
        premier plan reste installé seul avant que le second ne commence à
        monter, et le dernier reste calme avant que la section rende la main. */
-    const y = (window.scrollY || 0) - M.top;
+    const y = (window.scrollY || 0) - M.top - M.recouvre;
     const t = clamp01((y - M.pose) / (M.pas * relais)) * relais;
     if (t === M.prog) return;
     M.prog = t;
@@ -5907,7 +6026,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     measure(); relancer();
     /* au bureau : au milieu du temps mort du chapitre 01, le crème déjà posé
        (il arrive un dixième d'écran après que la photo se fige) */
-    if (M.on) return Math.round(M.top + Math.min(M.pose - 8, Math.max(M.pose / 2, innerHeight * 0.1 + 24)));
+    if (M.on) return Math.round(M.top + M.recouvre + Math.min(M.pose - 8, Math.max(M.pose / 2, innerHeight * 0.1 + 24)));
     /* au téléphone : le dossier « Qui je suis » posé sous la bande de TB et
        Index — la fenêtre suit le flux, son haut est celui du premier dossier */
     return Math.round(flow.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(root).getPropertyValue('--bande-haut')) || 58));
@@ -5951,7 +6070,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     //    bascule arrive APRÈS l'arrêt, et non pendant.
     const stick     = photo ? (parseFloat(getComputedStyle(photo).top) || 0) : 0;
     const padHaut   = parseFloat(getComputedStyle(pres).paddingTop) || 0;
-    const fige      = absTop(pres) + padHaut - stick;
+    /* (essai du 27/10) l'À propos remonte sous la dernière carte : il ne se
+       découvre qu'une fois la carte partie */
+    const recouvre  = Math.max(0, -(parseFloat(getComputedStyle(pres).marginTop) || 0));
+    const fige      = absTop(pres) + padHaut - stick + recouvre;
     const ocreStart = fige + vh * 0.10;
     // ── NOIR : plus tard qu'avant — le bord haut du footer à 30 % du haut de
     //    l'écran, contre 40 % auparavant. Le second terme est un garde-fou : si le
