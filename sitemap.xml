@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://thomas-bonneau.fr/</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>1.0</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/accueil.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/portrait-tb.webp</image:loc></image:image>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/archocktail</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/archocktail.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret.webp</image:loc></image:image>
@@ -28,7 +28,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/malbec</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/malbec.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec.webp</image:loc></image:image>
@@ -53,7 +53,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/grapillon</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/grapillon.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-grapillon.webp</image:loc></image:image>
@@ -75,7 +75,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/sillage</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/sillage.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/PRESENTATION_SILLAGE.webp</image:loc></image:image>
@@ -110,7 +110,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/studio-synapse</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/studio-synapse.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse.webp</image:loc></image:image>
@@ -119,7 +119,7 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/onf</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/onf.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/logo_arbre.webp</image:loc></image:image>
@@ -139,13 +139,13 @@
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/logotypes</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/logotypes.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://thomas-bonneau.fr/affiches</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/affiches.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Affiche2_Mur.webp</image:loc></image:image>

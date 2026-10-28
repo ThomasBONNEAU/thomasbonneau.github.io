@@ -2891,10 +2891,14 @@ body.zone-foot .about-story {
     color: rgba(17, 17, 20, 0.74);
   }
   .index-bureau.ib-change .ib-titre { opacity: 0; }
-  /* un filet blanc sépare les projets */
+  /* LA PARTIE DROITE EST NOIRE : le fond noir déborde un peu des images — un
+     liseré de 12 px à la limite avec la colonne du nom, et entre deux
+     projets —, pour que la gauche (blanche, le nom) et la droite (les
+     images) se détachent l'une de l'autre */
   .ib-images {
     display: flex; flex-direction: column; gap: 12px;
-    padding: 0;
+    padding: 0 0 0 12px;
+    background: #000;
   }
   /* LA VAGUE D'OUVERTURE (voir ibDefileOuverture) : posée exactement sur la
      première grande image ; chaque feuille se découvre derrière un masque
