@@ -482,6 +482,7 @@ body.zone-fondu .cursor {
   white-space: nowrap;
 }
 /* sur un lien, la flèche parle du lien ; sous un volet, il n'y a plus rien à faire défiler */
+.cursor__indice { display: none; }   /* (l'invitation est désormais en bas de l'écran) */
 .cursor.hover-link .cursor__indice,
 body:has(#projPanel.open) .cursor__indice,
 body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
@@ -499,6 +500,8 @@ body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
 /* une image mêle clair et sombre sous un mot entier : il s'inverse sur elle */
 .cursor.sur-ib { color: #fff; mix-blend-mode: difference; }
 .cursor.sur-ib .cursor__voir { opacity: 1; }
+/* la souris n'est pas (encore) sur la page : pas de curseur */
+.cursor.curseur-absent, .cursor-ring.curseur-absent { opacity: 0 !important; }
 /* survol d'un projet : le cercle « Voir » apparaît, la flèche s'efface */
 .cursor-ring.hover-view { width: 62px; height: 62px; opacity: 1; }
 .cursor-ring.hover-view .cursor-label { opacity: 1; }
@@ -579,6 +582,25 @@ body.curtain-live .works-panel.open { transition: none; }
 .site-frame__tl { top: var(--ui-y);    left:  var(--ui-x); }
 .site-frame__tr { top: var(--ui-y);    right: var(--ui-x); }
 .site-frame__bl { bottom: var(--ui-y); left:  var(--ui-x); }
+/* FAITES DÉFILER — en bas, au milieu, sur la ligne des deux mentions ; la
+   flèche tournée vers le bas respire doucement. Elle arrive lettre à lettre
+   une fois l'accueil posé, reste pendant le début de la descente (près
+   d'un demi-écran), puis s'efface ; elle revient quand on remonte en haut. */
+.site-frame__bc {
+  position: absolute; left: 50%; bottom: var(--ui-y); translate: -50% 0;
+  display: inline-flex; align-items: baseline; gap: 0.5em;
+  white-space: nowrap; pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+.site-frame__bc.est-cache { opacity: 0; }
+/* toujours posée sur le blanc de l'accueil : l'encre */
+#siteNav .site-frame__bc { color: #101014; }
+.defiler-fleche {
+  display: inline-block; font-size: 1.05em;
+  animation: defiler-respire 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes defiler-respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@media (prefers-reduced-motion: reduce) { .defiler-fleche { animation: none; } }
 .site-frame__br { bottom: var(--ui-y); right: var(--ui-x); text-align: right; }
 /* pendant la séquence d'apparition les quatre éléments sont masqués : c'est
    la couche WebGL qui dessine leur typographie. Ils reprennent la main au
@@ -694,7 +716,8 @@ body.index-ouvert .site-frame .frame-menu:hover .frame-menu__croix { rotate: 90d
 
 /* apparition sobre après la formation du titre — même logique qu'avant */
 nav.header-forming .site-frame__tl, nav.header-forming .site-frame__tr,
-nav.header-forming .site-frame__bl, nav.header-forming .site-frame__br { opacity: 0; pointer-events: none; }
+nav.header-forming .site-frame__bl, nav.header-forming .site-frame__br,
+nav.header-forming .site-frame__bc { opacity: 0; pointer-events: none; }
 nav.header-ready .site-frame__tl, nav.header-ready .site-frame__tr,
 nav.header-ready .site-frame__bl, nav.header-ready .site-frame__br { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
@@ -2846,6 +2869,23 @@ body.zone-foot .about-story {
     transition-property: color, background-color;
   }
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre) + var(--ab-repos)); }
+  /* LE DÉVOILEMENT (voir zoneWash) : tant que la carte Studio Synapse le
+     recouvre, « Qui je suis » attend, flou et transparent ; quand elle a
+     levé un tiers de l'écran, il se condense — le portrait d'abord, puis le
+     repère, puis le nom et le texte — et se pose net. Une seule transition,
+     déclenchée une fois par passage : rien n'est recalculé au défilement. */
+  .about-story .about-portrait,
+  .about-story .about-chapter:first-child > * {
+    transition: filter 1.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.1s ease, translate 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .about-story .about-chapter:first-child > .repere { transition-delay: 0.12s; }
+  .about-story .about-chapter:first-child > .about-chapter__corps { transition-delay: 0.24s; }
+  .about-story:not(.ab-devoile) .about-portrait,
+  .about-story:not(.ab-devoile) .about-chapter:first-child > * {
+    filter: blur(16px); opacity: 0;
+    transition-duration: 0.5s; transition-delay: 0s;
+  }
+  .about-story:not(.ab-devoile) .about-chapter:first-child > * { translate: 0 22px; }
 }
 /* ══ LES PLANS GLISSENT NATIVEMENT (29/10) ════════════════════════════════
    Un script déplaçait chaque plan, image par image, d'après le défilement.
@@ -2984,7 +3024,7 @@ body.zone-foot .about-story {
 /* les deux mentions du bas, un peu plus bas au doigt (6 px du bord de la
    petite hauteur) ; la bande du bas de l'À propos et sa flèche les suivent */
 @media (pointer: coarse) {
-  .site-frame__bl, .site-frame__br { bottom: 6px; }
+  .site-frame__bl, .site-frame__br, .site-frame__bc { bottom: 6px; }
 }
 @media (pointer: coarse) and (max-width: 900px) {
   .about-story { --bande-bas: 36px; }
@@ -3119,9 +3159,11 @@ body.on-projects #siteNav { --text: #fff; color: #fff; }                  /* sur
 /* contraste mesuré, coin par coin : noir sur clair, blanc sur sombre.
    Le sélecteur passe par #siteNav pour primer sur les règles de zone. */
 #siteNav .site-frame__tl.on-light, #siteNav .site-frame__tr.on-light,
-#siteNav .site-frame__bl.on-light, #siteNav .site-frame__br.on-light { color: #101014; }
+#siteNav .site-frame__bl.on-light, #siteNav .site-frame__br.on-light,
+#siteNav .site-frame__bc.on-light { color: #101014; }
 #siteNav .site-frame__tl.on-dark,  #siteNav .site-frame__tr.on-dark,
-#siteNav .site-frame__bl.on-dark,  #siteNav .site-frame__br.on-dark  { color: #ffffff; }
+#siteNav .site-frame__bl.on-dark,  #siteNav .site-frame__br.on-dark,
+#siteNav .site-frame__bc.on-dark  { color: #ffffff; }
 /* SUR LE CRÈME, le cadre ne change JAMAIS : les quatre coins restent ocre,
    quoi que la sonde lise dessous (rien de sombre ne passe sous eux ici) */
 body.zone-pres #siteNav .site-frame__tl, body.zone-pres #siteNav .site-frame__tr,
@@ -3185,8 +3227,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 </div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
-<div class="cursor sur-clair" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
-<div class="cursor-ring" id="cursorRing" aria-hidden="true"><span class="cursor-label">Voir</span></div>
+<div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
+<div class="cursor-ring curseur-absent" id="cursorRing" aria-hidden="true"><span class="cursor-label">Voir</span></div>
 
 <!-- WORKS PANEL -->
 <div class="works-panel" id="worksPanel">
@@ -3268,6 +3310,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- la bande basse, au téléphone : dans le cadre, donc à hauteur fixe ;
        crème pendant les dossiers de l'À propos, noire au pied (voir aboutStory) -->
   <div class="cadre-bas-apropos" aria-hidden="true"></div>
+  <!-- en bas, au milieu, au début seulement : l'invitation à descendre -->
+  <div class="site-frame__bc" id="indiceDefiler" aria-hidden="true"><span class="defiler-mot">Faites défiler</span><span class="defiler-fleche">↓</span></div>
   <div class="site-frame__bl">
     <span class="frame-context" id="frameContextLeft" data-value="Design graphique">Design graphique</span>
   </div>
@@ -3661,12 +3705,17 @@ let frameLocked = false, heroPret = false, indiceVu = false;
 let hoverPhoto = null;               // visuel survolé : règle le contraste du curseur
 const sourisFine = matchMedia('(hover: hover) and (pointer: fine)');
 const indiceEl = cursor && cursor.querySelector('.cursor__indice');
-if (indiceEl) lettres(indiceEl);
+/* (l'ancien « Faites défiler » du curseur reste caché) */
 
+/* (le curseur ne porte plus « Faites défiler » : l'invitation est en bas
+   de l'écran — voir .site-frame__bc) */
+const indiceBas = document.getElementById('indiceDefiler');
+if (indiceBas) lettres(indiceBas.querySelector('.defiler-mot'));
+let indiceArrive = false;
 function updateIndice() {
-  if (!indiceEl || indiceVu || !heroPret) return;
-  if (motionState.scroll.y >= 12) { indiceVu = true; indiceEl.classList.remove('lettres-in'); return; }
-  indiceEl.classList.toggle('lettres-in', sourisFine.matches);
+  if (!indiceBas || !heroPret) return;
+  if (!indiceArrive) { indiceArrive = true; indiceBas.classList.add('lettres-in'); }
+  indiceBas.classList.toggle('est-cache', motionState.scroll.y > innerHeight * 0.45);
 }
 /* ══ HERO — LES QUATRE COINS ═════════════════════════════════════════════
    Le cadre est composé dès le départ, SOUS l'intro : quand le monogramme se
@@ -3843,6 +3892,16 @@ let rx = 0, ry = 0, pressScale = 1, targetScale = 1;
   requestAnimationFrame(animCursor);
 })();
 
+/* LE CURSEUR N'EXISTE QUE QUAND LA SOURIS EST SUR LA PAGE : au chargement,
+   il attend le premier mouvement (il se posait sinon au milieu de l'écran,
+   là où la souris n'était pas) ; il s'efface quand elle sort de la fenêtre */
+(function curseurPresent() {
+  const els = [cursor, cursorRing].filter(Boolean);
+  const montrer = on => els.forEach(e => e.classList.toggle('curseur-absent', !on));
+  addEventListener('pointermove', e => { if (e.pointerType === 'mouse') montrer(true); }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => montrer(false));
+  document.documentElement.addEventListener('mouseenter', () => montrer(true));
+})();
 document.addEventListener('mousedown', () => { targetScale = 0.72; });
 document.addEventListener('mouseup', () => { targetScale = 1; });
 document.addEventListener('mouseover', e => {
@@ -6540,6 +6599,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     document.documentElement.style.overscrollBehaviorY = bg === BLACK ? 'none' : '';
     document.body.classList.toggle('zone-foot', bg === BLACK);
     document.body.classList.toggle('zone-pres', bg === OCRE);
+    /* (révélation) « Qui je suis » se condense quand la carte a levé un tiers
+       de l'écran ; il repart dans le flou si on la ramène presque entière */
+    if (recouvre) {
+      const leve = (y - absTop(pres)) / vh;
+      if (leve > 0.33) pres.classList.add('ab-devoile');
+      else if (leve < 0.12) pres.classList.remove('ab-devoile');
+    } else pres.classList.add('ab-devoile');
   }
   onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(apply); });   // scroll CENTRAL
   addEventListener('resize', apply);
@@ -7725,7 +7791,12 @@ void main() {
        donc aucune cassure au relais. */
     const total = vh * TRANSITION_SCROLL_VH;
     const rest  = parseFloat(getComputedStyle(card).marginBottom) || 0;
-    stick = Math.min(0.94, Math.max(0.78, 1 - rest / total));   // la carte 02 entre EXACTEMENT à p = 1
+    /* À LA FIN DE LA TRANSITION, MALBEC DÉPASSE DÉJÀ en bas de l'écran (2,4 %
+       de la course : ~5 % d'écran au bureau, ~8 % au doigt) : on voit qu'il
+       y a une suite. Le fondu du canvas (0,95 → 0,975) se termine avant que
+       Malbec n'entre : il n'est jamais vu à travers. */
+    const DEPASSE = total * 0.024;
+    stick = Math.min(0.94, Math.max(0.78, 1 - (rest + DEPASSE) / total));
 
     pin.style.height = '';
     const gap  = flowTop(stack) - pin.offsetHeight;      // padding-top de .projects, etc.
@@ -7997,7 +8068,7 @@ void main() {
         /* c'est la position RÉELLE qui décide du fondu, pas la progression
            lissée : à la remontée, l'inertie garde le rendu en avance sur le
            scroll, alors que la carte 01 du DOM a déjà quitté le haut de l'écran */
-        holder.style.opacity = (1 - ss(0.96, 1, Math.min(p, targetProgress))).toFixed(4);
+        holder.style.opacity = (1 - ss(0.95, 0.975, Math.min(p, targetProgress))).toFixed(4);
         lastP = p;
       }
       if (!active) { active = true; holder.classList.add('is-active'); }
