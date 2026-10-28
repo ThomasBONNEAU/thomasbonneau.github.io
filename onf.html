@@ -530,47 +530,27 @@ body.curtain-live .proj-panel.open,
 body.curtain-live .works-panel,
 body.curtain-live .works-panel.open { transition: none; }
 
-/* ══ LE RIDEAU (voir rideau) — le passage d'une page à l'autre ══════════════
-   Un écran NOIR monte du bas et couvre tout ; en bas à droite, le nom de la
-   page où l'on va se lève de derrière une ligne, en grandes capitales
-   blanches ; en haut à gauche, le monogramme grandit. Sous le noir, la page
-   change. Puis le noir repart vers le haut — son bord bas remonte — et
-   découvre la page, dont le contenu monte en place, l'un après l'autre. Le
-   noir est découpé (clip-path), jamais déplacé : ce qu'il porte reste
-   immobile pendant qu'il passe. Une seule courbe, lente aux deux bouts. */
-.rideau {
-  position: fixed; inset: 0; z-index: 500;
-  background: #000; color: #fff;
-  clip-path: inset(100% 0 0 0);
-  pointer-events: none; visibility: hidden;
-  --ui-x: clamp(18px, 1.35vw, 26px);
-  --ui-y: clamp(16px, 1.2vw, 24px);
+/* ══ LE PASSAGE (voir passage) — une page se dévoile ══════════════════════
+   Ni écran de couleur, ni titre : c'est la page elle-même qui se découvre.
+   Elle est découpée (clip-path) et son bord bas… ou haut… glisse sur une
+   seule courbe, lente aux deux bouts, pendant que son contenu, dedans, se
+   déplace un peu moins vite (le décalage donne la profondeur). En haut à
+   gauche, le monogramme grandit puis se repose à sa place : une copie le
+   remplace le temps du passage, en différence — noire sur le clair,
+   blanche sur le sombre. */
+.tb-passage {
+  position: fixed; left: clamp(18px, 1.35vw, 26px); top: clamp(16px, 1.2vw, 24px); z-index: 600;
+  height: 25px; width: auto; display: none;
+  fill: #fff; mix-blend-mode: difference;
+  transform-origin: 0 0; pointer-events: none;
 }
-.rideau.est-la { visibility: visible; pointer-events: auto; }
-.rideau-tb {
-  position: absolute; left: var(--ui-x); top: var(--ui-y);
-  height: 25px; width: auto; display: block; fill: #fff;
-  transform-origin: 0 0; will-change: transform;
-}
-.rideau-titre {
-  position: absolute; right: var(--ui-x); bottom: var(--ui-y);
-  left: var(--ui-x);
-  margin: 0; overflow: hidden; text-align: right;
-  font-family: 'Castillon', serif; font-weight: 160;
-  font-size: clamp(56px, 9.5vw, 168px); line-height: 0.92;
-  letter-spacing: -0.01em; text-transform: uppercase;
-  padding-top: 0.06em;
-}
-.rideau-titre span { display: inline-block; will-change: transform; }
-@media (max-width: 768px) {
-  .rideau { --ui-x: 14px; --ui-y: 14px; }
-  .rideau-tb { height: 20px; }
-  .rideau-titre { font-size: clamp(44px, 14vw, 80px); }
-}
-@media (pointer: coarse) {
-  .rideau { bottom: auto; height: 100lvh; }
-  .rideau-titre { bottom: calc(var(--ui-y) + 100lvh - 100svh); }
-}
+body.tb-passe .tb-passage { display: block; }
+body.tb-passe .frame-logo, body.tb-passe .proj-panel-logo { opacity: 0; }
+@media (max-width: 768px) { .tb-passage { left: 14px; top: 14px; height: 20px; } }
+/* une page qu'on quitte pour sa voisine : une copie, posée par-dessus,
+   qui part en découvrant la nouvelle */
+.pan-copie { position: fixed !important; inset: 0; z-index: 201 !important; transform: none !important; pointer-events: none; overflow: hidden !important; }
+@media (pointer: coarse) { .pan-copie { bottom: auto; height: 100lvh; } }
 /* L'ENTRÉE de la page découverte : chaque bloc monte de 48 px et s'allume,
    l'un après l'autre (--i), sur la courbe d'arrivée du site */
 @keyframes entree-monte { from { opacity: 0; transform: translate3d(0, 48px, 0); } to { opacity: 1; transform: none; } }
@@ -3274,11 +3254,9 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   </div>
 </div>
 
-<!-- LE RIDEAU : le passage d'une page à l'autre (voir rideau) -->
-<div class="rideau" id="rideau" aria-hidden="true">
-  <svg class="rideau-tb" viewBox="0 0 89.33 90.58" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg>
-  <p class="rideau-titre"><span></span></p>
-</div>
+<!-- LE TB DU PASSAGE : pendant qu'une page se dévoile, le monogramme
+     grandit puis se repose à sa place (voir passage) -->
+<svg class="tb-passage" id="tbPassage" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg>
 
 <!-- LE CV : la page se floute et la page du PDF, en VECTORIEL (le PDF converti
      en SVG, texte en tracés : le navigateur le dessine net à toute taille, comme
@@ -5610,14 +5588,14 @@ function closeWorksPanel() {
 
 const worksMoreBtn = document.getElementById('worksMoreBtn');
 if (worksMoreBtn) {
-  worksMoreBtn.addEventListener('click', () => rideau('Index', openWorksPanel, entreeIndex));
+  worksMoreBtn.addEventListener('click', () => passage(worksPanel, 'monte', openWorksPanel, null, entreeIndex));
 }
 
 // MENU (haut droite) → la page de TOUS les projets ; ouverte, c'est sa croix
 if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
   worksPanel.classList.contains('open')
-    ? rideau('Accueil', closeWorksPanel)
-    : rideau('Index', openWorksPanel, entreeIndex));
+    ? passage(worksPanel, 'part', null, closeWorksPanel)
+    : passage(worksPanel, 'monte', openWorksPanel, null, entreeIndex));
 /* l'Index découvert : le nom, puis la première image, montent en place */
 function entreeIndex() {
   if (indexBureau.matches) entreeBlocs([document.querySelector('.ib-titre'), document.querySelector('.ib-carte')]);
@@ -5637,59 +5615,59 @@ function entreeIndex() {
    pilote le volet, la profondeur de la Home et la bande de frontière dans
    la MÊME frame, donc la frontière ne peut jamais se désynchroniser.
    ═══════════════════════════════════════════════════════════════════════════ */
-/* ══ LE RIDEAU — d'une page à l'autre ═══════════════════════════════════════
-   rideau(titre, pendant, entree) : le noir monte et couvre tout (750 ms) ;
-   le titre se lève de derrière sa ligne, le monogramme grandit ; à couvert,
-   pendant() change la page ; on attend que ses premières images soient
-   décodées (au plus 0,7 s, au moins 0,42 s), puis le noir repart vers le
-   haut (800 ms) en découvrant la page, et entree() en fait monter le
-   contenu. Renvoie une promesse, tenue une fois tout posé. Les animations
-   sont confiées au navigateur (Web Animations) : transformations et
-   découpes seulement, rien n'est recalculé image par image. */
-const RIDEAU_COURBE = 'cubic-bezier(0.76, 0, 0.24, 1)';
-let rideauEnCours = null;
-function rideau(titre, pendant, entree) {
-  const el = document.getElementById('rideau');
+/* ══ LE PASSAGE — une page se dévoile ════════════════════════════════════════
+   passage(el, sens, avant, apres, entree)
+     sens 'monte' : el apparaît PAR-DESSUS — découpé, son bord haut monte du
+       bas de l'écran jusqu'en haut ; avant() le prépare (déjà découpé, donc
+       invisible) ; on attend ses premières images (0,5 s au plus).
+     sens 'part' : el s'en va — son bord bas remonte jusqu'en haut et
+       découvre ce qu'il y a dessous ; apres() le retire.
+   Le contenu de la page se déplace en même temps, un peu moins (la
+   profondeur) ; le monogramme grandit puis se repose ; entree() fait
+   monter les blocs de la page découverte. Une seule courbe pour tout,
+   950 ms. Animations confiées au navigateur : découpes et
+   transformations, rien n'est recalculé image par image. */
+const PASSAGE_COURBE = 'cubic-bezier(0.76, 0, 0.24, 1)', PASSAGE_DUREE = 950;
+let passageEnCours = null;
+function passage(el, sens, avant, apres, entree) {
   if (!el || !el.animate || motionState.reducedMotion) {
-    try { pendant && pendant(); } catch (e) {}
+    try { avant && avant(); } catch (e) {}
+    try { apres && apres(); } catch (e) {}
     try { entree && entree(); } catch (e) {}
     return Promise.resolve();
   }
-  if (rideauEnCours) return rideauEnCours;
-  const tb = el.querySelector('.rideau-tb'), mot = el.querySelector('.rideau-titre span');
-  mot.textContent = titre || '';
-  el.classList.add('est-la');
-  document.body.classList.add('curtain-live');
-  const attendre = ms => new Promise(r => setTimeout(r, ms));
-  const fini = a => a.finished.catch(() => {});
-  rideauEnCours = (async () => {
-    const monte = el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
-      { duration: 750, easing: RIDEAU_COURBE, fill: 'forwards' });
-    mot.animate([{ transform: 'translate3d(0, 105%, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-      { duration: 1000, delay: 220, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
-    tb.animate([{ transform: 'scale(1)' }, { transform: 'scale(2.4)' }],
-      { duration: 900, delay: 120, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' });
-    await fini(monte);
-    const t0 = performance.now();
-    try { pendant && pendant(); } catch (e) {}
-    /* les premières images de la page découverte : décodées avant d'ouvrir */
-    const ims = [...document.querySelectorAll('#projPanel.open img, #worksPanel.open .ib-carte img')].slice(0, 3);
-    await Promise.race([Promise.all(ims.map(im => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}))), attendre(700)]);
-    await attendre(Math.max(0, 420 - (performance.now() - t0)));
-    const part = el.animate([{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }],
-      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
-    mot.animate([{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, -45%, 0)' }],
-      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
-    tb.animate([{ transform: 'scale(2.4)' }, { transform: 'scale(1)' }],
-      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
-    setTimeout(() => { try { entree && entree(); } catch (e) {} }, 160);
-    await fini(part);
-    el.getAnimations({ subtree: true }).forEach(a => a.cancel());
-    el.classList.remove('est-la');
+  if (passageEnCours) return passageEnCours;
+  document.body.classList.add('curtain-live', 'tb-passe');
+  const monte = sens === 'monte';
+  if (monte) el.style.clipPath = 'inset(100% 0 0 0)';
+  passageEnCours = (async () => {
+    try { avant && avant(); } catch (e) {}
+    if (monte) {
+      const ims = [...el.querySelectorAll('img')].filter(im => im.getAttribute('src')).slice(0, 3);
+      await Promise.race([Promise.all(ims.map(im => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}))), new Promise(r => setTimeout(r, 500))]);
+    }
+    const D = PASSAGE_DUREE, anims = [];
+    anims.push(el.animate(monte
+      ? [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }]
+      : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }],
+      { duration: D, easing: PASSAGE_COURBE, fill: 'forwards' }));
+    [...el.children].filter(c => !c.matches('.proj-panel-topbar, script')).forEach(c => anims.push(c.animate(monte
+      ? [{ transform: 'translate3d(0, 12vh, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
+      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, -10vh, 0)' }],
+      { duration: D + 150, easing: monte ? 'cubic-bezier(0.22, 1, 0.36, 1)' : PASSAGE_COURBE, fill: 'both' })));
+    const tb = document.getElementById('tbPassage');
+    if (tb) anims.push(tb.animate([{ transform: 'scale(1)' }, { transform: 'scale(2.4)', offset: 0.5 }, { transform: 'scale(1)' }],
+      { duration: D + 100, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' }));
+    if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, D * 0.35);
+    await anims[0].finished.catch(() => {});
+    try { apres && apres(); } catch (e) {}
+    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+    el.style.clipPath = '';
+    document.body.classList.remove('tb-passe');
     requestAnimationFrame(() => document.body.classList.remove('curtain-live'));
-    rideauEnCours = null;
+    passageEnCours = null;
   })();
-  return rideauEnCours;
+  return passageEnCours;
 }
 /* fait monter, l'un après l'autre, les blocs donnés ; nettoie ensuite */
 function entreeBlocs(blocs) {
@@ -5978,7 +5956,7 @@ const pageCurtain = (function () {
   addEventListener('popstate', onNav);
   addEventListener('hashchange', onNav);
 
-  /* ── OUVERTURE ── (le rideau : voir rideau) ─────────────────── */
+  /* ── OUVERTURE ── (la page se dévoile : voir passage) ───────── */
   function open(card, ev, fromHistory) {
     if (pt.state !== 'idle' || !card) return;    // 20 · aucun double clic possible
     pt.state = 'opening';
@@ -5987,10 +5965,10 @@ const pageCurtain = (function () {
     pt.homeScrollY = window.scrollY || 0;        // 2 · la Home est figée ici
     lockScroll(true);
     if (!fromHistory) pushHash(card);
-    rideau(card.dataset.title, () => {
+    passage(panel, 'monte', () => {
       panel.style.transform = '';
       openPanel(card);
-    }, entreeProjet).then(finishOpen);
+    }, null, entreeProjet).then(finishOpen);
   }
   function finishOpen() {
     pt.state = 'project';
@@ -6001,22 +5979,22 @@ const pageCurtain = (function () {
     if (pt.pendingClose) { pt.pendingClose = false; close(pt.pendingHist); }
   }
 
-  /* ── 14/15/16 · RETOUR ── (le rideau, vers l'Index ou l'accueil) ── */
+  /* ── 14/15/16 · RETOUR ── (la page s'en va vers le haut : voir passage) ── */
   function close(fromHistory) {
     if (pt.state === 'opening') { pt.pendingClose = true; pt.pendingHist = !!fromHistory; return; }
     if (pt.state !== 'project') { if (pt.state === 'idle') closePanel(); return; }
     pt.state = 'closing';
     lockScroll(true);
     if (!fromHistory) popHash();
-    const vers = indexOuvert() ? 'Index' : 'Accueil';
-    rideau(vers, () => {
-      closePanel();
-      panel.style.transform = '';
-      if (!indexOuvert()) document.body.style.overflow = '';
+    passage(panel, 'part', () => {
       if (Math.abs((window.scrollY || 0) - pt.homeScrollY) > 1) {
         window.scrollTo({ top: pt.homeScrollY, left: 0, behavior: 'instant' });
       }
       if (typeof scheduleStack === 'function') { stackDirty = true; scheduleStack(); }
+    }, () => {
+      closePanel();
+      panel.style.transform = '';
+      if (!indexOuvert()) document.body.style.overflow = '';
     }).then(finishClose);
   }
   function finishClose() {
@@ -6051,11 +6029,22 @@ const pageCurtain = (function () {
     if (!card) return;
     changeEnCours = true;
     lockScroll(true);
-    rideau(card.dataset.title, () => {
-      pt.card = card; pt.projectIndex = CARDS.indexOf(card);
-      openPanel(card);
-      try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
-    }, entreeProjet).then(() => { lockScroll(false); changeEnCours = false; });
+    /* la page qu'on quitte : une copie, figée là où on la regardait, posée
+       par-dessus ; dessous, le volet reçoit le projet voisin, puis la copie
+       s'en va vers le haut et le découvre */
+    const copie = panel.cloneNode(true);
+    copie.removeAttribute('id');
+    copie.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    copie.querySelectorAll('video').forEach(v => { try { v.pause(); } catch (e) {} });
+    copie.classList.add('pan-copie');
+    copie.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(copie);
+    copie.scrollTop = panel.scrollTop;
+    pt.card = card; pt.projectIndex = CARDS.indexOf(card);
+    openPanel(card);
+    try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
+    passage(copie, 'part', null, () => copie.remove(), entreeProjet)
+      .then(() => { lockScroll(false); changeEnCours = false; });
   }
   panel.querySelectorAll('.ppp-lien').forEach(b => b.addEventListener('click', () => voisin(+b.dataset.sens)));
 
