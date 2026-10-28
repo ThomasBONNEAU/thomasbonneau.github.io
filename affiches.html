@@ -529,15 +529,7 @@ body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
    DOM natif, jamais rastérisée. Une bande fine, créée le temps du
    mouvement, porte la frontière (tension + micro-chromatique).
    ══════════════════════════════════════════════════════════════════ */
-.curtain-edge {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 201;                /* juste au-dessus du volet (200) */
-  pointer-events: none;
-  display: block;
-  will-change: transform;
-}
+
 /* pendant le mouvement le volet est piloté image par image en JS :
    aucune transition CSS ne doit s'y superposer */
 body.curtain-live .proj-panel,
@@ -2508,7 +2500,7 @@ body {
   --sp-md:  clamp(26px, 3.4vh, 40px);
   --sp-lg:  clamp(44px, 6vh, 72px);
 }
-.ab-bande, .ab-cache-bas { display: none; }
+.ab-bande { display: none; }
 .about-story {
   position: relative;
   background: transparent;
@@ -2932,7 +2924,6 @@ body.zone-foot .about-story {
   /* (le cache collé du bas est remplacé par la bande FIXE du cadre — voir
      plus bas : collée en bas, Safari la recalait en retard pendant le
      défilement, et le texte du plan qui monte passait dessous par éclairs) */
-  .ab-cache-bas { display: none; }
   #siteNav .cadre-bas-apropos {
     display: block; position: absolute; left: 0; right: 0; bottom: 0; top: auto;
     height: var(--ab-bas, 56px);
@@ -2940,6 +2931,27 @@ body.zone-foot .about-story {
     opacity: 0; visibility: hidden; transition: none;
   }
   #siteNav .cadre-bas-apropos::before { display: none; }
+  /* LE TRAIT DU HAUT DE LA FENÊTRE, FIXE. Tous les plans se collent au même
+     point : leurs traits se superposent exactement. Pendant un défilement
+     au pavé tactile, Safari pose ces plans collés à des fractions de pixel
+     — le bord du plan du dessus laissait alors transparaître, une image sur
+     deux, le trait de celui du dessous : la ligne doublait d'épaisseur,
+     redevenait fine, bougeait d'un pixel (le « grésillement »). Le trait
+     est donc dessiné ICI, dans le cadre fixe, qui ne bouge jamais ; une
+     bande de la couleur des plans, de part et d'autre, recouvre les traits
+     des plans collés dessous, quelle que soit leur fraction de pixel. Un
+     plan qui monte garde son propre trait jusqu'à ce qu'il se pose. */
+  #siteNav .cadre-trait-apropos {
+    display: block; position: absolute;
+    top: calc(var(--ab-trait-y, 67px) - 5px); left: var(--ab-trait-x, 0px); width: var(--ab-trait-l, 0px);
+    height: 11px; pointer-events: none;
+    --p: #ffffff; --i: #101014;
+    background: linear-gradient(to bottom, var(--p) 0 5px, var(--i) 5px 6px, var(--p) 6px 100%);
+    opacity: 0; visibility: hidden; transition: none;
+  }
+  body.zone-pres #siteNav .cadre-trait-apropos { --p: #fcfaeb; --i: #c16700; }
+  /* (Safari seulement : ailleurs, les traits des plans restent tels quels) */
+  html.moteur-webkit body.ab-trait #siteNav .cadre-trait-apropos { opacity: 1; visibility: visible; }
   body.zone-pres #siteNav .cadre-bas-apropos { background: #fcfaeb; }
   body.ab-en-cours #siteNav .cadre-bas-apropos { opacity: 1; visibility: visible; transition: none; }
 }
@@ -2987,21 +2999,6 @@ body.zone-foot .about-story {
     padding: 0 0 0 1px;
     background: #fff;
   }
-  /* LA VAGUE D'OUVERTURE (voir ibDefileOuverture) : posée exactement sur la
-     première grande image ; chaque feuille se découvre derrière un masque
-     courbe, l'image glisse et se pose dedans */
-  .ib-liasse { position: fixed; z-index: 4; overflow: hidden; pointer-events: none; background: #fff; }
-  .ib-feuille {
-    position: absolute; inset: 0; overflow: hidden;
-    clip-path: ellipse(85% 0% at 50% 100%);
-    will-change: clip-path;
-  }
-  .ib-feuille img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    transform-origin: 50% 60%; will-change: transform; backface-visibility: hidden;
-  }
-  .index-bureau.ib-en-liasse .ib-titre { opacity: 0; transition: none; }
-  .index-bureau.ib-en-liasse .ib-images { visibility: hidden; }
   .ib-carte.sans-zoom img { transition: none !important; }
   .ib-carte {
     display: block; width: 100%; height: 100vh; box-sizing: border-box;
@@ -3332,6 +3329,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- la bande basse, au téléphone : dans le cadre, donc à hauteur fixe ;
        crème pendant les dossiers de l'À propos, noire au pied (voir aboutStory) -->
   <div class="cadre-bas-apropos" aria-hidden="true"></div>
+  <!-- au bureau : le trait du haut de la fenêtre de l'À propos, fixe (voir bandeDuBas) -->
+  <div class="cadre-trait-apropos" aria-hidden="true"></div>
   <div class="site-frame__bl">
     <span class="frame-context" id="frameContextLeft" data-value="Design graphique">Design graphique</span>
   </div>
@@ -3577,9 +3576,6 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
           </div>
         </section>
       </div>
-      <!-- au bureau : le bas de l'écran, sous la fenêtre, où les plans qui
-           arrivent passent cachés (voir .ab-cache-bas) -->
-      <div class="ab-cache-bas" aria-hidden="true"></div>
     </div>
 
   </div>
@@ -3620,6 +3616,9 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 
 // Intro / preloader supprimés : le site s'affiche directement, header visible tout de suite.
 document.body.classList.add('loaded');
+/* SAFARI (et tout navigateur bâti sur WebKit) : certaines corrections ne
+   concernent que lui — elles ne s'appliquent qu'avec cette classe */
+if ((navigator.vendor || '').indexOf('Apple') === 0) document.documentElement.classList.add('moteur-webkit');
 
 /* AU DOIGT, LA BARRE D'ADRESSE va et vient avec le défilement : la hauteur de
    la fenêtre change à chaque geste. Ce n'est pas un vrai redimensionnement —
@@ -5465,8 +5464,7 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
-  /* (29/10 : plus d'animation d'ouverture — l'Index s'ouvre posé sur le
-     premier projet ; ibDefileOuverture reste disponible si on la veut) */
+  /* l'Index s'ouvre posé sur le premier projet */
   if (indexBureau.matches) { worksPanel.scrollTop = 0; ibActif = -1; ibPeindre(); }
 }
 
@@ -5480,12 +5478,6 @@ const indexBureau = matchMedia('(min-width: 901px)');
 const ib = document.querySelector('.index-bureau');
 const ibImages = ib && ib.querySelector('.ib-images');
 let ibActif = -1, ibRaf = 0, ibFondu = 0, ibCartes = [];
-const ibTexte = t => String(t || '').split('|').map(x => x.replace(/[*_]/g, '').replace(/\s+/g, ' ').trim()).find(Boolean) || '';
-function ibCourt(t, n) {
-  if (t.length <= n) return t;
-  const coupe = t.slice(0, n), fin = Math.max(coupe.lastIndexOf('. '), coupe.lastIndexOf('! '), coupe.lastIndexOf('? '));
-  return fin > n * 0.5 ? coupe.slice(0, fin + 1) : coupe.slice(0, coupe.lastIndexOf(' ')) + '…';
-}
 function buildIndexBureau(cards) {
   if (!ibImages) return;
   ibImages.innerHTML = '';
@@ -5542,79 +5534,6 @@ function ibPeindre() {
   ibFondu = setTimeout(() => { ibFondu = 0; ibPoser(ibActif); ib.classList.remove('ib-change'); }, 180);
 }
 worksPanel.addEventListener('scroll', () => { if (!ibRaf) ibRaf = requestAnimationFrame(ibPeindre); }, { passive: true });
-/* L'OUVERTURE — UNE VAGUE D'IMAGES. Les visuels des projets, du dernier au
-   premier, se découvrent l'un sur l'autre, au même endroit : chacun monte
-   derrière un bord COURBE — une ellipse large qui naît au bas du cadre,
-   s'arrondit en montant puis s'aplatit en remplissant tout —, pendant que
-   la photo, à l'intérieur, descend légèrement et se pose de 1,22 à 1 (le
-   cadre et l'image ne vont pas à la même vitesse : c'est ce décalage qui
-   rend le mouvement fluide). Une seule courbe d'accélération pour tous,
-   lente aux deux bouts ; les départs se chevauchent de près (75 ms) et
-   s'accélèrent vers la fin. La dernière découverte est le premier projet,
-   exactement à la place de sa grande image : on la retire, la vraie page
-   est dessous, et le nom vient alors. Pendant ce temps, la colonne de
-   gauche reste vide. Tout est en transformations et en masques, sur des
-   images déjà décodées. Le moindre geste termine net. */
-let ibLiasse = null;
-function ibDefileOuverture() {
-  ibFinLiasse(true);
-  worksPanel.scrollTop = 0;
-  const cartes = [...worksPanel.querySelectorAll('.ib-carte')];
-  if (motionState.reducedMotion || cartes.length < 2 || !cartes[0].animate) { ibPeindre(); return; }
-  ib.classList.add('ib-en-liasse');
-  const liasse = document.createElement('div');
-  liasse.className = 'ib-liasse';
-  const zone = cartes[0].getBoundingClientRect();
-  Object.assign(liasse.style, { left: zone.left + 'px', top: zone.top + 'px', width: zone.width + 'px', height: zone.height + 'px' });
-  const feuilles = cartes.slice().reverse().map(c => {
-    const f = document.createElement('div');
-    f.className = 'ib-feuille';
-    const im = c.querySelector('img');
-    const copie = document.createElement('img');
-    copie.alt = ''; copie.decoding = 'sync';
-    copie.src = im.currentSrc || im.src;
-    f.appendChild(copie);
-    liasse.appendChild(f);
-    return f;
-  });
-  worksPanel.appendChild(liasse);
-  const n = feuilles.length, DUREE = 900;
-  const MASQUE = 'cubic-bezier(0.77, 0, 0.18, 1)', IMAGE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  /* les départs se resserrent : 95 ms entre les premiers, 60 entre les derniers */
-  let t = 0;
-  const departs = feuilles.map((f, k) => { const d = t; t += 95 - 35 * (k / Math.max(1, n - 2)); return d; });
-  const anims = [];
-  feuilles.forEach((f, k) => {
-    anims.push(f.animate([
-      { clipPath: 'ellipse(85% 0% at 50% 100%)' },
-      { clipPath: 'ellipse(110% 70% at 50% 100%)', offset: 0.55 },
-      { clipPath: 'ellipse(160% 160% at 50% 100%)' }
-    ], { duration: DUREE, delay: departs[k], easing: MASQUE, fill: 'both' }));
-    anims.push(f.querySelector('img').animate([
-      { transform: 'translate3d(0, -9%, 0) scale(1.22)' },
-      { transform: 'translate3d(0, 0, 0) scale(1)' }
-    ], { duration: DUREE + 250, delay: departs[k], easing: IMAGE, fill: 'both' }));
-  });
-  ibLiasse = { liasse, anims };
-  anims[anims.length - 2].finished.then(() => ibFinLiasse(false)).catch(() => {});
-}
-function ibFinLiasse(net) {
-  if (!ibLiasse) return;
-  const { liasse, anims } = ibLiasse;
-  ibLiasse = null;
-  anims.forEach(a => { try { a.cancel(); } catch (e) {} });
-  /* la vraie page reprend : la première image est déjà posée, sans zoom ;
-     le nom vient en fondu */
-  const premiere = worksPanel.querySelector('.ib-carte');
-  if (premiere) {
-    premiere.classList.add('sans-zoom', 'est-actif');
-    requestAnimationFrame(() => requestAnimationFrame(() => premiere.classList.remove('sans-zoom')));
-  }
-  ib.classList.remove('ib-en-liasse');
-  ibActif = -1; ibPeindre();
-  liasse.remove();
-}
-['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(t => worksPanel.addEventListener(t, () => { if (ibLiasse) ibFinLiasse(true); }, { passive: true }));
 /* les visuels de l'Index qu'aucune carte de l'accueil n'a chargés (ONF,
    Logotypes, Affiches) partent dès que la page est posée : à l'ouverture de
    l'Index, tout est déjà là */
@@ -5764,7 +5683,6 @@ const pageCurtain = (function () {
   if (!panel) return null;
 
   const CARDS = [...document.querySelectorAll('.stack-card, .projet-fiche')];
-  const HOME_SEL = '#heroPin, #projets, #apropos, body > footer';
 
   /* 20 · machine d'état */
   const pt = { state: 'idle', homeScrollY: 0, projectIndex: null, card: null,
@@ -5772,48 +5690,6 @@ const pageCurtain = (function () {
                last: 0, lastP: 0, cfg: null, edge: null, ectx: null,
                eh: 0, eAbove: 0, eGrad: null, eFill: '#fff', ph: [0, 0, 0],
                home: [], pendingClose: false, pendingHist: false, hashOwned: false };
-
-  /* ── courbes ────────────────────────────────────────────────────────
-     OUVERTURE : départ décidé (v0 ≈ 1 %/ms·10³), pic à 17 %, puis 350 ms de
-     décélération — une masse qu'on lance et qui se pose.
-     FERMETURE : v0 = 0 (petite résistance), pic à 55 %, sortie encore lancée.
-     Choisies après comparaison des profils de vitesse, pas par défaut. */
-  function bez(x1, y1, x2, y2) {
-    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
-    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
-    const fx = t => ((ax * t + bx) * t + cx) * t;
-    const dfx = t => (3 * ax * t + 2 * bx) * t + cx;
-    return function (p) {
-      if (p <= 0) return 0;
-      if (p >= 1) return 1;
-      let t = p;
-      for (let i = 0; i < 6; i++) {
-        const e = fx(t) - p;
-        if (Math.abs(e) < 1e-6) break;
-        const d = dfx(t);
-        if (Math.abs(d) < 1e-7) break;
-        t -= e / d;
-      }
-      t = Math.min(1, Math.max(0, t));
-      return ((ay * t + by) * t + cy) * t;
-    };
-  }
-  const EASE_IN  = bez(0.28, 0.32, 0.12, 1);
-  const EASE_OUT = bez(0.58, 0.01, 0.50, 0.96);
-  function peakRate(f) {
-    let m = 0, prev = 0;
-    for (let i = 1; i <= 240; i++) { const v = f(i / 240); const d = (v - prev) * 240; if (d > m) m = d; prev = v; }
-    return m;
-  }
-  const PEAK_IN = peakRate(EASE_IN), PEAK_OUT = peakRate(EASE_OUT);
-
-  /* 22 · même volet partout ; seules la durée et l'amplitude de la frontière baissent */
-  function cfg() {
-    const small = innerWidth < 760;
-    return { durIn: small ? 980 : 1180, durOut: small ? 820 : 980,
-             lift: small ? 4 : 9, sep: small ? 0.8 : 2.0,
-             band: small ? 46 : 76, depth: small ? 0.004 : 0.008, ty: small ? -2 : -4 };
-  }
 
   /* ── 19 · scroll suspendu pendant le mouvement, natif dès qu'il est fini ── */
   const eatScroll = e => { if (e.cancelable) e.preventDefault(); };
@@ -5827,166 +5703,6 @@ const pageCurtain = (function () {
     window[m]('wheel', eatScroll, { passive: false });
     window[m]('touchmove', eatScroll, { passive: false });
     window[m]('keydown', eatKeys, false);
-  }
-
-  /* ── 10 · profondeur : la Home recule d'un cheveu, autour du MÊME point ──
-     (origine convertie en pixels pour chaque section : les quatre calques
-     partagent alors le centre du viewport → aucun décalage entre eux) */
-  function armHome() {
-    const cy = (window.scrollY || 0) + innerHeight / 2;
-    pt.home = [...document.querySelectorAll(HOME_SEL)].map(el => {
-      const top = el.getBoundingClientRect().top + (window.scrollY || 0);
-      el.style.transformOrigin = '50% ' + (cy - top).toFixed(1) + 'px';
-      el.style.willChange = 'transform';
-      return el;
-    });
-  }
-  function homeDepth(e) {
-    const sc = (1 - pt.cfg.depth * e).toFixed(5), ty = (pt.cfg.ty * e).toFixed(2);
-    const tr = 'translate3d(0,' + ty + 'px,0) scale(' + sc + ')';
-    for (let i = 0; i < pt.home.length; i++) pt.home[i].style.transform = tr;
-  }
-  function disarmHome() {
-    for (let i = 0; i < pt.home.length; i++) {
-      const el = pt.home[i];
-      el.style.transform = ''; el.style.transformOrigin = ''; el.style.willChange = '';
-    }
-    pt.home = [];
-  }
-
-  /* ── 4/5/6/7 · LA FRONTIÈRE ──────────────────────────────────────────
-     Une bande de ~100px qui suit le bord haut du volet. Elle porte :
-       · la matière du volet qui déborde de quelques pixels (le bord n'est
-         donc plus une droite : c'est une vraie géométrie, pas un filtre) ;
-       · la compression de la Home juste au-dessus (40–80px, jamais plus) ;
-       · la micro-séparation ocre / gris froid, indexée sur la VITESSE.
-     Rien n'est dessiné ailleurs : le reste du volet est du DOM intact. */
-  function makeEdge() {
-    const C = pt.cfg, dpr = Math.min(2, window.devicePixelRatio || 1);
-    const h = C.band + 26;
-    const cv = document.createElement('canvas');
-    cv.className = 'curtain-edge';
-    cv.setAttribute('aria-hidden', 'true');
-    cv.style.width = '100%'; cv.style.height = h + 'px';
-    cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(h * dpr);
-    const ctx = cv.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const g = ctx.createLinearGradient(0, C.band, 0, 0);
-    g.addColorStop(0, 'rgba(17,17,19,0.085)');
-    g.addColorStop(0.45, 'rgba(17,17,19,0.030)');
-    g.addColorStop(1, 'rgba(17,17,19,0)');
-    document.body.appendChild(cv);
-    pt.edge = cv; pt.ectx = ctx; pt.eh = h; pt.eAbove = C.band; pt.eGrad = g;
-    /* le débord est peint dans la couleur RÉELLE du volet : si le fond de la
-       page projet change un jour, la frontière suit sans retouche */
-    pt.eFill = getComputedStyle(panel).backgroundColor || '#fff';
-    pt.ph = [Math.random() * 6.283, Math.random() * 6.283, Math.random() * 6.283];
-  }
-  function killEdge() {
-    if (pt.edge && pt.edge.parentNode) pt.edge.parentNode.removeChild(pt.edge);
-    pt.edge = null; pt.ectx = null; pt.eGrad = null;
-  }
-
-  const EN = 44;
-  const exs = new Float32Array(EN + 1), eys = new Float32Array(EN + 1);
-  function strokeCurve(ctx, dy) {
-    ctx.beginPath();
-    ctx.moveTo(exs[0], eys[0] + dy);
-    for (let i = 1; i <= EN; i++) ctx.lineTo(exs[i], eys[i] + dy);
-    ctx.stroke();
-  }
-
-  function drawEdge(cover, vn) {
-    const cv = pt.edge, ctx = pt.ectx;
-    if (!cv || !ctx) return;
-    const C = pt.cfg, W = innerWidth, above = pt.eAbove;
-    const by = (1 - cover) * innerHeight;
-    cv.style.transform = 'translate3d(0,' + (by - above).toFixed(2) + 'px,0)';
-    ctx.clearRect(0, 0, W, pt.eh);
-    if (cover <= 0.004 || cover >= 0.997) { cv.style.opacity = '0'; return; }
-    cv.style.opacity = '1';
-
-    /* 5 · presque droite au départ, elle se courbe quand la vitesse monte.
-       Trois harmoniques de phases figées : une tension, pas un sinus. */
-    const lift = C.lift * vn;
-    for (let i = 0; i <= EN; i++) {
-      const u = i / EN;
-      const taper = Math.pow(Math.sin(Math.PI * u), 0.55);   // à plat sur les bords d'écran
-      const s = 0.55 * Math.sin(u * Math.PI * 1.0 + pt.ph[0]) +
-                0.30 * Math.sin(u * Math.PI * 2.3 + pt.ph[1]) +
-                0.15 * Math.sin(u * Math.PI * 3.7 + pt.ph[2]);
-      exs[i] = u * W;
-      eys[i] = above - lift * taper * (s * 0.5 + 0.5);
-    }
-
-    /* la matière du volet déborde au-dessus de son bord rectiligne */
-    ctx.beginPath();
-    ctx.moveTo(0, above + 3);
-    for (let i = 0; i <= EN; i++) ctx.lineTo(exs[i], eys[i]);
-    ctx.lineTo(W, above + 3);
-    ctx.closePath();
-    ctx.fillStyle = pt.eFill;
-    ctx.fill();
-
-    /* 6 · compression de la Home : uniquement dans la bande, nulle au-delà */
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    for (let i = 0; i <= EN; i++) ctx.lineTo(exs[i], eys[i]);
-    ctx.lineTo(W, 0);
-    ctx.closePath();
-    ctx.clip();
-    ctx.globalAlpha = 0.30 + 0.70 * vn;
-    ctx.fillStyle = pt.eGrad;
-    ctx.fillRect(0, 0, W, above + 1);
-    ctx.restore();
-    ctx.globalAlpha = 1;
-
-    /* 7 · micro-chromatique indexée sur la vitesse — 1 à 2 px, jamais plus,
-       et strictement nulle à l'arrivée puisque vn → 0. */
-    ctx.lineWidth = 1;
-    ctx.lineJoin = 'round';
-    const sep = C.sep * vn;
-    if (sep > 0.06) {
-      ctx.strokeStyle = 'rgba(193,133,54,' + (0.30 * vn).toFixed(3) + ')';
-      strokeCurve(ctx, sep);
-      ctx.strokeStyle = 'rgba(95,95,101,' + (0.26 * vn).toFixed(3) + ')';
-      strokeCurve(ctx, -sep);
-    }
-    ctx.strokeStyle = 'rgba(42,42,47,' + (0.045 + 0.075 * vn).toFixed(3) + ')';
-    strokeCurve(ctx, 0);
-  }
-
-  /* ── 21 · LE SEUL rAF : il ne tourne que pendant opening / closing ───── */
-  function frame(ts) {
-    if (!pt.t0) { pt.t0 = ts; pt.last = ts; }
-    let p = (ts - pt.t0) / pt.dur;
-    if (p > 1) p = 1;
-    const e = pt.ease(p);
-    const cover = pt.dir > 0 ? e : 1 - e;        // 0 = sous l'écran · 1 = plein viewport
-
-    const dt = Math.max(1, ts - pt.last);
-    const inst = Math.abs(cover - pt.lastP) / dt * 1000 / pt.vRef;
-    pt.vel += (inst - pt.vel) * 0.32;            // lissage : la tension suit, elle ne saute pas
-    pt.last = ts; pt.lastP = cover;
-    const vn = Math.max(0, Math.min(1, pt.vel));
-
-    panel.style.transform = 'translate3d(0,' + ((1 - cover) * 100).toFixed(3) + '%,0)';
-    homeDepth(cover);
-    drawEdge(cover, vn);
-
-    if (p < 1) { pt.raf = requestAnimationFrame(frame); return; }
-    pt.raf = 0;
-    if (pt.dir > 0) finishOpen(); else finishClose();
-  }
-  function run(dir) {
-    pt.dir = dir;
-    pt.dur = dir > 0 ? pt.cfg.durIn : pt.cfg.durOut;
-    pt.ease = dir > 0 ? EASE_IN : EASE_OUT;
-    pt.vRef = (dir > 0 ? PEAK_IN : PEAK_OUT) * 1000 / pt.dur;
-    pt.t0 = 0; pt.vel = 0; pt.lastP = dir > 0 ? 0 : 1;
-    panel.style.willChange = 'transform';
-    pt.raf = requestAnimationFrame(frame);
   }
 
   /* ── 18 · HISTORIQUE ──────────────────────────────────────────────
@@ -6161,34 +5877,10 @@ function stackFrame(ts) {
   /* le filet blanc du bord haut marque l'arrivée d'un projet ; collée en haut,
      la carte le perd — il restait sinon en bande blanche en haut de l'écran */
   updateFrameContext(tops);        // interface périphérique : mêmes mesures, aucun calcul en plus
-  // 2) ÉCRITURE : uniquement transform:scale (composité GPU → scroll fluide, aucun repaint)
-  let moving = false;
-  for (let i = 0; i < stackCards.length; i++) {
-    let p = 0;
-    if (i + 1 < tops.length) p = easeInOut(Math.min(1, Math.max(0, 1 - tops[i + 1] / vh)));
-
-    // ARCH'OCKTAIL : tant que le projet suivant n'a pas commencé à entrer, la
-    // carte 01 reste STRICTEMENT à scale(1) — aucun zoom au relais WebGL → DOM
-    if (i === 0 && p <= 0.0001) {
-      stackVals[i].scale = 1;
-      if (stackPhotos[i]) stackPhotos[i].style.transform = '';
-      continue;
-    }
-
-    /* (29/10) PLUS D'AGRANDISSEMENT : l'image était réagrandie d'un rien à
-       chaque image du défilement ; Safari, qui fait défiler sur un fil à
-       part, la redessinait en décalé — elle scintillait. Elle reste fixe. */
-    const targetScale = 1;
-    const v = stackVals[i];
-    v.scale += (targetScale - v.scale) * (stackInstant ? 1 : 1 - Math.pow(0.84, dt60));
-    if (Math.abs(targetScale - v.scale) > 0.0005) moving = true;
-    else v.scale = targetScale;              // se cale exactement : aucun résidu d'échelle
-
-    const ph = stackPhotos[i];
-    // au repos on retire complètement la transform : l'image plein écran n'est
-    // plus maintenue en calque composité (source d'artefacts de rastérisation)
-    if (ph) ph.style.transform = v.scale === 1 ? '' : `scale(${v.scale.toFixed(4)})`;
-  }
+  /* (29/10) plus rien n'est écrit ici image par image : la photo reste
+     fixe — un agrandissement recalculé à chaque image scintillait dans
+     Safari, qui fait défiler sur un fil à part */
+  const moving = false;
   // rémanence optique sur la frontière entre deux projets
   // on continue seulement tant que ça bouge (ou qu'un scroll vient d'avoir lieu)
   if (moving || stackDirty) { stackDirty = false; scheduleStack(); }
@@ -6391,15 +6083,19 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
      plans passe derrière cette ligne */
   const portraitFig = root.querySelector('.about-portrait');
   const bandeBureau = document.querySelector('.cadre-bas-apropos');
-  let bandeLa = null, ligneBas = 0;
+  let bandeLa = null, traitLa = null, ligneBas = 0, ligneHaut = 0;
+  const pileAccueil = document.querySelector('.projects-stack');
   function bandeDuBas() {
     if (!bandeBureau) return;
     const f = flow.getBoundingClientRect();
     /* …et jamais sur la dernière carte de l'accueil, tant qu'elle passe là */
-    const pile = document.querySelector('.projects-stack');
-    const libre = !pile || pile.getBoundingClientRect().bottom <= ligneBas;
-    const e = libre && f.top < ligneBas && f.bottom > ligneBas + 1;
+    const pb = pileAccueil ? pileAccueil.getBoundingClientRect().bottom : -1;
+    const e = pb <= ligneBas && f.top < ligneBas && f.bottom > ligneBas + 1;
     if (e !== bandeLa) { bandeLa = e; document.body.classList.toggle('ab-en-cours', e); }
+    /* le trait du haut : dès que le premier plan est posé, tant qu'un plan
+       est collé là, et jamais sur la carte qui part */
+    const t = pb <= ligneHaut - 6 && f.top <= ligneHaut + 0.5 && f.bottom > ligneBas + 1;
+    if (t !== traitLa) { traitLa = t; document.body.classList.toggle('ab-trait', t); }
   }
   function measure() {
     ajuster();
@@ -6434,6 +6130,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
       const bas = Math.max(0, Math.round(innerHeight - y - (portraitFig ? portraitFig.getBoundingClientRect().height : 0)));
       document.documentElement.style.setProperty('--ab-bas', bas + 'px');
       ligneBas = innerHeight - bas;
+      ligneHaut = y;
+      const fr = flow.getBoundingClientRect();
+      document.documentElement.style.setProperty('--ab-trait-y', y + 'px');
+      document.documentElement.style.setProperty('--ab-trait-x', Math.round(fr.left) + 'px');
+      document.documentElement.style.setProperty('--ab-trait-l', Math.round(fr.width) + 'px');
     }
   }
 
@@ -6443,31 +6144,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     raf = 0;
     if (aMesurer) { aMesurer = false; measure(); }
     if (!M.on) { if (auTel() && !reduced) reculer(); return; }
-    /* t = LE PLAYHEAD, en chapitres. Les deux poses sont des temps morts : le
-       premier plan reste installé seul avant que le second ne commence à
-       monter, et le dernier reste calme avant que la section rende la main. */
-    /* (au bureau, les plans glissent nativement : rien à écrire — voir
-       « LES PLANS GLISSENT NATIVEMENT » dans le CSS) */
-    if (natif()) { bandeDuBas(); return; }
-    const y = (window.scrollY || 0) - M.top - M.recouvre - M.repos;
-    const t = clamp01((y - M.pose) / (M.pas * relais)) * relais;
-    if (t === M.prog) return;
-    M.prog = t;
-    for (let k = 0; k < chapters.length; k++) {
-      /* u = ce qu'il reste au plan k à parcourir, en fenêtres : 1 il attend
-         sous la fenêtre, 0 il est installé. Entre les deux, il monte — et
-         comme il est opaque, il recouvre à mesure ce qui est derrière lui. */
-      const u = clamp01(k - t);
-      /* ON ARRONDIT AU PIXEL ENTIER, et pas n'importe lequel : celui de
-         l'écran. Le bord haut du plan porte un trait de 2 px ; posé sur une
-         fraction de pixel, il est étalé sur deux rangées et paraît flou tout
-         le long du passage. On vise donc la position ABSOLUE — décalage
-         collant compris — et on lui rend un entier. */
-      /* un plan qui attend est ENTIÈREMENT sous la fenêtre : arrondi, il
-         pouvait laisser dépasser un demi-pixel de son filet au bas du cadre */
-      const y = u >= 1 ? Math.ceil(M.win) : u ? Math.round(u * M.win + M.haut) - M.haut : 0;
-      chapters[k].style.transform = 'translate3d(0,' + y + 'px,0)';
-    }
+    /* au bureau, les plans glissent nativement (voir « LES PLANS GLISSENT
+       NATIVEMENT » dans le CSS) : on ne règle que les bandes fixes du cadre */
+    bandeDuBas();
   }
   const relancer  = () => { if (!raf) raf = requestAnimationFrame(peindre); };
   const remesurer = () => { aMesurer = true; relancer(); };
