@@ -479,23 +479,22 @@ body.zone-fondu .cursor {
   white-space: nowrap;
 }
 /* sur un lien, la flèche parle du lien ; sous un volet, il n'y a plus rien à faire défiler */
-/* SUR L'ACCUEIL, la flèche se tourne vers le bas — sa pointe posée sur le
-   point visé — et respire doucement ; « Faites défiler » arrive à côté,
-   lettre à lettre. Les deux restent pendant le début de la descente (près
-   d'un demi-écran), puis la flèche redevient ↖ ; ils reviennent en haut. */
-.cursor__bas {
-  position: absolute; left: var(--pointe-x, 0); top: var(--pointe-y, 0);
-  translate: -50% -88%; opacity: 0; transition: opacity 0.25s ease;
+/* SUR L'ACCUEIL, la flèche du curseur — la MÊME — se tourne vers le bas,
+   autour de sa pointe (qui reste sur le point visé), et ne bouge plus ;
+   « Faites défiler » arrive à côté, lettre à lettre. Les deux restent
+   longtemps (plus d'un écran de descente), puis la flèche se retourne ;
+   ils reviennent en haut. */
+.cursor__fleche {
+  display: inline-block;
+  transform-origin: var(--pointe-x, 0) var(--pointe-y, 0);
+  transition: rotate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.cursor.vers-bas .cursor__fleche { opacity: 0; }
-.cursor.vers-bas .cursor__bas { opacity: 1; animation: defiler-respire 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-@keyframes defiler-respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
-@media (prefers-reduced-motion: reduce) { .cursor.vers-bas .cursor__bas { animation: none; } }
-/* sous un volet ou l'Index, rien à faire défiler sur l'accueil : la flèche habituelle */
+.cursor.vers-bas .cursor__fleche { rotate: -135deg; }
+/* le texte se range à droite de la flèche tournée, à sa hauteur */
+.cursor__indice { transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1), left 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.cursor.vers-bas .cursor__indice { left: calc(var(--pointe-x, 0px) + 0.75em); top: calc(var(--pointe-y, 0px) - 1.05em); margin-left: 0; }
 body:has(#projPanel.open) .cursor.vers-bas .cursor__fleche,
-body:has(#worksPanel.open) .cursor.vers-bas .cursor__fleche { opacity: 1; }
-body:has(#projPanel.open) .cursor.vers-bas .cursor__bas,
-body:has(#worksPanel.open) .cursor.vers-bas .cursor__bas { opacity: 0; animation: none; }
+body:has(#worksPanel.open) .cursor.vers-bas .cursor__fleche { rotate: 0deg; }
 .cursor.hover-link .cursor__indice,
 body:has(#projPanel.open) .cursor__indice,
 body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
@@ -3240,7 +3239,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 </div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
-<div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__bas">↓</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
+<div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
 <div class="cursor-ring curseur-absent" id="cursorRing" aria-hidden="true"><span class="cursor-label">Voir</span></div>
 
 <!-- WORKS PANEL -->
@@ -3721,7 +3720,7 @@ if (indiceEl) lettres(indiceEl);
 function updateIndice() {
   if (!indiceEl || !heroPret) return;
   /* il reste pendant le début de la descente, et revient en haut */
-  const la = sourisFine.matches && motionState.scroll.y < innerHeight * 0.45;
+  const la = sourisFine.matches && motionState.scroll.y < innerHeight * 1.2;
   indiceEl.classList.toggle('lettres-in', la);
   cursor.classList.toggle('vers-bas', la);
 }
