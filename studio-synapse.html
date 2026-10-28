@@ -2894,14 +2894,16 @@ body.zone-foot .about-story {
     color: rgba(17, 17, 20, 0.74);
   }
   .index-bureau.ib-change .ib-titre { opacity: 0; }
-  /* LA PARTIE DROITE EST NOIRE : le fond noir déborde un peu des images — un
-     liseré d’un pixel à la limite avec la colonne du nom, et le même entre deux
-     projets —, pour que la gauche (blanche, le nom) et la droite (les
-     images) se détachent l'une de l'autre */
+  /* LA PARTIE DROITE, COMME LA PILE DE L'ACCUEIL : chaque image est COLLÉE
+     en haut, immobile ; en descendant, la suivante monte et la recouvre —
+     c'est le navigateur qui le fait (sticky), sans script. Un temps d'arrêt
+     sur chacune (16 % d'écran, celui de l'accueil). Le bord haut de l'image
+     qui arrive porte un filet BLANC d'un pixel ; un pixel blanc aussi à la
+     limite avec la colonne du nom. */
   .ib-images {
-    display: flex; flex-direction: column; gap: 1px;   /* entre deux projets : le même pixel */
-    padding: 0 0 0 1px;                    /* le liseré du milieu : un seul pixel */
-    background: #000;
+    display: flex; flex-direction: column; gap: 0;
+    padding: 0 0 0 1px;
+    background: #fff;
   }
   /* LA VAGUE D'OUVERTURE (voir ibDefileOuverture) : posée exactement sur la
      première grande image ; chaque feuille se découvre derrière un masque
@@ -2920,10 +2922,16 @@ body.zone-foot .about-story {
   .index-bureau.ib-en-liasse .ib-images { visibility: hidden; }
   .ib-carte.sans-zoom img { transition: none !important; }
   .ib-carte {
-    position: relative; display: block; width: 100%; height: 100vh;
-    margin: 0; padding: 0; border: 0; overflow: hidden; cursor: pointer;
+    display: block; width: 100%; height: 100vh; box-sizing: border-box;
+    position: sticky; top: 0;
+    margin: 0 0 16vh; padding: 0; border: 0; overflow: hidden; cursor: pointer;
     background: #fff;
   }
+  .ib-carte:last-child { margin-bottom: 0; }
+  .ib-carte + .ib-carte { border-top: 1px solid #fff; }
+  /* les images restent nettes et immobiles, comme celles de l'accueil : ni
+     flou, ni zoom (ces règles l'emportent sur celles d'avant) */
+  .index-bureau .ib-carte img, .index-bureau .ib-carte.est-actif img { filter: none; opacity: 1; scale: 1; transition: none; }
   /* le projet regardé, net ; il arrive par un léger ZOOM qui se pose (1,12
      → 1) ; les autres, flous et éteints, restent agrandis */
   .ib-carte img {
@@ -5421,13 +5429,11 @@ function ibPoser(k) {
 function ibPeindre() {
   ibRaf = 0;
   if (!indexBureau.matches || !worksPanel.classList.contains('open') || !ibCartes.length) return;
+  /* les images collées se recouvrent : le projet regardé est le DERNIER
+     dont le haut a passé le milieu de l'écran */
   const milieu = innerHeight / 2;
-  let k = 0, ecart = Infinity;
-  ibCartes.forEach((c, i) => {
-    const r = c.b.getBoundingClientRect();
-    const e = r.top <= milieu && r.bottom >= milieu ? 0 : Math.min(Math.abs(r.top - milieu), Math.abs(r.bottom - milieu));
-    if (e < ecart) { ecart = e; k = i; }
-  });
+  let k = 0;
+  ibCartes.forEach((c, i) => { if (c.b.getBoundingClientRect().top <= milieu) k = i; });
   if (k === ibActif) return;
   const premier = ibActif < 0;
   ibActif = k;
