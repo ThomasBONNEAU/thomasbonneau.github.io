@@ -2929,12 +2929,19 @@ body.zone-foot .about-story {
     will-change: auto; transform: none !important;
   }
   .about-chapter:nth-child(2) { margin-top: calc(var(--ab-recouvre, 0px) + var(--ab-repos, 0px) + var(--ab-pose)); }
-  .ab-cache-bas {
-    display: block; position: sticky; bottom: 0; z-index: 3;
-    height: calc(100vh - var(--ab-colle) - var(--ab-photo));
-    background: var(--ab-plane);
-    transition: background-color var(--zone-duree) var(--zone-courbe);
+  /* (le cache collé du bas est remplacé par la bande FIXE du cadre — voir
+     plus bas : collée en bas, Safari la recalait en retard pendant le
+     défilement, et le texte du plan qui monte passait dessous par éclairs) */
+  .ab-cache-bas { display: none; }
+  #siteNav .cadre-bas-apropos {
+    display: block; position: absolute; left: 0; right: 0; bottom: 0; top: auto;
+    height: var(--ab-bas, 56px);
+    background: #fff; pointer-events: none;
+    opacity: 0; visibility: hidden; transition: none;
   }
+  #siteNav .cadre-bas-apropos::before { display: none; }
+  body.zone-pres #siteNav .cadre-bas-apropos { background: #fcfaeb; }
+  body.ab-en-cours #siteNav .cadre-bas-apropos { opacity: 1; visibility: visible; transition: none; }
 }
 @media (min-width: 901px) {
 
@@ -6379,6 +6386,21 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     }
   }
   const natif = () => getComputedStyle(chapters[0]).position === 'sticky';
+  /* AU BUREAU, LA BANDE DU BAS (dans le cadre fixe) : elle couvre, sous la
+     photo, l'écran où les plans montent ; visible tant que la fenêtre des
+     plans passe derrière cette ligne */
+  const portraitFig = root.querySelector('.about-portrait');
+  const bandeBureau = document.querySelector('.cadre-bas-apropos');
+  let bandeLa = null, ligneBas = 0;
+  function bandeDuBas() {
+    if (!bandeBureau) return;
+    const f = flow.getBoundingClientRect();
+    /* …et jamais sur la dernière carte de l'accueil, tant qu'elle passe là */
+    const pile = document.querySelector('.projects-stack');
+    const libre = !pile || pile.getBoundingClientRect().bottom <= ligneBas;
+    const e = libre && f.top < ligneBas && f.bottom > ligneBas + 1;
+    if (e !== bandeLa) { bandeLa = e; document.body.classList.toggle('ab-en-cours', e); }
+  }
   function measure() {
     ajuster();
     hauteursDossiers();
@@ -6407,7 +6429,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     M.recouvre = Math.max(0, -(parseFloat(getComputedStyle(root).marginTop) || 0));
     M.repos = M.recouvre ? px('var(--ab-repos, 0px)') : 0;
     M.prog = -1;
-    if (natif()) chapters.forEach(c => { c.style.transform = ''; });
+    if (natif()) {
+      chapters.forEach(c => { c.style.transform = ''; });
+      const bas = Math.max(0, Math.round(innerHeight - y - (portraitFig ? portraitFig.getBoundingClientRect().height : 0)));
+      document.documentElement.style.setProperty('--ab-bas', bas + 'px');
+      ligneBas = innerHeight - bas;
+    }
   }
 
   /* ── LA FRAME : une position, rien d'autre ─────────────────────────────── */
@@ -6421,7 +6448,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
        monter, et le dernier reste calme avant que la section rende la main. */
     /* (au bureau, les plans glissent nativement : rien à écrire — voir
        « LES PLANS GLISSENT NATIVEMENT » dans le CSS) */
-    if (natif()) return;
+    if (natif()) { bandeDuBas(); return; }
     const y = (window.scrollY || 0) - M.top - M.recouvre - M.repos;
     const t = clamp01((y - M.pose) / (M.pas * relais)) * relais;
     if (t === M.prog) return;
