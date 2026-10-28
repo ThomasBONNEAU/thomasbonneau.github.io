@@ -520,7 +520,55 @@ body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
 /* pendant le mouvement le volet est piloté image par image en JS :
    aucune transition CSS ne doit s'y superposer */
 body.curtain-live .proj-panel,
-body.curtain-live .proj-panel.open { transition: none; }
+body.curtain-live .proj-panel.open,
+body.curtain-live .works-panel,
+body.curtain-live .works-panel.open { transition: none; }
+
+/* ══ LE RIDEAU (voir rideau) — le passage d'une page à l'autre ══════════════
+   Un écran NOIR monte du bas et couvre tout ; en bas à droite, le nom de la
+   page où l'on va se lève de derrière une ligne, en grandes capitales
+   blanches ; en haut à gauche, le monogramme grandit. Sous le noir, la page
+   change. Puis le noir repart vers le haut — son bord bas remonte — et
+   découvre la page, dont le contenu monte en place, l'un après l'autre. Le
+   noir est découpé (clip-path), jamais déplacé : ce qu'il porte reste
+   immobile pendant qu'il passe. Une seule courbe, lente aux deux bouts. */
+.rideau {
+  position: fixed; inset: 0; z-index: 500;
+  background: #000; color: #fff;
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none; visibility: hidden;
+  --ui-x: clamp(18px, 1.35vw, 26px);
+  --ui-y: clamp(16px, 1.2vw, 24px);
+}
+.rideau.est-la { visibility: visible; pointer-events: auto; }
+.rideau-tb {
+  position: absolute; left: var(--ui-x); top: var(--ui-y);
+  height: 25px; width: auto; display: block; fill: #fff;
+  transform-origin: 0 0; will-change: transform;
+}
+.rideau-titre {
+  position: absolute; right: var(--ui-x); bottom: var(--ui-y);
+  left: var(--ui-x);
+  margin: 0; overflow: hidden; text-align: right;
+  font-family: 'Castillon', serif; font-weight: 160;
+  font-size: clamp(56px, 9.5vw, 168px); line-height: 0.92;
+  letter-spacing: -0.01em; text-transform: uppercase;
+  padding-top: 0.06em;
+}
+.rideau-titre span { display: inline-block; will-change: transform; }
+@media (max-width: 768px) {
+  .rideau { --ui-x: 14px; --ui-y: 14px; }
+  .rideau-tb { height: 20px; }
+  .rideau-titre { font-size: clamp(44px, 14vw, 80px); }
+}
+@media (pointer: coarse) {
+  .rideau { bottom: auto; height: 100lvh; }
+  .rideau-titre { bottom: calc(var(--ui-y) + 100lvh - 100svh); }
+}
+/* L'ENTRÉE de la page découverte : chaque bloc monte de 48 px et s'allume,
+   l'un après l'autre (--i), sur la courbe d'arrivée du site */
+@keyframes entree-monte { from { opacity: 0; transform: translate3d(0, 48px, 0); } to { opacity: 1; transform: none; } }
+.entree-bloc { animation: entree-monte 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
 
 /* ══════════════════════════════════════════════════════════════════
    INTERFACE PÉRIPHÉRIQUE
@@ -3220,6 +3268,12 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   </div>
 </div>
 
+<!-- LE RIDEAU : le passage d'une page à l'autre (voir rideau) -->
+<div class="rideau" id="rideau" aria-hidden="true">
+  <svg class="rideau-tb" viewBox="0 0 89.33 90.58" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg>
+  <p class="rideau-titre"><span></span></p>
+</div>
+
 <!-- LE CV : la page se floute et la page du PDF, en VECTORIEL (le PDF converti
      en SVG, texte en tracés : le navigateur le dessine net à toute taille, comme
      du texte), monte du bas jusqu'au centre ; le lien de téléchargement dessous -->
@@ -5550,12 +5604,18 @@ function closeWorksPanel() {
 
 const worksMoreBtn = document.getElementById('worksMoreBtn');
 if (worksMoreBtn) {
-  worksMoreBtn.addEventListener('click', () => openWorksPanel());
+  worksMoreBtn.addEventListener('click', () => rideau('Index', openWorksPanel, entreeIndex));
 }
 
 // MENU (haut droite) → la page de TOUS les projets ; ouverte, c'est sa croix
 if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
-  worksPanel.classList.contains('open') ? closeWorksPanel() : openWorksPanel());
+  worksPanel.classList.contains('open')
+    ? rideau('Accueil', closeWorksPanel)
+    : rideau('Index', openWorksPanel, entreeIndex));
+/* l'Index découvert : le nom, puis la première image, montent en place */
+function entreeIndex() {
+  if (indexBureau.matches) entreeBlocs([document.querySelector('.ib-titre'), document.querySelector('.ib-carte')]);
+}
 
 
 // (navigation horizontale supprimée : plus de liens, donc plus de trait d'encre)
@@ -5571,6 +5631,77 @@ if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
    pilote le volet, la profondeur de la Home et la bande de frontière dans
    la MÊME frame, donc la frontière ne peut jamais se désynchroniser.
    ═══════════════════════════════════════════════════════════════════════════ */
+/* ══ LE RIDEAU — d'une page à l'autre ═══════════════════════════════════════
+   rideau(titre, pendant, entree) : le noir monte et couvre tout (750 ms) ;
+   le titre se lève de derrière sa ligne, le monogramme grandit ; à couvert,
+   pendant() change la page ; on attend que ses premières images soient
+   décodées (au plus 0,7 s, au moins 0,42 s), puis le noir repart vers le
+   haut (800 ms) en découvrant la page, et entree() en fait monter le
+   contenu. Renvoie une promesse, tenue une fois tout posé. Les animations
+   sont confiées au navigateur (Web Animations) : transformations et
+   découpes seulement, rien n'est recalculé image par image. */
+const RIDEAU_COURBE = 'cubic-bezier(0.76, 0, 0.24, 1)';
+let rideauEnCours = null;
+function rideau(titre, pendant, entree) {
+  const el = document.getElementById('rideau');
+  if (!el || !el.animate || motionState.reducedMotion) {
+    try { pendant && pendant(); } catch (e) {}
+    try { entree && entree(); } catch (e) {}
+    return Promise.resolve();
+  }
+  if (rideauEnCours) return rideauEnCours;
+  const tb = el.querySelector('.rideau-tb'), mot = el.querySelector('.rideau-titre span');
+  mot.textContent = titre || '';
+  el.classList.add('est-la');
+  document.body.classList.add('curtain-live');
+  const attendre = ms => new Promise(r => setTimeout(r, ms));
+  const fini = a => a.finished.catch(() => {});
+  rideauEnCours = (async () => {
+    const monte = el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+      { duration: 750, easing: RIDEAU_COURBE, fill: 'forwards' });
+    mot.animate([{ transform: 'translate3d(0, 105%, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
+      { duration: 1000, delay: 220, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
+    tb.animate([{ transform: 'scale(1)' }, { transform: 'scale(2.4)' }],
+      { duration: 900, delay: 120, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' });
+    await fini(monte);
+    const t0 = performance.now();
+    try { pendant && pendant(); } catch (e) {}
+    /* les premières images de la page découverte : décodées avant d'ouvrir */
+    const ims = [...document.querySelectorAll('#projPanel.open img, #worksPanel.open .ib-carte img')].slice(0, 3);
+    await Promise.race([Promise.all(ims.map(im => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}))), attendre(700)]);
+    await attendre(Math.max(0, 420 - (performance.now() - t0)));
+    const part = el.animate([{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }],
+      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
+    mot.animate([{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, -45%, 0)' }],
+      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
+    tb.animate([{ transform: 'scale(2.4)' }, { transform: 'scale(1)' }],
+      { duration: 800, easing: RIDEAU_COURBE, fill: 'forwards' });
+    setTimeout(() => { try { entree && entree(); } catch (e) {} }, 160);
+    await fini(part);
+    el.getAnimations({ subtree: true }).forEach(a => a.cancel());
+    el.classList.remove('est-la');
+    requestAnimationFrame(() => document.body.classList.remove('curtain-live'));
+    rideauEnCours = null;
+  })();
+  return rideauEnCours;
+}
+/* fait monter, l'un après l'autre, les blocs donnés ; nettoie ensuite */
+function entreeBlocs(blocs) {
+  blocs = blocs.filter(Boolean);
+  blocs.forEach((b, i) => { b.style.setProperty('--i', i); b.classList.remove('entree-bloc'); void b.offsetWidth; b.classList.add('entree-bloc'); });
+  setTimeout(() => blocs.forEach(b => { b.classList.remove('entree-bloc'); b.style.removeProperty('--i'); }), 1100 + blocs.length * 90 + 400);
+}
+function entreeProjet() {
+  const p = document.getElementById('projPanel');
+  const intro = p.querySelector('.proj-panel-intro'), gal = p.querySelector('.proj-panel-gallery');
+  const blocs = [];
+  const avant = p.classList.contains('visuel-abord');
+  const deIntro = intro ? [intro.querySelector('.proj-panel-head'), intro.querySelector('.proj-panel-meta')] : [];
+  const deGal = gal ? [...gal.children].slice(0, 2) : [];
+  (avant ? deGal.concat(deIntro) : deIntro.concat(deGal)).forEach(b => blocs.push(b));
+  entreeBlocs(blocs);
+}
+
 const pageCurtain = (function () {
   if (!panel) return null;
 
@@ -5841,103 +5972,57 @@ const pageCurtain = (function () {
   addEventListener('popstate', onNav);
   addEventListener('hashchange', onNav);
 
-  /* ── OUVERTURE ──────────────────────────────────────────────── */
+  /* ── OUVERTURE ── (le rideau : voir rideau) ─────────────────── */
   function open(card, ev, fromHistory) {
     if (pt.state !== 'idle' || !card) return;    // 20 · aucun double clic possible
     pt.state = 'opening';
     pt.card = card;
     pt.projectIndex = CARDS.indexOf(card);
     pt.homeScrollY = window.scrollY || 0;        // 2 · la Home est figée ici
-    pt.cfg = cfg();
     lockScroll(true);
-    document.body.classList.add('curtain-live');
-
-    /* 2 · la vraie page est préparée SOUS le viewport avant de bouger */
-    panel.style.transform = 'translate3d(0,100%,0)';
-    openPanel(card);
     if (!fromHistory) pushHash(card);
-
-    if (motionState.reducedMotion) {             // 23
-      panel.style.transition = 'transform 260ms cubic-bezier(0.33,0,0.2,1)';
-      requestAnimationFrame(() => { panel.style.transform = 'translate3d(0,0,0)'; });
-      setTimeout(finishOpen, 300);
-      return;
-    }
-    armHome();
-    makeEdge();
-    run(1);
+    rideau(card.dataset.title, () => {
+      panel.style.transform = '';
+      openPanel(card);
+    }, entreeProjet).then(finishOpen);
   }
   function finishOpen() {
     pt.state = 'project';
-    panel.style.transform = '';                  // 12 · aucun transform résiduel
+    panel.style.transform = '';
     panel.style.willChange = '';
-    killEdge();
-    disarmHome();
     lockScroll(false);                           // 19 · scroll natif immédiat
-    requestAnimationFrame(() => {
-      document.body.classList.remove('curtain-live');
-      panel.style.transition = '';
-    });
+    panel.style.transition = '';
     if (pt.pendingClose) { pt.pendingClose = false; close(pt.pendingHist); }
   }
 
-  /* ── 14/15/16 · RETOUR ────────────────────────────────────────── */
+  /* ── 14/15/16 · RETOUR ── (le rideau, vers l'Index ou l'accueil) ── */
   function close(fromHistory) {
-    /* 20 · une demande de retour pendant la montée n'interrompt pas le volet :
-       elle est exécutée dès qu'il est arrivé, avec son origine exacte. */
     if (pt.state === 'opening') { pt.pendingClose = true; pt.pendingHist = !!fromHistory; return; }
     if (pt.state !== 'project') { if (pt.state === 'idle') closePanel(); return; }
     pt.state = 'closing';
-    pt.cfg = cfg();
     lockScroll(true);
-    document.body.classList.add('curtain-live');
-
-    /* 15 · la Home n'a jamais bougé (overscroll-behavior: contain sur le
-       volet) : il n'y a donc rien à restaurer, et aucun flash possible.
-       On se recale quand même si quelque chose l'avait déplacée. */
-    document.body.style.overflow = '';
-    if (Math.abs((window.scrollY || 0) - pt.homeScrollY) > 1) {
-      window.scrollTo({ top: pt.homeScrollY, left: 0, behavior: 'instant' });
-    }
-    if (typeof scheduleStack === 'function') { stackDirty = true; scheduleStack(); }
     if (!fromHistory) popHash();
-
-    panel.style.transform = 'translate3d(0,0,0)';
-    if (motionState.reducedMotion) {             // 23
-      panel.style.transition = 'transform 240ms cubic-bezier(0.5,0,0.75,0)';
-      requestAnimationFrame(() => { panel.style.transform = 'translate3d(0,100%,0)'; });
-      setTimeout(finishClose, 280);
-      return;
-    }
-    armHome();
-    homeDepth(1);
-    makeEdge();
-    run(-1);
+    const vers = indexOuvert() ? 'Index' : 'Accueil';
+    rideau(vers, () => {
+      closePanel();
+      panel.style.transform = '';
+      if (!indexOuvert()) document.body.style.overflow = '';
+      if (Math.abs((window.scrollY || 0) - pt.homeScrollY) > 1) {
+        window.scrollTo({ top: pt.homeScrollY, left: 0, behavior: 'instant' });
+      }
+      if (typeof scheduleStack === 'function') { stackDirty = true; scheduleStack(); }
+    }).then(finishClose);
   }
   function finishClose() {
     pt.state = 'idle';
-    closePanel();
     panel.style.transform = '';
     panel.style.willChange = '';
-    killEdge();
-    disarmHome();
     lockScroll(false);
     pt.card = null; pt.projectIndex = null;
-    requestAnimationFrame(() => {
-      document.body.classList.remove('curtain-live');
-      panel.style.transition = '';
-    });
+    panel.style.transition = '';
     if (typeof scheduleStack === 'function') { stackDirty = true; scheduleStack(); }
   }
 
-  /* 24 · un redimensionnement pendant le mouvement : la bande se refait
-     à la bonne largeur, le volet ne s'interrompt pas. */
-  addEventListener('resize', () => {
-    if (pt.state !== 'opening' && pt.state !== 'closing') return;
-    pt.cfg = cfg();
-    killEdge();
-    makeEdge();
-  }, { passive: true });
 
   /* 18 · arrivée directe par URL : la page s'affiche, sans volet — il n'y
      a pas de Home à recouvrir. */
@@ -5959,16 +6044,12 @@ const pageCurtain = (function () {
     const card = CARDS[((i < 0 ? 0 : i) + sens + CARDS.length) % CARDS.length];
     if (!card) return;
     changeEnCours = true;
-    panel.classList.add('change-projet');
-    setTimeout(() => {
+    lockScroll(true);
+    rideau(card.dataset.title, () => {
       pt.card = card; pt.projectIndex = CARDS.indexOf(card);
       openPanel(card);
       try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        panel.classList.remove('change-projet');
-        changeEnCours = false;
-      }));
-    }, 240);
+    }, entreeProjet).then(() => { lockScroll(false); changeEnCours = false; });
   }
   panel.querySelectorAll('.ppp-lien').forEach(b => b.addEventListener('click', () => voisin(+b.dataset.sens)));
 
