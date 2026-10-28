@@ -2901,12 +2901,6 @@ body.zone-foot .about-story {
     transition-duration: 0.5s; transition-delay: 0s;
   }
   .about-story:not(.ab-devoile) .about-chapter:first-child > * { translate: 0 22px; }
-  /* la fin de la carte Studio Synapse s'efface (voir zoneWash) */
-  .projects .stack-card:last-child, .projects .works-more { transition: opacity 0.45s ease, visibility 0s linear 0s; }
-  .projects.pile-sort .stack-card:last-child, .projects.pile-sort .works-more {
-    opacity: 0; visibility: hidden;          /* effacée, elle ne compte plus pour la couleur du cadre */
-    transition: opacity 0.45s ease, visibility 0s linear 0.45s;
-  }
 }
 /* ══ LES PLANS GLISSENT NATIVEMENT (29/10) ════════════════════════════════
    Un script déplaçait chaque plan, image par image, d'après le défilement.
@@ -6591,7 +6585,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   const photo = document.querySelector('.about-portrait');   // le plan collant de gauche
   if (!pres) return;
   const OCRE = '#fcfaeb', BLACK = '#000000';   // le FOND est le crème ; l'encre est l'ocre
-  const projets = document.getElementById('projets');
   const absTop = (el) => el.getBoundingClientRect().top + window.scrollY;  // position absolue robuste
   const dureeFondu = () => (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zone-duree')) || 0.8) * 1000;
   let raf = 0, zone = null, fondu = 0;
@@ -6649,16 +6642,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
       const leve = (y - absTop(pres)) / vh;
       if (leve > 0.33) pres.classList.add('ab-devoile');
       else if (leve < 0.12) pres.classList.remove('ab-devoile');
-      /* LA FIN DE LA CARTE s'efface d'elle-même : partie aux quatre
-         cinquièmes, son reste (une bande noire en haut, « voir plus »)
-         disparaît en fondu — on ne s'arrête jamais sur cet entre-deux */
-      if (projets) {
-        const avant = projets.classList.contains('pile-sort');
-        if (leve > 0.8) projets.classList.add('pile-sort');
-        else if (leve < 0.72) projets.classList.remove('pile-sort');
-        /* le fondu fini, les coins relisent ce qu'ils ont derrière eux */
-        if (avant !== projets.classList.contains('pile-sort')) setTimeout(() => dispatchEvent(new Event('scroll')), 520);
-      }
     } else pres.classList.add('ab-devoile');
   }
   onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(apply); });   // scroll CENTRAL
