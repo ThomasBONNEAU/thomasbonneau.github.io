@@ -534,22 +534,11 @@ body.curtain-live .works-panel.open { transition: none; }
    Ni écran de couleur, ni titre : c'est la page elle-même qui se découvre.
    Elle est découpée (clip-path) et son bord bas… ou haut… glisse sur une
    seule courbe, lente aux deux bouts, pendant que son contenu, dedans, se
-   déplace un peu moins vite (le décalage donne la profondeur). En haut à
-   gauche, le monogramme grandit puis se repose à sa place : une copie le
-   remplace le temps du passage, en différence — noire sur le clair,
-   blanche sur le sombre. */
-.tb-passage {
-  position: fixed; left: clamp(18px, 1.35vw, 26px); top: clamp(16px, 1.2vw, 24px); z-index: 600;
-  height: 25px; width: auto; display: none;
-  fill: #fff; mix-blend-mode: difference;
-  transform-origin: 0 0; pointer-events: none;
-}
-body.tb-passe .tb-passage { display: block; }
-body.tb-passe .frame-logo, body.tb-passe .proj-panel-logo { opacity: 0; }
-@media (max-width: 768px) { .tb-passage { left: 14px; top: 14px; height: 20px; } }
-/* une page qu'on quitte pour sa voisine : une copie, posée par-dessus,
-   qui part en découvrant la nouvelle */
-.pan-copie { position: fixed !important; inset: 0; z-index: 201 !important; transform: none !important; pointer-events: none; overflow: hidden !important; }
+   déplace un peu moins vite (le décalage donne la profondeur). */
+.passage-net img.media-load, .passage-net video.media-load { transition: none !important; }
+/* une page qu'on quitte pour sa voisine : une copie, posée DESSOUS, sur
+   laquelle la nouvelle monte */
+.pan-copie { position: fixed !important; inset: 0; z-index: 199 !important; transform: none !important; pointer-events: none; overflow: hidden !important; }
 @media (pointer: coarse) { .pan-copie { bottom: auto; height: 100lvh; } }
 /* L'ENTRÉE de la page découverte : chaque bloc monte de 48 px et s'allume,
    l'un après l'autre (--i), sur la courbe d'arrivée du site */
@@ -977,7 +966,10 @@ body.refraction-on .hero { position: sticky; top: 0; }
   z-index: 2;
 }
 .projects-stack .stack-card:first-child .proj-image { top: 0 !important; }
-.projects-stack .stack-card.colle .proj-image { top: 0; }
+/* collée, une carte cache son filet AU-DESSUS de l'écran (elle se colle à
+   −1 px) : il ne reste pas en bande en haut — sans aucun script (un script
+   qui le retirait, image par image, scintillait dans Safari) */
+.projects-stack .stack-card:not(:first-child) { top: calc(var(--project-gap) * -1); }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
    sa photo très large y était rognée jusqu'à un énorme zoom) ; le <picture>
    ne compte pas dans la mise en page, l'image reste l'enfant direct du cadre */
@@ -3253,10 +3245,6 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     <span class="ppp-mention ppp-d">Direction artistique</span>
   </div>
 </div>
-
-<!-- LE TB DU PASSAGE : pendant qu'une page se dévoile, le monogramme
-     grandit puis se repose à sa place (voir passage) -->
-<svg class="tb-passage" id="tbPassage" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg>
 
 <!-- LE CV : la page se floute et la page du PDF, en VECTORIEL (le PDF converti
      en SVG, texte en tracés : le navigateur le dessine net à toute taille, comme
@@ -5594,7 +5582,7 @@ if (worksMoreBtn) {
 // MENU (haut droite) → la page de TOUS les projets ; ouverte, c'est sa croix
 if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
   worksPanel.classList.contains('open')
-    ? passage(worksPanel, 'part', null, closeWorksPanel)
+    ? passage(worksPanel, 'descend', null, closeWorksPanel)
     : passage(worksPanel, 'monte', openWorksPanel, null, entreeIndex));
 /* l'Index découvert : le nom, puis la première image, montent en place */
 function entreeIndex() {
@@ -5617,18 +5605,38 @@ function entreeIndex() {
    ═══════════════════════════════════════════════════════════════════════════ */
 /* ══ LE PASSAGE — une page se dévoile ════════════════════════════════════════
    passage(el, sens, avant, apres, entree)
-     sens 'monte' : el apparaît PAR-DESSUS — découpé, son bord haut monte du
-       bas de l'écran jusqu'en haut ; avant() le prépare (déjà découpé, donc
-       invisible) ; on attend ses premières images (0,5 s au plus).
-     sens 'part' : el s'en va — son bord bas remonte jusqu'en haut et
-       découvre ce qu'il y a dessous ; apres() le retire.
-   Le contenu de la page se déplace en même temps, un peu moins (la
-   profondeur) ; le monogramme grandit puis se repose ; entree() fait
-   monter les blocs de la page découverte. Une seule courbe pour tout,
-   950 ms. Animations confiées au navigateur : découpes et
-   transformations, rien n'est recalculé image par image. */
+     'monte'   : el apparaît PAR-DESSUS — découpé, son bord haut monte du bas
+                 de l'écran jusqu'en haut. avant() le prépare (déjà découpé,
+                 donc invisible) ; on attend que les images qu'on verra en
+                 premier soient TÉLÉCHARGÉES ET DÉCODÉES (1,8 s au plus) et on
+                 les pose nettes d'un coup : la page ne se dévoile jamais
+                 avec des images floues ou en train d'arriver.
+     'descend' : el s'en va VERS LE BAS — son bord haut redescend jusqu'en bas
+                 de l'écran et découvre ce qu'il y a dessous ; apres() le
+                 retire. C'est l'ouverture rejouée à l'envers.
+   Le contenu de la page suit le bord, un peu moins vite (la profondeur).
+   Une seule courbe, lente aux deux bouts, 950 ms. Animations confiées au
+   navigateur : découpes et transformations, rien image par image. */
 const PASSAGE_COURBE = 'cubic-bezier(0.76, 0, 0.24, 1)', PASSAGE_DUREE = 950;
 let passageEnCours = null;
+function imagesPretes(el, max) {
+  const vues = [...el.querySelectorAll('img')].filter(im => {
+    if (!im.getAttribute('src')) return false;
+    const r = im.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.top < innerHeight && r.bottom > 0;
+  });
+  const une = im => new Promise(ok => {
+    const fin = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(ok);
+    if (im.complete && im.naturalWidth) fin();
+    else { im.addEventListener('load', fin, { once: true }); im.addEventListener('error', ok, { once: true }); }
+  });
+  return Promise.race([Promise.all(vues.map(une)), new Promise(r => setTimeout(r, max))]).then(() => {
+    /* posées nettes, sans fondu : on ne verra pas leur arrivée */
+    el.classList.add('passage-net');
+    vues.forEach(im => { if (im.complete && im.naturalWidth) im.classList.add('media-in'); });
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('passage-net')));
+  });
+}
 function passage(el, sens, avant, apres, entree) {
   if (!el || !el.animate || motionState.reducedMotion) {
     try { avant && avant(); } catch (e) {}
@@ -5637,33 +5645,26 @@ function passage(el, sens, avant, apres, entree) {
     return Promise.resolve();
   }
   if (passageEnCours) return passageEnCours;
-  document.body.classList.add('curtain-live', 'tb-passe');
+  document.body.classList.add('curtain-live');
   const monte = sens === 'monte';
   if (monte) el.style.clipPath = 'inset(100% 0 0 0)';
   passageEnCours = (async () => {
     try { avant && avant(); } catch (e) {}
-    if (monte) {
-      const ims = [...el.querySelectorAll('img')].filter(im => im.getAttribute('src')).slice(0, 3);
-      await Promise.race([Promise.all(ims.map(im => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}))), new Promise(r => setTimeout(r, 500))]);
-    }
+    if (monte) await imagesPretes(el, 1800);
     const D = PASSAGE_DUREE, anims = [];
     anims.push(el.animate(monte
       ? [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }]
-      : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }],
+      : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)' }],
       { duration: D, easing: PASSAGE_COURBE, fill: 'forwards' }));
     [...el.children].filter(c => !c.matches('.proj-panel-topbar, script')).forEach(c => anims.push(c.animate(monte
       ? [{ transform: 'translate3d(0, 12vh, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
-      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, -10vh, 0)' }],
+      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 12vh, 0)' }],
       { duration: D + 150, easing: monte ? 'cubic-bezier(0.22, 1, 0.36, 1)' : PASSAGE_COURBE, fill: 'both' })));
-    const tb = document.getElementById('tbPassage');
-    if (tb) anims.push(tb.animate([{ transform: 'scale(1)' }, { transform: 'scale(2.4)', offset: 0.5 }, { transform: 'scale(1)' }],
-      { duration: D + 100, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'both' }));
     if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, D * 0.35);
     await anims[0].finished.catch(() => {});
     try { apres && apres(); } catch (e) {}
     anims.forEach(a => { try { a.cancel(); } catch (e) {} });
     el.style.clipPath = '';
-    document.body.classList.remove('tb-passe');
     requestAnimationFrame(() => document.body.classList.remove('curtain-live'));
     passageEnCours = null;
   })();
@@ -5986,7 +5987,7 @@ const pageCurtain = (function () {
     pt.state = 'closing';
     lockScroll(true);
     if (!fromHistory) popHash();
-    passage(panel, 'part', () => {
+    passage(panel, 'descend', () => {
       if (Math.abs((window.scrollY || 0) - pt.homeScrollY) > 1) {
         window.scrollTo({ top: pt.homeScrollY, left: 0, behavior: 'instant' });
       }
@@ -6030,8 +6031,7 @@ const pageCurtain = (function () {
     changeEnCours = true;
     lockScroll(true);
     /* la page qu'on quitte : une copie, figée là où on la regardait, posée
-       par-dessus ; dessous, le volet reçoit le projet voisin, puis la copie
-       s'en va vers le haut et le découvre */
+       DESSOUS ; le volet reçoit le projet voisin et monte par-dessus elle */
     const copie = panel.cloneNode(true);
     copie.removeAttribute('id');
     copie.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
@@ -6040,10 +6040,11 @@ const pageCurtain = (function () {
     copie.setAttribute('aria-hidden', 'true');
     document.body.appendChild(copie);
     copie.scrollTop = panel.scrollTop;
-    pt.card = card; pt.projectIndex = CARDS.indexOf(card);
-    openPanel(card);
-    try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
-    passage(copie, 'part', null, () => copie.remove(), entreeProjet)
+    passage(panel, 'monte', () => {
+      pt.card = card; pt.projectIndex = CARDS.indexOf(card);
+      openPanel(card);
+      try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
+    }, () => copie.remove(), entreeProjet)
       .then(() => { lockScroll(false); changeEnCours = false; });
   }
   panel.querySelectorAll('.ppp-lien').forEach(b => b.addEventListener('click', () => voisin(+b.dataset.sens)));
@@ -6086,7 +6087,6 @@ function stackFrame(ts) {
   const tops = stackCards.map(c => c.getBoundingClientRect().top);
   /* le filet blanc du bord haut marque l'arrivée d'un projet ; collée en haut,
      la carte le perd — il restait sinon en bande blanche en haut de l'écran */
-  for (let i = 1; i < stackCards.length; i++) stackCards[i].classList.toggle('colle', tops[i] <= 0.5);
   updateFrameContext(tops);        // interface périphérique : mêmes mesures, aucun calcul en plus
   // 2) ÉCRITURE : uniquement transform:scale (composité GPU → scroll fluide, aucun repaint)
   let moving = false;
@@ -6102,9 +6102,10 @@ function stackFrame(ts) {
       continue;
     }
 
-    // image quasi parfaitement stable : scale(1) au repos, 1.008 au maximum
-    // pendant l'arrivée du projet suivant. Jamais < 1 → aucun bord blanc.
-    const targetScale = 1 + p * 0.008;
+    /* (29/10) PLUS D'AGRANDISSEMENT : l'image était réagrandie d'un rien à
+       chaque image du défilement ; Safari, qui fait défiler sur un fil à
+       part, la redessinait en décalé — elle scintillait. Elle reste fixe. */
+    const targetScale = 1;
     const v = stackVals[i];
     v.scale += (targetScale - v.scale) * (stackInstant ? 1 : 1 - Math.pow(0.84, dt60));
     if (Math.abs(targetScale - v.scale) > 0.0005) moving = true;
