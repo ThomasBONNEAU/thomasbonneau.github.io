@@ -3070,8 +3070,6 @@ body.zone-foot .about-story {
      textes se retirent */
   .index-bureau.ib-sans-texte .ib-texte,
   .index-bureau.ib-sans-texte .ib-fonction { opacity: 0; transition-duration: 0.25s; }
-  /* au clic, seule la carte choisie reste : les autres s'effacent */
-  .index-bureau.ib-seule .ib-carte { opacity: 0 !important; transition: opacity 0.45s ease; }
   /* le projet change : le nom et la fonction changent AUSSITÔT, et
      s'allument en un éclair (aucune attente de fondu) */
   @keyframes ib-allume { from { opacity: 0.15; } to { opacity: 1; } }
@@ -5770,50 +5768,32 @@ function ibArreter() {
   worksPanel.classList.remove('ib-noir');
   document.body.classList.remove('ib-cadre-noir');
   if (ib) ib.classList.remove('ib-sans-texte');
-  ibEtat.anims = []; ibEtat.leve = 1; ibEtat.envol = 0; ibEtat.part = false;
+  ibEtat.anims = []; ibEtat.leve = 1; ibEtat.envol = 0;
 }
 /* LE CLIC : un dossier couché vient se redresser ; le dossier debout
-   ouvre son projet (29/10) — SEULE sa carte bouge : elle grandit jusqu'à
-   tout l'écran, de haut en bas, pendant que le reste s'efface ; dessous,
-   la page du projet est déjà posée et chargée ; la carte s'efface sur elle.
-   Aucun autre effet. */
+   ouvre son projet — la pile s'envole (on voit les dossiers partir), puis la
+   page du projet monte du bas, entière et déjà chargée, sans autre effet
+   (sa préférence, confirmée le 29/10 : la carte seule qui grandissait,
+   non). */
 function ibClic(i) {
-  if (ibEtat.envol > 0 || ibEtat.part || !worksPanel.classList.contains('open')) return;
+  if (ibEtat.envol > 0 || !worksPanel.classList.contains('open')) return;
   if (i !== ibActif) { worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' }); return; }
-  const c = ibCartes[i], card = c.card;
+  const card = ibCartes[i].card;
   worksDepart = true;
   projetDepuisIndex = true;
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
-  ibEtat.part = true;                             // plus de second clic
-  const r = c.b.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
-  const px = v => Math.round(v) + 'px';
-  const ov = document.createElement('div');
-  ov.className = 'pan-voisin pan-carte';
-  ov.innerHTML = '<div class="pv-cadre"><img alt=""></div>';
-  const cadre = ov.firstChild, img = cadre.firstChild;
-  img.src = c.b.querySelector('img').currentSrc || c.src;
-  Object.assign(cadre.style, { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) });
-  document.body.appendChild(ov);
-  c.b.style.visibility = 'hidden';
-  ib.classList.add('ib-sans-texte', 'ib-seule');
-  const grandit = cadre.animate([
-    { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) },
-    { left: '0px', top: '0px', width: px(vw), height: px(vh) }
-  ], { duration: 1100, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' });
-  grandit.finished.catch(() => {}).then(() =>
-    /* l'écran est couvert : la page du projet se pose dessous, sans bouger,
-       et attend que son haut soit prêt */
-    Promise.resolve(pageCurtain.open(card, null, false, 'sur-place'))
-  ).then(() => {
-    const part = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'cubic-bezier(0.45, 0, 0.55, 1)', fill: 'forwards' });
-    return part.finished.catch(() => {});
-  }).then(() => {
-    ov.remove();
-    /* sous le projet, la pile reprend sa place : au retour, l'Index est là */
-    c.b.style.visibility = '';
-    ib.classList.remove('ib-sans-texte', 'ib-seule');
-    ibEtat.part = false;
+  ib.classList.add('ib-sans-texte');
+  /* les dossiers s'en vont (1,1 s) ; la page du projet se prépare sous
+     l'écran pendant ce temps, et monte quand ils sont presque tous partis —
+     jamais avant que son haut soit prêt */
+  ibAnimer('envol', 0, 1, 1100, t => t * t);
+  Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
+    /* le projet posé, la pile reprend sa place sous lui : au retour,
+       l'Index est là, intact */
+    ibEtat.anims = ibEtat.anims.filter(a => a.prop !== 'envol');
+    ibEtat.envol = 0;
+    ib.classList.remove('ib-sans-texte');
     ibDessiner();
   });
 }
@@ -5939,8 +5919,8 @@ function mediasPrets(el, max) {
 /* LE PASSAGE D'UNE PAGE (29/10) : plus de rideau dont le bord balaie
    l'écran — la page ENTIÈRE monte du bas, une fois tout son haut prêt (voir
    mediasPrets), et rien d'autre ne bouge : ni son contenu, ni ombre. Au
-   retour, elle redescend entière. « sur-place » : elle paraît sans bouger,
-   sous un calque qui la couvre (voir ibClic). « delai » : au plus tôt.
+   retour, elle redescend entière. « delai » : au plus tôt (l'envol de la
+   pile de l'Index d'abord).
    À LA FIN, la page prend son état final AVANT que ses transitions CSS ne
    reviennent : sinon Safari, qui regroupait les deux, rejouait la course
    (la page remontait puis redescendait — « ça le fait deux fois »). */
@@ -5953,31 +5933,26 @@ function passage(el, sens, avant, apres, entree, delai) {
   }
   if (passageEnCours) return passageEnCours;
   document.body.classList.add('curtain-live');
-  const monte = sens === 'monte', surPlace = sens === 'sur-place';
+  const monte = sens === 'monte';
   el.style.transition = 'none';
   if (monte) el.style.transform = 'translate3d(0, 100%, 0)';
   passageEnCours = (async () => {
     const t0 = performance.now();
     try { avant && avant(); } catch (e) {}
-    if (monte || surPlace) {
+    if (monte) {
       await mediasPrets(el, 2500);
       const reste = (delai || 0) - (performance.now() - t0);
       if (reste > 0) await new Promise(r => setTimeout(r, reste));
     }
-    if (!surPlace) {
-      const anim = el.animate(monte
-        ? [{ transform: 'translate3d(0, 100%, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
-        : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 100%, 0)' }],
-        { duration: PASSAGE_DUREE, easing: PASSAGE_COURBE, fill: 'forwards' });
-      el.style.transform = '';
-      if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, PASSAGE_DUREE * 0.4);
-      await anim.finished.catch(() => {});
-      try { apres && apres(); } catch (e) {}
-      try { anim.cancel(); } catch (e) {}
-    } else {
-      try { entree && entree(); } catch (e) {}
-      try { apres && apres(); } catch (e) {}
-    }
+    const anim = el.animate(monte
+      ? [{ transform: 'translate3d(0, 100%, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
+      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 100%, 0)' }],
+      { duration: PASSAGE_DUREE, easing: PASSAGE_COURBE, fill: 'forwards' });
+    el.style.transform = '';
+    if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, PASSAGE_DUREE * 0.4);
+    await anim.finished.catch(() => {});
+    try { apres && apres(); } catch (e) {}
+    try { anim.cancel(); } catch (e) {}
     el.style.transform = '';
     void getComputedStyle(el).transform;          // l'état final, pris MAINTENANT
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
