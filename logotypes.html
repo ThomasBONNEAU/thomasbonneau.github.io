@@ -540,10 +540,6 @@ body.curtain-live .works-panel.open { transition: none; }
    seule courbe, lente aux deux bouts, pendant que son contenu, dedans, se
    déplace un peu moins vite (le décalage donne la profondeur). */
 .passage-net img.media-load, .passage-net video.media-load { transition: none !important; }
-/* une page qu'on quitte pour sa voisine : une copie, posée DESSOUS, sur
-   laquelle la nouvelle monte */
-.pan-copie { position: fixed !important; inset: 0; z-index: 199 !important; transform: none !important; pointer-events: none; overflow: hidden !important; }
-@media (pointer: coarse) { .pan-copie { bottom: auto; height: 100lvh; } }
 /* L'ENTRÉE de la page découverte : chaque bloc monte de 48 px et s'allume,
    l'un après l'autre (--i), sur la courbe d'arrivée du site */
 @keyframes entree-monte { from { opacity: 0; transform: translate3d(0, 48px, 0); } to { opacity: 1; transform: none; } }
@@ -806,9 +802,9 @@ body.light {
 
 /* ══ L'INTRO — LE MONOGRAMME QUI SE REMPLIT (29/10) ═════════════════════
    Plus de ligne ni de pourcentage : le chargement est DANS le monogramme.
-   Sur le blanc, TB naît de rien (échelle 0 → 1), en gris très clair (7 %).
-   Puis l'ocre de l'À propos monte en lui, de bas en haut : c'est la
-   progression. Quand le hero est prêt (voir introSignature), le noir monte
+   Sur le blanc, TB naît de rien (échelle 0 → 1), en gris presque blanc
+   (5 %). Puis l'ocre de l'À propos monte en lui comme une vague diluée, de
+   bas en haut : c'est la progression. Quand le hero est prêt (voir introSignature), le noir monte
    à son tour, jusqu'en haut — TB a pris l'encre du site —, puis il se
    retire et l'accueil est là. Le monogramme est le fichier d'origine,
    intact, posé en MASQUE : les couleurs coulent dans son dessin exact.
@@ -823,15 +819,18 @@ body.light {
 }
 /* pendant le retrait le blanc n'est plus un écran : c'est déjà le hero */
 .intro.is-retrait { background: transparent; }
-/* les deux encres sont deux fonds du monogramme lui-même, chacun monté
-   du bas jusqu'à sa hauteur (--brun, --noir) : UNE seule couche, que le
-   masque découpe toujours — dans Safari, des calques enfants y échappaient */
-@property --brun { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-@property --noir { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+/* les deux encres sont deux fonds du monogramme lui-même : chacune est une
+   VAGUE au bord dilué (un dégradé, pas un trait), qui roule de côté en
+   montant. Leur hauteur (--brun, --noir) et leur houle (--vx) sont des
+   propriétés animées : UNE seule couche, que le masque découpe toujours —
+   dans Safari, des calques enfants y échappaient.
+   L'image d'une vague fait trois fois la hauteur du monogramme, quatre
+   longueurs d'onde sur deux largeurs : -8 % la pose sous lui, 62 % au-dessus. */
+@property --brun { syntax: '<percentage>'; inherits: false; initial-value: -8%; }
+@property --noir { syntax: '<percentage>'; inherits: false; initial-value: -8%; }
+@property --vx   { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
 .intro__signe {
   display: block;
-  /* une signature, pas un logo : 70 % de sa taille d'origine, tout le
-     blanc autour */
   /* le dessin touche les bords de son cadre (le B à droite) : le masque
      est posé avec 4 % d'air autour, sinon Safari rognait la courbe */
   height: calc(clamp(32px, 2.95vw, 45px) * 1.08); aspect-ratio: 89.33 / 90.58;
@@ -841,37 +840,43 @@ body.light {
   -webkit-mask-size: 92.6% auto; mask-size: 92.6% auto;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center; mask-position: center;
-  background:
-    linear-gradient(to top, #101014 var(--noir), transparent var(--noir)),   /* l'encre du cadre */
-    linear-gradient(to top, #c16700 var(--brun), transparent var(--brun)),   /* l'ocre de l'À propos */
-    #ededee;                                                                  /* le gris, à 7 % (29/10) */
+  background-color: #f2f2f3;                /* le gris, à 5 % (29/10) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='84' x2='0' y2='126' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23101014' stop-opacity='0'/%3E%3Cstop offset='.45' stop-color='%23101014' stop-opacity='.5'/%3E%3Cstop offset='1' stop-color='%23101014'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 86 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E"),
+                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='84' x2='0' y2='126' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23c16700' stop-opacity='0'/%3E%3Cstop offset='.45' stop-color='%23c16700' stop-opacity='.5'/%3E%3Cstop offset='1' stop-color='%23c16700'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 86 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 200% 300%, 200% 300%;
+  background-repeat: repeat-x, repeat-x;
+  background-position: calc(var(--vx) * -1) var(--noir), var(--vx) var(--brun);
   transform: scale(0);
   /* l'entrée part dès le premier affichage, sans attendre le script : si la
      page met du temps à se lire, le monogramme est déjà là pour la couvrir */
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-brun 1100ms cubic-bezier(0.45, 0, 0.25, 1) 520ms forwards;
+             intro-vague 1.5s linear infinite,
+             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards;
 }
 .intro.is-fin .intro__signe {
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-brun 1100ms cubic-bezier(0.45, 0, 0.25, 1) 520ms forwards,
-             intro-noir 900ms cubic-bezier(0.5, 0, 0.2, 1) forwards;
+             intro-vague 1.5s linear infinite,
+             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards,
+             intro-noir 1000ms cubic-bezier(0.45, 0, 0.3, 1) forwards;
 }
 /* LE RETRAIT — par où il est venu : il retourne à rien */
 .intro.is-retrait .intro__signe {
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-brun 1100ms cubic-bezier(0.45, 0, 0.25, 1) 520ms forwards,
-             intro-noir 900ms cubic-bezier(0.5, 0, 0.2, 1) forwards,
+             intro-vague 1.5s linear infinite,
+             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards,
+             intro-noir 1000ms cubic-bezier(0.45, 0, 0.3, 1) forwards,
              intro-part 380ms cubic-bezier(0.64, 0, 0.78, 0) forwards;
 }
-@keyframes intro-nait { from { transform: scale(0); } to { transform: scale(1); } }
-@keyframes intro-part { from { transform: scale(1); } to { transform: scale(0); } }
-@keyframes intro-brun { from { --brun: 0%; } to { --brun: 100%; } }
-@keyframes intro-noir { from { --noir: 0%; } to { --noir: 100%; } }
+@keyframes intro-nait  { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes intro-part  { from { transform: scale(1); } to { transform: scale(0); } }
+@keyframes intro-vague { from { --vx: 0%; } to { --vx: 100%; } }
+@keyframes intro-brun  { from { --brun: -8%; } to { --brun: 62%; } }
+@keyframes intro-noir  { from { --noir: -8%; } to { --noir: 62%; } }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
-  .intro__signe { transform: none; --noir: 100%; }
+  .intro__signe { transform: none; --noir: 62%; }
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1298,6 +1303,10 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .proj-panel, .proj-panel.open { transition: opacity 0.2s ease; }
 }
+/* la page qui monte ou redescend (voir passage) : une ombre légère à son
+   bord haut, pour qu'on la lise comme une feuille posée sur l'autre */
+body.curtain-live .proj-panel.open,
+body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 0, 0.22); }
 
 /* LA BARRE DU VOLET : le cadre de l'accueil, à l'identique. TB en haut à
    gauche, la croix de l'Index en haut à droite — mêmes marges (--ui-x,
@@ -1404,15 +1413,60 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
   font-style: italic; font-size: clamp(18px, 1.5vw, 24px);
   position: relative;
 }
-.ppp-lien::after {
-  content: ""; position: absolute; left: 4px; right: 4px; bottom: 4px; height: 1px;
-  background: currentColor; transform: scaleX(0); transform-origin: left;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+/* (29/10) plus de trait sous le lien : au survol, le projet voisin se
+   montre — sa photo, petite, au-dessus du lien, et son nom dessous elle.
+   La même flèche des deux côtés (un dessin, plus deux signes de police),
+   retournée pour « précédent ». */
+.ppp-fleche {
+  width: 1.05em; height: 0.56em; flex: none; align-self: center;
+  fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.ppp-lien:hover::after, .ppp-lien:focus-visible::after { transform: scaleX(1); }
-.ppp-fleche { font-style: normal; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-.ppp-prec:hover .ppp-fleche { transform: translateX(-4px); }
-.ppp-suiv:hover .ppp-fleche { transform: translateX(4px); }
+.ppp-prec .ppp-fleche { transform: scaleX(-1); }
+.ppp-prec:hover .ppp-fleche { transform: scaleX(-1) translateX(5px); }
+.ppp-suiv:hover .ppp-fleche { transform: translateX(5px); }
+.ppp-apercu {
+  position: absolute; left: 50%; bottom: calc(100% + 18px);
+  width: clamp(150px, 12.5vw, 220px);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  translate: -50% 0; pointer-events: none;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ppp-apercu-image { display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: #1a1a1a; }
+.ppp-apercu-image img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  scale: 1.15; transition: scale 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ppp-apercu-nom {
+  font-style: normal; font-size: 13px; letter-spacing: 0.06em; line-height: 1.2;
+  white-space: nowrap; color: rgba(255, 255, 255, 0.78);
+}
+.ppp-lien:hover .ppp-apercu, .ppp-lien:focus-visible .ppp-apercu { clip-path: inset(0 0 0 0); }
+.ppp-lien:hover .ppp-apercu-image img, .ppp-lien:focus-visible .ppp-apercu-image img { scale: 1; }
+@media (hover: none) { .ppp-apercu { display: none; } }
+/* LE PASSAGE AU PROJET VOISIN (voir voisin) : sa photo grandit depuis
+   l'aperçu jusqu'à tout l'écran, son nom se pose au milieu, puis elle
+   s'efface sur la page du projet, déjà prête */
+.pan-voisin {
+  position: fixed; inset: 0; z-index: 230; pointer-events: none;
+  background: rgba(0, 0, 0, 0);
+}
+@media (pointer: coarse) { .pan-voisin { bottom: auto; height: 100lvh; } }
+.pv-cadre { position: absolute; overflow: hidden; background: #1a1a1a; }
+.pv-cadre img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pv-voile { position: absolute; inset: 0; background: #000; opacity: 0; }
+.pv-nom {
+  position: absolute; left: 0; right: 0; top: 50%; margin: 0; translate: 0 -50%;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  font-family: 'Castillon', serif; font-weight: 100; color: #fff; text-align: center;
+  font-size: clamp(44px, 6.4vw, 112px); line-height: 1; letter-spacing: -0.01em;
+}
+.pv-sur {
+  font-family: 'LumaSans', 'Helvetica Neue', Arial, sans-serif; font-weight: 500;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
 /* le volet change de projet : le contenu s'éteint puis revient */
 .proj-panel.change-projet > :not(.proj-panel-topbar) { opacity: 0; transition: opacity 0.22s ease; }
 .proj-panel > .proj-panel-intro, .proj-panel > .proj-panel-gallery, .proj-panel > .proj-panel-pied { transition: opacity 0.35s ease; }
@@ -3314,8 +3368,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
        visuel remonte comme un rideau et le découvre -->
   <div class="proj-panel-pied" aria-label="Thomas Bonneau">
     <nav class="ppp-nav" aria-label="Projets">
-      <button type="button" class="ppp-lien ppp-prec" data-sens="-1"><span class="ppp-fleche" aria-hidden="true">←</span>Projet précédent</button>
-      <button type="button" class="ppp-lien ppp-suiv" data-sens="1">Projet suivant<span class="ppp-fleche" aria-hidden="true">→</span></button>
+      <button type="button" class="ppp-lien ppp-prec" data-sens="-1"><span class="ppp-apercu" aria-hidden="true"><span class="ppp-apercu-image"><img alt=""></span><span class="ppp-apercu-nom"></span></span><svg class="ppp-fleche" viewBox="0 0 26 14" aria-hidden="true"><path d="M1 7h24M18 1l7 6-7 6"/></svg>Projet précédent</button>
+      <button type="button" class="ppp-lien ppp-suiv" data-sens="1"><span class="ppp-apercu" aria-hidden="true"><span class="ppp-apercu-image"><img alt=""></span><span class="ppp-apercu-nom"></span></span>Projet suivant<svg class="ppp-fleche" viewBox="0 0 26 14" aria-hidden="true"><path d="M1 7h24M18 1l7 6-7 6"/></svg></button>
     </nav>
     <p class="ppp-nom"><span>Thomas</span> <span>Bonneau</span></p>
     <span class="ppp-mention ppp-g">Design graphique</span>
@@ -4519,16 +4573,10 @@ function addNote(src, note) {
   apparaitre(box, [...box.children]);
 }
 
-/* un pavé de texte des projets : découpé en lettres à sa construction, il
-   entre quand le quart en est visible — la même apparition que « Scroller » */
-function apparaitre(box, els) {
-  if (!lettres(els) || motionState.reducedMotion) { box.classList.add('lettres-in'); return; }
-  const obs = new IntersectionObserver(entries => {
-    if (!entries.some(en => en.isIntersecting)) return;
-    box.classList.add('lettres-in');
-    obs.disconnect();
-  }, { threshold: 0.25 });
-  obs.observe(box);
+/* un pavé de texte des projets : posé tel quel, sans effet (29/10 : la
+   lettre à lettre, floue et dédoublée, n'allait pas sur ces textes) */
+function apparaitre(box) {
+  box.classList.add('lettres-in');
 }
 
 // logotype seul : le négatif d'abord, le positif se fond par-dessus
@@ -5707,17 +5755,18 @@ function ibClic(i) {
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
   ib.classList.add('ib-sans-texte');
-  ibAnimer('envol', 0, 1, 800, t => t * t);
-  setTimeout(() => {
+  /* les dossiers s'en vont, on les voit partir (1,1 s) ; la page du projet
+     se prépare sous l'écran pendant ce temps, et monte quand ils sont
+     presque tous partis — jamais avant que son haut soit prêt */
+  ibAnimer('envol', 0, 1, 1100, t => t * t);
+  Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
     /* le projet posé, la pile reprend sa place sous lui : au retour,
        l'Index est là, intact */
-    Promise.resolve(pageCurtain.open(card, null, false, 'fondu')).then(() => {
-      ibEtat.anims = ibEtat.anims.filter(a => a.prop !== 'envol');
-      ibEtat.envol = 0;
-      ib.classList.remove('ib-sans-texte');
-      ibDessiner();
-    });
-  }, 520);
+    ibEtat.anims = ibEtat.anims.filter(a => a.prop !== 'envol');
+    ibEtat.envol = 0;
+    ib.classList.remove('ib-sans-texte');
+    ibDessiner();
+  });
 }
 worksPanel.addEventListener('scroll', ibRelancer, { passive: true });
 addEventListener('resize', () => { if (indexBureau.matches && worksPanel.classList.contains('open')) { ibMesurer(); ibRelancer(); } });
@@ -5801,25 +5850,49 @@ function entreeIndex() {
    navigateur : découpes et transformations, rien image par image. */
 const PASSAGE_COURBE = 'cubic-bezier(0.76, 0, 0.24, 1)', PASSAGE_DUREE = 950;
 let passageEnCours = null;
-function imagesPretes(el, max) {
-  const vues = [...el.querySelectorAll('img')].filter(im => {
-    if (!im.getAttribute('src')) return false;
-    const r = im.getBoundingClientRect();
-    return r.width > 0 && r.height > 0 && r.top < innerHeight && r.bottom > 0;
+/* LES MÉDIAS DU HAUT D'UNE PAGE, PRÊTS : les photos chargées ET décodées,
+   les vidéos avec leur première image, sur l'écran et demi du haut — puis
+   posés nets, sans le fondu flou de la galerie. La page arrive entière :
+   aucune image qui se dessine, aucun cadre noir de vidéo (29/10). Les
+   positions se lisent depuis le haut de la page (elle peut être posée sous
+   l'écran pendant l'attente). */
+function mediasPrets(el, max) {
+  const haut = el.getBoundingClientRect().top;
+  const vues = [...el.querySelectorAll('img, video')].filter(m => {
+    if (m.closest('.ppp-apercu')) return false;
+    if (m.tagName === 'IMG' && !m.getAttribute('src')) return false;
+    const r = m.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.top - haut < innerHeight * 1.5 && r.bottom - haut > 0;
   });
-  const une = im => new Promise(ok => {
-    const fin = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(ok);
-    if (im.complete && im.naturalWidth) fin();
-    else { im.addEventListener('load', fin, { once: true }); im.addEventListener('error', ok, { once: true }); }
+  const un = m => new Promise(ok => {
+    if (m.tagName === 'VIDEO') {
+      if (m.readyState >= 2) return ok();
+      ['loadeddata', 'canplay', 'error'].forEach(t => m.addEventListener(t, () => ok(), { once: true }));
+      try { if (m.preload !== 'auto') m.preload = 'auto'; if (m.readyState === 0 && m.networkState !== 2) m.load(); } catch (e) {}
+      return;
+    }
+    const fin = () => (m.decode ? m.decode() : Promise.resolve()).catch(() => {}).then(ok);
+    if (m.complete && m.naturalWidth) fin();
+    else { m.addEventListener('load', fin, { once: true }); m.addEventListener('error', ok, { once: true }); }
   });
-  return Promise.race([Promise.all(vues.map(une)), new Promise(r => setTimeout(r, max))]).then(() => {
-    /* posées nettes, sans fondu : on ne verra pas leur arrivée */
+  return Promise.race([Promise.all(vues.map(un)), new Promise(r => setTimeout(r, max))]).then(() => {
+    /* posés nets, sans fondu : on ne verra pas leur arrivée */
     el.classList.add('passage-net');
-    vues.forEach(im => { if (im.complete && im.naturalWidth) im.classList.add('media-in'); });
+    vues.forEach(m => {
+      if (m.tagName === 'VIDEO' ? m.readyState >= 2 : (m.complete && m.naturalWidth)) {
+        m.classList.add('media-in');
+        if (typeof mediaRevealObs !== 'undefined') mediaRevealObs.unobserve(m);
+      }
+    });
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('passage-net')));
   });
 }
-function passage(el, sens, avant, apres, entree) {
+/* LE PASSAGE D'UNE PAGE (29/10) : plus de rideau dont le bord balaie
+   l'écran — la page ENTIÈRE monte du bas, comme une feuille qu'on pose,
+   une fois tout son haut prêt (voir mediasPrets) ; au retour, elle
+   redescend entière. « delai » : au plus tôt (l'envol de la pile de
+   l'Index d'abord). */
+function passage(el, sens, avant, apres, entree, delai) {
   if (!el || !el.animate || motionState.reducedMotion) {
     try { avant && avant(); } catch (e) {}
     try { apres && apres(); } catch (e) {}
@@ -5829,30 +5902,30 @@ function passage(el, sens, avant, apres, entree) {
   if (passageEnCours) return passageEnCours;
   document.body.classList.add('curtain-live');
   const monte = sens === 'monte';
-  /* 'fondu' : la page paraît sur place (après l'envol de la pile de l'Index) */
-  const fondu = sens === 'fondu';
-  if (monte) el.style.clipPath = 'inset(100% 0 0 0)';
-  if (fondu) el.style.opacity = '0';
+  if (monte) el.style.transform = 'translate3d(0, 100%, 0)';
   passageEnCours = (async () => {
+    const t0 = performance.now();
     try { avant && avant(); } catch (e) {}
-    if (monte || fondu) await imagesPretes(el, 1800);
-    const D = PASSAGE_DUREE, anims = [];
-    if (fondu) anims.push(el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'forwards' }));
-    else {
-      anims.push(el.animate(monte
-        ? [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }]
-        : [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(100% 0 0 0)' }],
-        { duration: D, easing: PASSAGE_COURBE, fill: 'forwards' }));
-      [...el.children].filter(c => !c.matches('.proj-panel-topbar, script')).forEach(c => anims.push(c.animate(monte
-        ? [{ transform: 'translate3d(0, 12vh, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
-        : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 12vh, 0)' }],
-        { duration: D + 150, easing: monte ? 'cubic-bezier(0.22, 1, 0.36, 1)' : PASSAGE_COURBE, fill: 'both' })));
+    if (monte) {
+      await mediasPrets(el, 2500);
+      const reste = (delai || 0) - (performance.now() - t0);
+      if (reste > 0) await new Promise(r => setTimeout(r, reste));
     }
-    if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, fondu ? 60 : D * 0.35);
+    const D = PASSAGE_DUREE, anims = [];
+    anims.push(el.animate(monte
+      ? [{ transform: 'translate3d(0, 100%, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
+      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 100%, 0)' }],
+      { duration: D, easing: PASSAGE_COURBE, fill: 'forwards' }));
+    el.style.transform = '';
+    /* en montant, le contenu suit la page avec un léger retard : elle se pose */
+    if (monte) [...el.children].filter(c => !c.matches('.proj-panel-topbar, script')).forEach(c => anims.push(c.animate(
+      [{ transform: 'translate3d(0, 8vh, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
+      { duration: D + 200, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' })));
+    if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, D * 0.4);
     await anims[0].finished.catch(() => {});
     try { apres && apres(); } catch (e) {}
     anims.forEach(a => { try { a.cancel(); } catch (e) {} });
-    el.style.clipPath = '';
+    el.style.transform = '';
     el.style.opacity = '';
     requestAnimationFrame(() => document.body.classList.remove('curtain-live'));
     passageEnCours = null;
@@ -5944,7 +6017,7 @@ const pageCurtain = (function () {
   addEventListener('hashchange', onNav);
 
   /* ── OUVERTURE ── (la page se dévoile : voir passage) ───────── */
-  function open(card, ev, fromHistory, sens) {
+  function open(card, ev, fromHistory, sens, delai) {
     if (pt.state !== 'idle' || !card) return;    // 20 · aucun double clic possible
     pt.state = 'opening';
     pt.card = card;
@@ -5953,9 +6026,8 @@ const pageCurtain = (function () {
     lockScroll(true);
     if (!fromHistory) pushHash(card);
     return passage(panel, sens || 'monte', () => {
-      panel.style.transform = '';
       openPanel(card);
-    }, null, entreeProjet).then(finishOpen);
+    }, null, entreeProjet, delai).then(finishOpen);
   }
   function finishOpen() {
     pt.state = 'project';
@@ -6004,36 +6076,101 @@ const pageCurtain = (function () {
     openPanel(deep);
   }
 
-  /* PROJET PRÉCÉDENT / SUIVANT (le pied noir du volet) : le volet reste
-     ouvert ; son contenu s'éteint, le projet voisin s'y installe — dans
-     l'ordre de l'Index, en boucle —, le volet repart du haut, et le contenu
-     revient. L'adresse suit, sans ajouter d'étape à l'historique. */
-  let changeEnCours = false;
-  function voisin(sens) {
-    if (pt.state !== 'project' || changeEnCours) return;
+  /* PROJET PRÉCÉDENT / SUIVANT (le pied noir du volet), refait le 29/10.
+     Au SURVOL, le projet voisin se montre : sa photo, petite, au-dessus du
+     lien, et son nom. Au CLIC, cette photo grandit jusqu'à tout l'écran, le
+     nom se pose au milieu ; dessous, le volet reçoit le projet voisin et
+     attend que son haut soit prêt ; la photo s'efface alors sur la page.
+     Dans l'ordre de l'Index, en boucle ; l'adresse suit, sans ajouter
+     d'étape à l'historique. */
+  const voisinDe = sens => {
     const i = CARDS.indexOf(pt.card);
-    const card = CARDS[((i < 0 ? 0 : i) + sens + CARDS.length) % CARDS.length];
+    return CARDS[((i < 0 ? 0 : i) + sens + CARDS.length) % CARDS.length];
+  };
+  const photoDe = (card, px) => {
+    const photo = card.querySelector('.proj-photo');
+    return (photo && photo.currentSrc) || varianteProche(vignetteFiche(card), px);
+  };
+  function apercus() {
+    panel.querySelectorAll('.ppp-lien').forEach(b => {
+      const card = voisinDe(+b.dataset.sens);
+      if (!card) return;
+      const im = b.querySelector('.ppp-apercu img'), nom = b.querySelector('.ppp-apercu-nom');
+      const src = photoDe(card, 700);
+      if (im && im.getAttribute('src') !== src) { im.decoding = 'async'; im.src = src; }
+      if (nom) nom.textContent = card.dataset.title || '';
+    });
+  }
+  let changeEnCours = false;
+  async function voisin(sens) {
+    if (pt.state !== 'project' || changeEnCours) return;
+    const card = voisinDe(sens);
     if (!card) return;
     changeEnCours = true;
     lockScroll(true);
-    /* la page qu'on quitte : une copie, figée là où on la regardait, posée
-       DESSOUS ; le volet reçoit le projet voisin et monte par-dessus elle */
-    const copie = panel.cloneNode(true);
-    copie.removeAttribute('id');
-    copie.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
-    copie.querySelectorAll('video').forEach(v => { try { v.pause(); } catch (e) {} });
-    copie.classList.add('pan-copie');
-    copie.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(copie);
-    copie.scrollTop = panel.scrollTop;
-    passage(panel, 'monte', () => {
-      pt.card = card; pt.projectIndex = CARDS.indexOf(card);
-      openPanel(card);
-      try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
-    }, () => copie.remove(), entreeProjet)
-      .then(() => { lockScroll(false); changeEnCours = false; });
+    const vw = innerWidth, vh = innerHeight;
+    const lien = panel.querySelector(sens > 0 ? '.ppp-suiv' : '.ppp-prec');
+    const ap = lien && lien.querySelector('.ppp-apercu-image');
+    /* le départ : l'aperçu s'il est montré, sinon une petite photo posée
+       au-dessus du lien (au doigt, pas de survol) */
+    let r = ap && ap.getBoundingClientRect();
+    const montre = lien && lien.matches(':hover, :focus-visible');
+    if (!r || !montre || r.width < 4) {
+      const l = lien ? lien.getBoundingClientRect() : { left: vw / 2, top: vh / 2, width: 0 };
+      const w = Math.min(220, vw * 0.3);
+      r = { left: l.left + l.width / 2 - w / 2, top: l.top - w * 0.75 - 18, width: w, height: w * 0.75 };
+    }
+    const ov = document.createElement('div');
+    ov.className = 'pan-voisin';
+    ov.innerHTML = '<div class="pv-cadre"><img alt=""><div class="pv-voile"></div></div><p class="pv-nom"><span class="pv-sur"></span><span class="pv-titre"></span></p>';
+    const cadre = ov.querySelector('.pv-cadre'), img = cadre.querySelector('img');
+    const voile = cadre.querySelector('.pv-voile'), nom = ov.querySelector('.pv-nom');
+    ov.querySelector('.pv-sur').textContent = sens > 0 ? 'Projet suivant' : 'Projet précédent';
+    ov.querySelector('.pv-titre').textContent = card.dataset.title || '';
+    img.src = photoDe(card, 700);
+    /* la grande photo prend le relais dès qu'elle est décodée */
+    const grande = new Image();
+    grande.src = photoDe(card, 2000);
+    (grande.decode ? grande.decode() : Promise.resolve()).then(() => { img.src = grande.src; }).catch(() => {});
+    const px = v => Math.round(v) + 'px';
+    Object.assign(cadre.style, { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) });
+    document.body.appendChild(ov);
+    prechargerProjet(card);
+    const C = 'cubic-bezier(0.76, 0, 0.24, 1)';
+    ov.animate([{ backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,1)' }], { duration: 450, easing: 'ease-out', fill: 'forwards' });
+    const grandit = cadre.animate([
+      { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) },
+      { left: '0px', top: '0px', width: px(vw), height: px(vh) }
+    ], { duration: 1050, delay: 100, easing: C, fill: 'forwards' });
+    voile.animate([{ opacity: 0 }, { opacity: 0.3 }], { duration: 800, delay: 350, easing: 'ease-out', fill: 'forwards' });
+    nom.animate([{ opacity: 0, transform: 'translate3d(0, 34px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }],
+      { duration: 950, delay: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' });
+    await grandit.finished.catch(() => {});
+    /* l'écran est couvert : le volet reçoit le projet voisin, au début de sa page */
+    pt.card = card; pt.projectIndex = CARDS.indexOf(card);
+    openPanel(card);
+    panel.scrollTop = 0;
+    apercus();
+    try { history.replaceState(history.state, '', '#' + slugOf(card.dataset.title)); } catch (e) {}
+    await Promise.all([mediasPrets(panel, 2500), new Promise(ok => setTimeout(ok, 450))]);
+    /* la photo et son nom s'effacent sur la page, déjà prête */
+    const part = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: 'cubic-bezier(0.45, 0, 0.55, 1)', fill: 'forwards' });
+    img.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }], { duration: 700, easing: 'ease-in', fill: 'forwards' });
+    setTimeout(entreeProjet, 120);
+    await part.finished.catch(() => {});
+    ov.remove();
+    lockScroll(false);
+    changeEnCours = false;
   }
-  panel.querySelectorAll('.ppp-lien').forEach(b => b.addEventListener('click', () => voisin(+b.dataset.sens)));
+  panel.querySelectorAll('.ppp-lien').forEach(b => {
+    b.addEventListener('click', () => voisin(+b.dataset.sens));
+    /* au survol : la grande photo et le projet partent déjà */
+    b.addEventListener('pointerenter', () => {
+      apercus();
+      const card = voisinDe(+b.dataset.sens);
+      if (card) { const g = new Image(); g.src = photoDe(card, 2000); prechargerProjet(card); }
+    });
+  });
 
   return { open: open, close: close, state: () => pt.state, voisin: voisin };
 })();
@@ -6902,7 +7039,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 900, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 800,
+  const FIN = 1000, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 800,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -6918,8 +7055,8 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   let pretGL = !!window.__refractionPrete, bascule = false, arrive = false;
   addEventListener('refraction-prete', () => { pretGL = true; }, { once: true });
 
-  /* la présence : une fois, vers les trois quarts de l'ocre (sa montée
-     dure 1,1 s) ; au plus tard quand il est en haut */
+  /* la présence : une fois, vers les deux tiers de l'ocre (sa montée
+     dure 1,3 s) ; au plus tard quand il est en haut */
   function presence() {
     if (window.__introPresence) return;
     window.__introPresence = true;
