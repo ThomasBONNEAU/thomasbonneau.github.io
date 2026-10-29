@@ -1221,12 +1221,6 @@ footer.filet-anime::before {
   transition: transform 1.25s cubic-bezier(0.65, 0, 0.35, 1), background-color var(--zone-duree) var(--zone-courbe);
 }
 footer.filet-anime.pied-arrive::before { transform: scaleX(1); }
-/* (29/10) LE FILET N'EXISTE QUE SUR LE NOIR : sur le crème, juste sous le
-   texte de « Vision », il faisait une barre beige-grise d'un pixel qui
-   grésillait au défilement de Safari. Il paraît avec le noir du pied (et se
-   trace à ce moment-là, voir filetDuPied). */
-body:not(.zone-foot) footer { border-top-color: transparent; }
-body:not(.zone-foot) footer.filet-anime::before { background-color: transparent; }
 footer.filet-anime.sans-anim::before { transition: none !important; }
 .footer-meta > .fm-pays { display: none; }
 .footer-meta strong { font-weight: 500; color: var(--text); }
@@ -5610,12 +5604,7 @@ const ibImages = ib && ib.querySelector('.ib-images');
 let ibActif = -1, ibCartes = [], ibSurvol = null;
 /* pos : la position montrée, en projets ; leve : 0 = tous couchés (la vue
    de loin de l'ouverture), 1 = le regardé debout ; envol : 0 → 1 au clic */
-const ibEtat = { pos: 0, leve: 1, envol: 0, raf: 0, prec: 0, pas: 400, H: 400, anims: [], tenuK: -1, tenuT: 0, libre: 0 };
-/* (29/10) LA TENUE : un projet qui s'est redressé reste debout au moins ce
-   temps, même si l'on défile vite — on n'enchaîne plus deux projets d'un
-   coup. Le défilement reste libre : la pile rattrape ensuite, projet par
-   projet. */
-const IB_TENUE = 550;
+const ibEtat = { pos: 0, leve: 1, envol: 0, raf: 0, prec: 0, pas: 400, H: 400, anims: [] };
 const IB_ANGLE = 64 * Math.PI / 180;            // la pente d'un dossier couché
 function buildIndexBureau(cards) {
   if (!ibImages) return;
@@ -5749,19 +5738,8 @@ function ibBoucle(ts) {
     return false;
   });
   const cible = ibCible();
-  const proche = Math.round(ibEtat.pos);
-  if (Math.abs(ibEtat.pos - proche) < 0.04 && proche !== ibEtat.tenuK) { ibEtat.tenuK = proche; ibEtat.tenuT = maintenant; }
-  /* UN PROJET À LA FOIS : on ne vise jamais plus loin que le voisin du
-     dernier projet tenu ; arrivé, il est tenu debout IB_TENUE ms, puis la
-     pile peut repartir vers le suivant */
-  const enTenue = maintenant - ibEtat.tenuT < IB_TENUE;
-  let vise = cible;
-  if (maintenant > ibEtat.libre && ibEtat.tenuK >= 0) {
-    const marge = enTenue ? 0.04 : 1;
-    vise = Math.max(ibEtat.tenuK - marge, Math.min(ibEtat.tenuK + marge, cible));
-  }
-  ibEtat.pos += (vise - ibEtat.pos) * (1 - Math.pow(0.7, dt60));
-  if (Math.abs(vise - ibEtat.pos) < 0.0005) ibEtat.pos = vise;
+  ibEtat.pos += (cible - ibEtat.pos) * (1 - Math.pow(0.7, dt60));
+  if (Math.abs(cible - ibEtat.pos) < 0.0005) ibEtat.pos = cible;
   ibDessiner();
   const k = Math.round(ibEtat.pos);
   if (k !== ibActif) ibChoisir(k);
@@ -5819,11 +5797,7 @@ function ibArreter() {
    non). */
 function ibClic(i) {
   if (ibEtat.envol > 0 || !worksPanel.classList.contains('open')) return;
-  if (i !== ibActif) {
-    ibEtat.libre = performance.now() + 1400;       // amené d'un clic : il traverse sans s'arrêter
-    worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' });
-    return;
-  }
+  if (i !== ibActif) { worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' }); return; }
   const card = ibCartes[i].card;
   worksDepart = true;
   projetDepuisIndex = true;
@@ -6503,8 +6477,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     const e = pb <= ligneBas && f.top < ligneBas && f.bottom > ligneBas + 1;
     if (e !== bandeLa) { bandeLa = e; document.body.classList.toggle('ab-en-cours', e); }
     /* le trait du haut : dès que le premier plan est posé, tant qu'un plan
-       est collé là, et jamais sur la carte qui part */
-    const t = pb <= ligneHaut - 6 && f.top <= ligneHaut + 0.5 && f.bottom > ligneBas + 1;
+       est collé là, et jamais sur la carte qui part. (29/10) « Collé » se lit
+       sur le DERNIER plan : dans une fenêtre basse, le plan est plus haut
+       que la fenêtre, le bas de la narration restait sous la bande, et le
+       trait restait affiché en haut alors que les plans étaient partis. */
+    const dernier = chapters[chapters.length - 1];
+    const colle = !dernier || dernier.getBoundingClientRect().top > ligneHaut - 0.75;
+    const t = pb <= ligneHaut - 6 && f.top <= ligneHaut + 0.5 && f.bottom > ligneBas + 1 && colle;
     if (t !== traitLa) { traitLa = t; document.body.classList.toggle('ab-trait', t); }
   }
   function measure() {
@@ -6663,16 +6642,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   const io = new IntersectionObserver(entries => {
     if (!entries.some(en => en.isIntersecting)) return;
     io.disconnect();
-    const direct = !charge || performance.now() - charge < RESTAURATION;
-    /* (29/10) le filet se trace quand le NOIR arrive, pas avant : sur le
-       crème, il n'existe pas (voir la règle body:not(.zone-foot)) */
-    if (direct || document.body.classList.contains('zone-foot')) { tracer(direct); return; }
-    const mo = new MutationObserver(() => {
-      if (!document.body.classList.contains('zone-foot')) return;
-      mo.disconnect();
-      tracer(false);
-    });
-    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    tracer(!charge || performance.now() - charge < RESTAURATION);
   }, { rootMargin: '0px 0px -14% 0px' });
   io.observe(meta);
 })();
