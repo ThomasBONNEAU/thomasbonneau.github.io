@@ -809,12 +809,13 @@ body.light {
 /* ══ L'INTRO — LE MONOGRAMME QUI SE REMPLIT (29/10) ═════════════════════
    Plus de ligne ni de pourcentage : le chargement est DANS le monogramme.
    Sur le blanc, TB naît de rien (échelle 0 → 1), en gris presque blanc
-   (5 %). Puis l'ocre de l'À propos monte en lui comme une vague diluée, de
-   bas en haut : c'est la progression. Quand le hero est prêt (voir introSignature), le noir monte
-   à son tour, jusqu'en haut — TB a pris l'encre du site —, puis il se
-   retire et l'accueil est là. Le monogramme est le fichier d'origine,
-   intact, posé en MASQUE : les couleurs coulent dans son dessin exact.
-   Vers les trois quarts de l'ocre, une présence commence à naître derrière
+   (5 %). Puis l'ocre de l'À propos monte lentement en lui, en vagues
+   diluées : c'est la progression. Quand le hero est prêt (voir
+   introSignature), le monogramme tourne au NOIR, d'un coup, sur toute sa
+   hauteur — l'encre du site —, puis il se retire et l'accueil est là. Le
+   monogramme est le fichier d'origine, intact, posé en MASQUE : les
+   couleurs coulent dans son dessin exact.
+   Vers la moitié de l'ocre, une présence commence à naître derrière
    lui — c'est déjà l'aura du hero (voir .en-presence). Au-dessus de tout,
    curseur compris. */
 .intro {
@@ -825,16 +826,18 @@ body.light {
 }
 /* pendant le retrait le blanc n'est plus un écran : c'est déjà le hero */
 .intro.is-retrait { background: transparent; }
-/* les deux encres sont deux fonds du monogramme lui-même : chacune est une
-   VAGUE au bord dilué (un dégradé, pas un trait), qui roule de côté en
-   montant. Leur hauteur (--brun, --noir) et leur houle (--vx) sont des
-   propriétés animées : UNE seule couche, que le masque découpe toujours —
-   dans Safari, des calques enfants y échappaient.
+/* L'OCRE MONTE EN VAGUE, puis le monogramme TOURNE AU NOIR (29/10 : le
+   noir ne monte plus). L'ocre, ce sont deux vagues l'une derrière l'autre,
+   au bord très dilué (un long dégradé, pas un trait), qui roulent en sens
+   contraires en montant lentement. Le noir est un voile uniforme qui
+   s'épaissit d'un coup sur tout le monogramme. Tout est propriétés animées
+   d'UNE seule couche, que le masque découpe toujours — dans Safari, des
+   calques enfants y échappaient.
    L'image d'une vague fait trois fois la hauteur du monogramme, quatre
    longueurs d'onde sur deux largeurs : -8 % la pose sous lui, 62 % au-dessus. */
 @property --brun { syntax: '<percentage>'; inherits: false; initial-value: -8%; }
-@property --noir { syntax: '<percentage>'; inherits: false; initial-value: -8%; }
 @property --vx   { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --nuit { syntax: '<number>'; inherits: false; initial-value: 0; }
 .intro__signe {
   display: block;
   /* le dessin touche les bords de son cadre (le B à droite) : le masque
@@ -846,43 +849,45 @@ body.light {
   -webkit-mask-size: 92.6% auto; mask-size: 92.6% auto;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center; mask-position: center;
-  background-color: #f2f2f3;                /* le gris, à 5 % (29/10) */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='84' x2='0' y2='126' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23101014' stop-opacity='0'/%3E%3Cstop offset='.45' stop-color='%23101014' stop-opacity='.5'/%3E%3Cstop offset='1' stop-color='%23101014'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 86 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E"),
-                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='84' x2='0' y2='126' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23c16700' stop-opacity='0'/%3E%3Cstop offset='.45' stop-color='%23c16700' stop-opacity='.5'/%3E%3Cstop offset='1' stop-color='%23c16700'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 86 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
-  background-size: 200% 300%, 200% 300%;
-  background-repeat: repeat-x, repeat-x;
-  background-position: calc(var(--vx) * -1) var(--noir), var(--vx) var(--brun);
+  background-color: #f2f2f3;                /* le gris, à 5 % */
+  background-image:
+    linear-gradient(rgba(16, 16, 20, var(--nuit)), rgba(16, 16, 20, var(--nuit))),   /* le noir, uniforme */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='76' x2='0' y2='156' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23c16700' stop-opacity='0'/%3E%3Cstop offset='.35' stop-color='%23c16700' stop-opacity='0.35'/%3E%3Cstop offset='1' stop-color='%23c16700' stop-opacity='1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 80 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='76' x2='0' y2='156' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23c16700' stop-opacity='0'/%3E%3Cstop offset='.35' stop-color='%23c16700' stop-opacity='0.19'/%3E%3Cstop offset='1' stop-color='%23c16700' stop-opacity='0.55'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 100 Q12.5 74 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100V300 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 200% 300%, 200% 300%;
+  background-repeat: no-repeat, repeat-x, repeat-x;
+  background-position: 0 0, var(--vx) var(--brun), calc(var(--vx) * -1 + 37%) calc(var(--brun) + 7%);
   transform: scale(0);
   /* l'entrée part dès le premier affichage, sans attendre le script : si la
      page met du temps à se lire, le monogramme est déjà là pour la couvrir */
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 1.5s linear infinite,
-             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards;
+             intro-vague 2.2s linear infinite,
+             intro-brun 2200ms cubic-bezier(0.37, 0, 0.3, 1) 480ms forwards;
 }
 .intro.is-fin .intro__signe {
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 1.5s linear infinite,
-             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards,
-             intro-noir 1000ms cubic-bezier(0.45, 0, 0.3, 1) forwards;
+             intro-vague 2.2s linear infinite,
+             intro-brun 2200ms cubic-bezier(0.37, 0, 0.3, 1) 480ms forwards,
+             intro-nuit 700ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
 }
 /* LE RETRAIT — par où il est venu : il retourne à rien */
 .intro.is-retrait .intro__signe {
   animation: intro-nait 560ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 1.5s linear infinite,
-             intro-brun 1300ms cubic-bezier(0.45, 0, 0.3, 1) 480ms forwards,
-             intro-noir 1000ms cubic-bezier(0.45, 0, 0.3, 1) forwards,
+             intro-vague 2.2s linear infinite,
+             intro-brun 2200ms cubic-bezier(0.37, 0, 0.3, 1) 480ms forwards,
+             intro-nuit 700ms cubic-bezier(0.45, 0, 0.55, 1) forwards,
              intro-part 380ms cubic-bezier(0.64, 0, 0.78, 0) forwards;
 }
 @keyframes intro-nait  { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes intro-part  { from { transform: scale(1); } to { transform: scale(0); } }
 @keyframes intro-vague { from { --vx: 0%; } to { --vx: 100%; } }
 @keyframes intro-brun  { from { --brun: -8%; } to { --brun: 62%; } }
-@keyframes intro-noir  { from { --noir: -8%; } to { --noir: 62%; } }
+@keyframes intro-nuit  { from { --nuit: 0; } to { --nuit: 1; } }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
-  .intro__signe { transform: none; --noir: 62%; }
+  .intro__signe { transform: none; --nuit: 1; }
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1180,9 +1185,11 @@ footer {
 .footer-nom.nom-attente { opacity: 0; font-weight: 1; }
 .footer-nom.nom-entre {
   animation: nom-graisse 2400ms cubic-bezier(0.33, 0, 0.2, 1) 150ms both,
-             nom-encre 900ms ease-out 150ms both;
+             nom-encre 450ms ease-out 150ms both;
 }
 @keyframes nom-graisse { from { font-weight: 1; } to { font-weight: 160; } }
+/* chaque lettre dans sa case, à sa largeur finale (voir figerLettres) */
+.nom-l { display: inline-block; }
 @keyframes nom-encre { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── UNE SEULE LIGNE d'informations, posée sous le filet d'ouverture ────
@@ -1309,10 +1316,6 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .proj-panel, .proj-panel.open { transition: opacity 0.2s ease; }
 }
-/* la page qui monte ou redescend (voir passage) : une ombre légère à son
-   bord haut, pour qu'on la lise comme une feuille posée sur l'autre */
-body.curtain-live .proj-panel.open,
-body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 0, 0.22); }
 
 /* LA BARRE DU VOLET : le cadre de l'accueil, à l'identique. TB en haut à
    gauche, la croix de l'Index en haut à droite — mêmes marges (--ui-x,
@@ -1420,7 +1423,8 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
   position: relative;
 }
 /* (29/10) plus de trait sous le lien : au survol, le projet voisin se
-   montre — sa photo, petite, au-dessus du lien, et son nom dessous elle.
+   montre À CÔTÉ DE LA FLÈCHE — sa photo, petite, et son nom dessous ; elle
+   se découvre depuis la flèche.
    La même flèche des deux côtés (un dessin, plus deux signes de police),
    retournée pour « précédent ». */
 .ppp-fleche {
@@ -1432,13 +1436,15 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
 .ppp-prec:hover .ppp-fleche { transform: scaleX(-1) translateX(5px); }
 .ppp-suiv:hover .ppp-fleche { transform: translateX(5px); }
 .ppp-apercu {
-  position: absolute; left: 50%; bottom: calc(100% + 18px);
+  position: absolute; top: 50%;
   width: clamp(150px, 12.5vw, 220px);
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  translate: -50% 0; pointer-events: none;
-  clip-path: inset(100% 0 0 0);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  pointer-events: none;
   transition: clip-path 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
+/* la photo se cale sur la ligne du lien : son milieu au milieu du lien */
+.ppp-suiv .ppp-apercu { left: calc(100% + 22px); translate: 0 calc(-50% + 11px); clip-path: inset(0 100% 0 0); }
+.ppp-prec .ppp-apercu { right: calc(100% + 22px); translate: 0 calc(-50% + 11px); align-items: flex-end; clip-path: inset(0 0 0 100%); }
 .ppp-apercu-image { display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: #1a1a1a; }
 .ppp-apercu-image img {
   display: block; width: 100%; height: 100%; object-fit: cover;
@@ -1504,7 +1510,7 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
   gap: 2rem;
   align-items: start;
   padding: 5rem 3.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  /* (29/10) plus de filet entre le texte et la première image */
 }
 .proj-panel-title {
   margin-block: 0;                 /* comme avant ; et le h1 des pages projet n'en prend pas */
@@ -1661,6 +1667,10 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
 }
 .proj-panel-gallery-row img.media-in,
 .proj-panel-gallery-row video.media-in { opacity: 1; filter: blur(0); }
+/* tout visuel sans format imposé : ses proportions (--rn, voir
+   poserProportion) lui réservent sa place avant qu'il ne soit chargé ; les
+   règles de format, plus précises, l'emportent */
+.proj-panel-gallery img, .proj-panel-gallery video { aspect-ratio: auto var(--rn); }
 /* pleine largeur */
 .proj-panel-gallery-row.full img,
 .proj-panel-gallery-row.full video { aspect-ratio: 1.85 / var(--ouvre, 1); }
@@ -1685,7 +1695,7 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
 /* « nat: » — la rangée épouse les proportions du fichier au lieu de lui imposer
    les siennes. Ni format forcé ni agrandissement : aucun bord n'est rogné. */
 .proj-panel-gallery-row.full.natif img,
-.proj-panel-gallery-row.full.natif video { aspect-ratio: auto; transform: none; }
+.proj-panel-gallery-row.full.natif video { aspect-ratio: auto var(--rn); transform: none; }
 .proj-panel-gallery-row.full.media-video.natif .video-wrap { aspect-ratio: auto; }
 .proj-panel-gallery-row.full.media-video.natif video {
   height: auto;
@@ -1930,7 +1940,7 @@ body.curtain-live .works-panel.open { box-shadow: 0 -26px 70px -26px rgba(0, 0, 
 .affiche-scene { position: relative; width: 100%; }
 .affiche-scene img {
   width: 100%; height: auto; display: block;
-  aspect-ratio: auto;                    /* aucun rognage */
+  aspect-ratio: auto var(--rn);          /* aucun rognage ; la place, avant l'image */
   /* relative, et non statique : la première affiche donne sa hauteur au rang,
      mais elle doit pouvoir monter au-dessus des autres comme elles montent
      au-dessus d'elle — sans quoi le retour vers elle se ferait en coupure */
@@ -3066,6 +3076,8 @@ body.zone-foot .about-story {
      textes se retirent */
   .index-bureau.ib-sans-texte .ib-texte,
   .index-bureau.ib-sans-texte .ib-fonction { opacity: 0; transition-duration: 0.25s; }
+  /* au clic, seule la carte choisie reste : les autres s'effacent */
+  .index-bureau.ib-seule .ib-carte { opacity: 0 !important; transition: opacity 0.45s ease; }
   /* le projet change : le nom et la fonction changent AUSSITÔT, et
      s'allument en un éclair (aucune attente de fondu) */
   @keyframes ib-allume { from { opacity: 0.15; } to { opacity: 1; } }
@@ -3101,8 +3113,11 @@ body.zone-foot .about-story {
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
      passent pas devant l'Index) */
+  /* (29/10) avec !important : la règle de Safari qui montre le trait
+     (html.moteur-webkit body.ab-trait…) était plus précise, et le trait
+     ocre restait en haut de l'Index ouvert depuis l'À propos */
   body.index-ouvert #siteNav .cadre-bas-apropos,
-  body.index-ouvert #siteNav .cadre-trait-apropos { opacity: 0; visibility: hidden; }
+  body.index-ouvert #siteNav .cadre-trait-apropos { opacity: 0 !important; visibility: hidden !important; }
 
 }
 /* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
@@ -4376,6 +4391,17 @@ function makeMedia(src) {
   return el;
 }
 
+/* LES PROPORTIONS DES MÉDIAS, connues d'avance (relevées sur les fichiers le
+   29/10) : avant d'être chargé, chaque visuel occupe déjà sa place. Sans
+   elles, une photo encore absente ne mesurait rien ; en descendant pendant
+   un chargement lent, la page s'allongeait sous le doigt, et le pied noir
+   descendait puis remontait. Un fichier ajouté plus tard sans y figurer
+   garde l'ancien comportement. */
+const PROPORTIONS = {"anim-siteweb-grapillon-axe-2.mp4":[1920,1080],"anim-siteweb-malbec-axe-3.mp4":[1920,1080],"proj-malbec-motion-packaging.mp4":[1920,1080],"web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp":[1200,1514],"web/5d853d55-c22b-46bf-a6e1-a7a876294433.webp":[2048,2731],"web/65951ad2-c4ef-4ea2-a74a-3149df510365_1.webp":[1080,1350],"web/81615901-3d1f-4473-8d54-ac4e5065790b.webp":[2048,1365],"web/8f9ea888-2b4b-43cf-8a4b-65d717b0157a.webp":[1080,1350],"web/Business_Card_Mockup_4.webp":[2880,2160],"web/Couverture 3 carré.webp":[1220,1220],"web/Illu1.webp":[2880,2880],"web/Illu2.webp":[2880,2880],"web/MockupCRTE2.webp":[2880,2160],"web/Mockup_CARTE1.webp":[2880,1920],"web/Mockup_CARTE2.webp":[2880,1920],"web/Mocup123.webp":[2480,2480],"web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp":[2000,3000],"web/ONF_pres/Links/20260209143208.webp":[2880,2742],"web/ONF_pres/Links/20260304095207.webp":[2409,2289],"web/ONF_pres/Links/20260304095502.webp":[2791,2543],"web/ONF_pres/Links/5d7fcf09-10d8-4234-9092-ff843c6a16b6.webp":[1126,1273],"web/ONF_pres/Links/7d00f79b-5afe-4aa5-9bfc-e386f093d080.webp":[1280,1920],"web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp":[1080,1920],"web/ONF_pres/Links/Logo_Fond_1.webp":[1080,1080],"web/ONF_pres/Links/Plan de travail 1.webp":[1080,1440],"web/ONF_pres/Links/Trame_Photos.webp":[900,1200],"web/ONF_pres/Links/f642508f168f82eb1079d14f7d7aec7e.webp":[530,530],"web/ONF_pres/Links/logo_arbre.webp":[1961,1155],"web/ONF_pres/Links/sgfswg.webp":[2880,1620],"web/ONF_pres/Links/xgxgx.webp":[2880,1620],"web/P1018826.webp":[2880,2440],"web/P1019366.webp":[2267,2181],"web/PRESENTATION_SILLAGE.webp":[2880,1557],"web/Packaging_GRapillon.webp":[1080,1080],"web/Plan de travail 1.webp":[1803,2880],"web/Plan de travail 1_2.webp":[2880,1628],"web/Silllage_.webp":[2480,2480],"web/automotive-clay-modeling-studio-tool.webp":[1086,1448],"web/cerrado-coffee-experience_52515742542_o.webp":[2880,1920],"web/cerrado-coffee-experience_52515742777_o.webp":[2880,1915],"web/dfwcw.webp":[2880,2880],"web/f4ed0d84-8420-45fb-81ac-14677351f6c9.webp":[1365,1706],"web/grapillon-sfsf.webp":[2036,2880],"web/mockup mémoire.webp":[2880,2043],"web/mockupcartedevisite2grapillonaxe2.webp":[2880,2160],"web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-02 2.webp":[1440,1793],"web/photos-vignes-grapillon-2/PHOTO-2026-02-07-12-52-06 16.webp":[1296,1920],"web/proj-archocktail-carte.webp":[1080,1350],"web/proj-archocktail-cocktail.webp":[2880,2036],"web/proj-archocktail-doseur.webp":[1080,1080],"web/proj-archocktail-img4282.webp":[2880,1920],"web/proj-archocktail-livret.webp":[2800,1888],"web/proj-archocktail-livret2.webp":[2880,1920],"web/proj-archocktail-livret3.webp":[2880,1920],"web/proj-archocktail-p2.webp":[2880,1920],"web/proj-grapillon.webp":[2880,2190],"web/proj-malbec-contre-etiquette.webp":[1080,1080],"web/proj-malbec-grain.webp":[1080,1080],"web/proj-malbec-livret2.webp":[2880,1920],"web/proj-malbec-logo.webp":[2880,1620],"web/proj-malbec-logo2.webp":[2880,1620],"web/proj-malbec-mockup.webp":[1122,1402],"web/proj-malbec-p1.webp":[1920,2880],"web/proj-malbec-p1003677.webp":[2880,1920],"web/proj-malbec-p10037222.webp":[2880,1920],"web/proj-malbec-plan-de-travail-1.webp":[2834,2880],"web/proj-malbec-sans-titre-3.webp":[1080,1080],"web/proj-malbec-voilier.webp":[1080,1080],"web/proj-malbec.webp":[1672,941],"web/proj-synapse-3.webp":[2880,2160],"web/proj-synapse.webp":[2880,2160],"web/qcdw.webp":[2880,1783],"web/qfdqefd_f_d.webp":[2480,2480],"web/sillage-couverture-2.webp":[2880,1628],"web/sillage-page1.webp":[2880,2066],"web/sillage-page2.webp":[2880,2066],"web/sillage-page3.webp":[2880,2066],"web/sillage-plan-de-travail-1.webp":[2880,1628],"web/sillage-planche-04.webp":[2400,1722],"web/sillage-planche-08.webp":[2400,1722],"web/sillage-planche-13.webp":[2400,1722],"web/sillage-planche-14.webp":[2400,1722],"web/sillage-planche-16.webp":[2400,1722],"web/sillage-planche-17.webp":[2400,1722],"web/sillage-planche-22.webp":[2400,1722],"web/sillage-planche-24.webp":[2400,1722],"web/sillage-planche-25.webp":[2400,1722],"web/sillage-planche-26.webp":[2400,1722],"web/sillage-planche-33.webp":[2400,1722],"web/sillage-planche-35.webp":[2400,1722],"web/sillage-planche-36.webp":[2400,1722],"web/sillage-planche-38.webp":[2400,1722],"web/zfdsqdf.webp":[2880,2043],"ABCArizona-News-MysteryTeapotQuantity-02.mp4":[1440,1080],"Composition 1.mp4":[700,700],"Grapillon_Motion_G.mp4":[1920,1080],"ONF_pres/Links/Composition 1_1.mp4":[2848,1400],"ONF_pres/Links/Composition 1_3.mp4":[2848,1400],"Scene _8.mp4":[3680,2760],"cosmos_1024194981.mp4":[720,1280],"proj-archocktail-motion.mp4":[1920,1080],"proj-archocktail-site.mp4":[1920,1080],"synapse-composition-1_4.mp4":[2848,1400],"Logo_Grapillon.svg":[1920.0,1080.0],"logos/LogoONF.svg":[1222.0,603.0],"logos/Logosynapse.svg":[1222.0,603.0],"logos/Opulus_1.svg":[435.19,214.72],"logos/france-boulangerie.svg":[330.88,248.61]};
+function poserProportion(el, src) {
+  const d = PROPORTIONS[src];
+  if (d) el.style.setProperty('--rn', d[0] + ' / ' + d[1]);
+}
 function construireMedia(src) {
   if (src === 'empty') src = null;
   // marqueur « r: » → une ROUE : plusieurs images séparées par « | » qui se
@@ -4443,6 +4469,7 @@ function construireMedia(src) {
       if (fond) { v.dataset.fond = fond; if (entier) v.classList.add('bords-fondus'); }
       if (masque) v.style.clipPath = 'inset(' + masque + ')';
       if (AFFICHES_VIDEO[src]) { v.poster = AFFICHES_VIDEO[src]; v.classList.add('a-apercu'); }
+      poserProportion(v, src);
       v.src = src;
       v.loop = boucle; v.muted = true; v.playsInline = true;
       v.setAttribute('muted', '');
@@ -4503,6 +4530,7 @@ function construireMedia(src) {
     img.alt = altVisuel();
     img.loading = 'lazy';
     img.decoding = 'async';
+    poserProportion(img, src);
     revealMedia(img);   // apparition flou → net à l'entrée dans l'écran (media-load posé avant le src)
     sourcesWeb(img, src);
     return img;
@@ -5748,29 +5776,50 @@ function ibArreter() {
   worksPanel.classList.remove('ib-noir');
   document.body.classList.remove('ib-cadre-noir');
   if (ib) ib.classList.remove('ib-sans-texte');
-  ibEtat.anims = []; ibEtat.leve = 1; ibEtat.envol = 0;
+  ibEtat.anims = []; ibEtat.leve = 1; ibEtat.envol = 0; ibEtat.part = false;
 }
 /* LE CLIC : un dossier couché vient se redresser ; le dossier debout
-   ouvre son projet — la pile s'envole, le projet paraît sur le blanc */
+   ouvre son projet (29/10) — SEULE sa carte bouge : elle grandit jusqu'à
+   tout l'écran, de haut en bas, pendant que le reste s'efface ; dessous,
+   la page du projet est déjà posée et chargée ; la carte s'efface sur elle.
+   Aucun autre effet. */
 function ibClic(i) {
-  if (ibEtat.envol > 0 || !worksPanel.classList.contains('open')) return;
+  if (ibEtat.envol > 0 || ibEtat.part || !worksPanel.classList.contains('open')) return;
   if (i !== ibActif) { worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' }); return; }
-  const card = ibCartes[i].card;
+  const c = ibCartes[i], card = c.card;
   worksDepart = true;
   projetDepuisIndex = true;
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
-  ib.classList.add('ib-sans-texte');
-  /* les dossiers s'en vont, on les voit partir (1,1 s) ; la page du projet
-     se prépare sous l'écran pendant ce temps, et monte quand ils sont
-     presque tous partis — jamais avant que son haut soit prêt */
-  ibAnimer('envol', 0, 1, 1100, t => t * t);
-  Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
-    /* le projet posé, la pile reprend sa place sous lui : au retour,
-       l'Index est là, intact */
-    ibEtat.anims = ibEtat.anims.filter(a => a.prop !== 'envol');
-    ibEtat.envol = 0;
-    ib.classList.remove('ib-sans-texte');
+  ibEtat.part = true;                             // plus de second clic
+  const r = c.b.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
+  const px = v => Math.round(v) + 'px';
+  const ov = document.createElement('div');
+  ov.className = 'pan-voisin pan-carte';
+  ov.innerHTML = '<div class="pv-cadre"><img alt=""></div>';
+  const cadre = ov.firstChild, img = cadre.firstChild;
+  img.src = c.b.querySelector('img').currentSrc || c.src;
+  Object.assign(cadre.style, { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) });
+  document.body.appendChild(ov);
+  c.b.style.visibility = 'hidden';
+  ib.classList.add('ib-sans-texte', 'ib-seule');
+  const grandit = cadre.animate([
+    { left: px(r.left), top: px(r.top), width: px(r.width), height: px(r.height) },
+    { left: '0px', top: '0px', width: px(vw), height: px(vh) }
+  ], { duration: 1100, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', fill: 'forwards' });
+  grandit.finished.catch(() => {}).then(() =>
+    /* l'écran est couvert : la page du projet se pose dessous, sans bouger,
+       et attend que son haut soit prêt */
+    Promise.resolve(pageCurtain.open(card, null, false, 'sur-place'))
+  ).then(() => {
+    const part = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'cubic-bezier(0.45, 0, 0.55, 1)', fill: 'forwards' });
+    return part.finished.catch(() => {});
+  }).then(() => {
+    ov.remove();
+    /* sous le projet, la pile reprend sa place : au retour, l'Index est là */
+    c.b.style.visibility = '';
+    ib.classList.remove('ib-sans-texte', 'ib-seule');
+    ibEtat.part = false;
     ibDessiner();
   });
 }
@@ -5894,10 +5943,13 @@ function mediasPrets(el, max) {
   });
 }
 /* LE PASSAGE D'UNE PAGE (29/10) : plus de rideau dont le bord balaie
-   l'écran — la page ENTIÈRE monte du bas, comme une feuille qu'on pose,
-   une fois tout son haut prêt (voir mediasPrets) ; au retour, elle
-   redescend entière. « delai » : au plus tôt (l'envol de la pile de
-   l'Index d'abord). */
+   l'écran — la page ENTIÈRE monte du bas, une fois tout son haut prêt (voir
+   mediasPrets), et rien d'autre ne bouge : ni son contenu, ni ombre. Au
+   retour, elle redescend entière. « sur-place » : elle paraît sans bouger,
+   sous un calque qui la couvre (voir ibClic). « delai » : au plus tôt.
+   À LA FIN, la page prend son état final AVANT que ses transitions CSS ne
+   reviennent : sinon Safari, qui regroupait les deux, rejouait la course
+   (la page remontait puis redescendait — « ça le fait deux fois »). */
 function passage(el, sens, avant, apres, entree, delai) {
   if (!el || !el.animate || motionState.reducedMotion) {
     try { avant && avant(); } catch (e) {}
@@ -5907,33 +5959,36 @@ function passage(el, sens, avant, apres, entree, delai) {
   }
   if (passageEnCours) return passageEnCours;
   document.body.classList.add('curtain-live');
-  const monte = sens === 'monte';
+  const monte = sens === 'monte', surPlace = sens === 'sur-place';
+  el.style.transition = 'none';
   if (monte) el.style.transform = 'translate3d(0, 100%, 0)';
   passageEnCours = (async () => {
     const t0 = performance.now();
     try { avant && avant(); } catch (e) {}
-    if (monte) {
+    if (monte || surPlace) {
       await mediasPrets(el, 2500);
       const reste = (delai || 0) - (performance.now() - t0);
       if (reste > 0) await new Promise(r => setTimeout(r, reste));
     }
-    const D = PASSAGE_DUREE, anims = [];
-    anims.push(el.animate(monte
-      ? [{ transform: 'translate3d(0, 100%, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
-      : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 100%, 0)' }],
-      { duration: D, easing: PASSAGE_COURBE, fill: 'forwards' }));
+    if (!surPlace) {
+      const anim = el.animate(monte
+        ? [{ transform: 'translate3d(0, 100%, 0)' }, { transform: 'translate3d(0, 0, 0)' }]
+        : [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(0, 100%, 0)' }],
+        { duration: PASSAGE_DUREE, easing: PASSAGE_COURBE, fill: 'forwards' });
+      el.style.transform = '';
+      if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, PASSAGE_DUREE * 0.4);
+      await anim.finished.catch(() => {});
+      try { apres && apres(); } catch (e) {}
+      try { anim.cancel(); } catch (e) {}
+    } else {
+      try { entree && entree(); } catch (e) {}
+      try { apres && apres(); } catch (e) {}
+    }
     el.style.transform = '';
-    /* en montant, le contenu suit la page avec un léger retard : elle se pose */
-    if (monte) [...el.children].filter(c => !c.matches('.proj-panel-topbar, script')).forEach(c => anims.push(c.animate(
-      [{ transform: 'translate3d(0, 8vh, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-      { duration: D + 200, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' })));
-    if (entree) setTimeout(() => { try { entree(); } catch (e) {} }, D * 0.4);
-    await anims[0].finished.catch(() => {});
-    try { apres && apres(); } catch (e) {}
-    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
-    el.style.transform = '';
-    el.style.opacity = '';
-    requestAnimationFrame(() => document.body.classList.remove('curtain-live'));
+    void getComputedStyle(el).transform;          // l'état final, pris MAINTENANT
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    el.style.transition = '';
+    document.body.classList.remove('curtain-live');
     passageEnCours = null;
   })();
   return passageEnCours;
@@ -6031,9 +6086,10 @@ const pageCurtain = (function () {
     pt.homeScrollY = window.scrollY || 0;        // 2 · la Home est figée ici
     lockScroll(true);
     if (!fromHistory) pushHash(card);
+    /* la page arrive telle quelle : pas de blocs qui montent (29/10) */
     return passage(panel, sens || 'monte', () => {
       openPanel(card);
-    }, null, entreeProjet, delai).then(finishOpen);
+    }, null, null, delai).then(finishOpen);
   }
   function finishOpen() {
     pt.state = 'project';
@@ -6162,7 +6218,6 @@ const pageCurtain = (function () {
     /* la photo et son nom s'effacent sur la page, déjà prête */
     const part = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: 'cubic-bezier(0.45, 0, 0.55, 1)', fill: 'forwards' });
     img.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }], { duration: 700, easing: 'ease-in', fill: 'forwards' });
-    setTimeout(entreeProjet, 120);
     await part.finished.catch(() => {});
     ov.remove();
     lockScroll(false);
@@ -7003,9 +7058,52 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
    à chaque arrivée. Au rechargement, le navigateur remet la page où on
    l'avait laissée : si le nom est déjà là, on n'est pas « arrivé » — il est
    posé tel quel, sans animation. */
+/* (29/10) CHAQUE LETTRE GARDE SA PLACE : en prenant sa graisse, une lettre
+   s'élargit d'un rien, et toutes celles qui la suivent glissaient — le nom
+   semblait venir de gauche à droite. Chaque lettre a donc sa case, de la
+   largeur qu'elle occupe à sa graisse finale (crénage compris, mesurée sur
+   un double invisible) : elle s'épaissit SUR PLACE, d'un trait à sa forme. */
+function figerLettres(nom) {
+  const mots = [...nom.children];
+  if (!mots.length) return;
+  const textes = mots.map(m => m.dataset.texte || (m.dataset.texte = m.textContent));
+  const mesurer = () => {
+    const double = document.createElement('p');
+    double.className = 'footer-nom';
+    double.setAttribute('aria-hidden', 'true');
+    Object.assign(double.style, { position: 'absolute', left: '0', right: '0', top: '0', visibility: 'hidden', pointerEvents: 'none' });
+    textes.forEach((t, k) => {
+      const sp = document.createElement('span'); sp.textContent = t; double.appendChild(sp);
+      if (k < textes.length - 1) double.appendChild(document.createTextNode(' '));
+    });
+    nom.parentNode.appendChild(double);
+    const r = document.createRange();
+    const largeurs = [...double.children].map(sp => {
+      const t = sp.firstChild, n = t.length, xs = [];
+      for (let i = 0; i < n; i++) { r.setStart(t, i); r.setEnd(t, i + 1); xs.push(r.getBoundingClientRect().left); }
+      r.setStart(t, 0); r.setEnd(t, n);
+      const fin = r.getBoundingClientRect().right;
+      return xs.map((x, i) => (i + 1 < n ? xs[i + 1] : fin) - x);
+    });
+    double.remove();
+    mots.forEach((m, k) => {
+      m.textContent = '';
+      [...textes[k]].forEach((ch, i) => {
+        const l = document.createElement('span');
+        l.className = 'nom-l'; l.textContent = ch;
+        l.style.width = largeurs[k][i].toFixed(2) + 'px';
+        m.appendChild(l);
+      });
+    });
+  };
+  mesurer();
+  let minuteur = 0;
+  addEventListener('resize', () => { clearTimeout(minuteur); minuteur = setTimeout(mesurer, 150); });
+}
 (function signatureLumiere() {
   const nom = document.querySelector('.footer-nom');
   if (!nom || motionState.reducedMotion || !('IntersectionObserver' in window)) return;
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => figerLettres(nom));
   const RESTAURATION = 1200;
   let dedans = false, charge = 0;
   addEventListener('load', () => { charge = performance.now(); }, { once: true });
@@ -7045,7 +7143,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 1000, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 800,
+  const FIN = 700, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 1100,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -7061,8 +7159,8 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   let pretGL = !!window.__refractionPrete, bascule = false, arrive = false;
   addEventListener('refraction-prete', () => { pretGL = true; }, { once: true });
 
-  /* la présence : une fois, vers les deux tiers de l'ocre (sa montée
-     dure 1,3 s) ; au plus tard quand il est en haut */
+  /* la présence : une fois, vers la moitié de l'ocre (sa montée dure
+     2,2 s) ; au plus tard quand il est en haut */
   function presence() {
     if (window.__introPresence) return;
     window.__introPresence = true;
@@ -7073,7 +7171,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   function basculer() {
     if (bascule) return;
     bascule = true;
-    intro.classList.add('is-fin');                       // le noir monte dans TB
+    intro.classList.add('is-fin');                       // TB tourne au noir
     setTimeout(() => {
       intro.classList.add('is-retrait');                 // TB retourne à rien
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
