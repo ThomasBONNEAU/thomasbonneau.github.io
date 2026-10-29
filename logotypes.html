@@ -806,7 +806,7 @@ body.light {
 
 /* ══ L'INTRO — LE MONOGRAMME QUI SE REMPLIT (29/10) ═════════════════════
    Plus de ligne ni de pourcentage : le chargement est DANS le monogramme.
-   Sur le blanc, TB naît de rien (échelle 0 → 1), en gris clair (20 %).
+   Sur le blanc, TB naît de rien (échelle 0 → 1), en gris très clair (7 %).
    Puis l'ocre de l'À propos monte en lui, de bas en haut : c'est la
    progression. Quand le hero est prêt (voir introSignature), le noir monte
    à son tour, jusqu'en haut — TB a pris l'encre du site —, puis il se
@@ -832,17 +832,19 @@ body.light {
   display: block;
   /* une signature, pas un logo : 70 % de sa taille d'origine, tout le
      blanc autour */
-  height: clamp(32px, 2.95vw, 45px); aspect-ratio: 89.33 / 90.58;
+  /* le dessin touche les bords de son cadre (le B à droite) : le masque
+     est posé avec 4 % d'air autour, sinon Safari rognait la courbe */
+  height: calc(clamp(32px, 2.95vw, 45px) * 1.08); aspect-ratio: 89.33 / 90.58;
   /* en propriétés séparées : Safari refuse le raccourci « mask » avec une
      variable, et l'annulait — le monogramme devenait un carré */
   -webkit-mask-image: var(--signe); mask-image: var(--signe);
-  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-size: 92.6% auto; mask-size: 92.6% auto;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center; mask-position: center;
   background:
     linear-gradient(to top, #101014 var(--noir), transparent var(--noir)),   /* l'encre du cadre */
     linear-gradient(to top, #c16700 var(--brun), transparent var(--brun)),   /* l'ocre de l'À propos */
-    #d2d2d4;                                                                  /* le gris, à 20 % */
+    #ededee;                                                                  /* le gris, à 7 % (29/10) */
   transform: scale(0);
   /* l'entrée part dès le premier affichage, sans attendre le script : si la
      page met du temps à se lire, le monogramme est déjà là pour la couvrir */
@@ -5614,11 +5616,12 @@ function ibDessiner() {
       y -= e * e * vh * 1.7;
     }
     const debout = Math.max(0, 1 - Math.abs(d)) * ibEtat.leve;
-    /* les dossiers DÉJÀ VUS, au-dessus, s'effacent : le premier à 50 %, le
-       second à 30 %, et plus rien au-delà (sa demande du 29/10) ; ceux du
-       bas restent pleins. Dans la vue de loin, tous pleins. */
+    /* les dossiers DÉJÀ VUS, au-dessus : celui qui vient de se coucher
+       reste PLEIN ; seul le suivant s'efface, à 50 % ; plus rien au-delà
+       (sa demande du 29/10). Ceux du bas restent pleins. Dans la vue de
+       loin, tous pleins. */
     const e = -d;
-    const voile = e <= 0 ? 1 : e <= 1 ? 1 - 0.5 * e : e <= 2 ? 0.5 - 0.2 * (e - 1) : e <= 3 ? 0.3 * (3 - e) : 0;
+    const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
     const op = 1 - ibEtat.leve * (1 - voile);
     c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
@@ -7683,10 +7686,10 @@ void main() {
   /* la part de la course où Malbec dépasse déjà (voir layout) ; au bureau
      un peu plus (29/10) : arrivé sur le premier projet, on voit la suite */
   const auDoigt = matchMedia('(pointer: coarse)').matches;
-  const DEPASSE_PART = auDoigt ? 0.024 : 0.034;
-  /* au bureau, le fondu finit un centième plus tôt : le rendu lissé suit la
-     molette avec un léger retard, Malbec ne doit pas paraître au travers */
-  const FONDU_FIN = 1 - DEPASSE_PART - (auDoigt ? 0.001 : 0.012), FONDU_DEBUT = FONDU_FIN - 0.025;
+  const DEPASSE_PART = auDoigt ? 0.024 : 0.06;        /* (29/10) au bureau, nettement plus */
+  /* au bureau, le fondu finit deux centièmes plus tôt : le rendu lissé suit
+     la molette avec un léger retard, Malbec ne doit pas paraître au travers */
+  const FONDU_FIN = 1 - DEPASSE_PART - (auDoigt ? 0.001 : 0.022), FONDU_DEBUT = FONDU_FIN - 0.022;
   let stuckAt = 0, distance = 1, stick = 0.92;
 
   let VW = 1, VH = 1;
@@ -7709,8 +7712,8 @@ void main() {
        donc aucune cassure au relais. */
     const total = vh * TRANSITION_SCROLL_VH;
     const rest  = parseFloat(getComputedStyle(card).marginBottom) || 0;
-    /* À LA FIN DE LA TRANSITION, MALBEC DÉPASSE DÉJÀ en bas de l'écran (3,4 %
-       de la course au bureau : ~8 % d'écran ; 2,4 % au doigt : ~8 %) : on
+    /* À LA FIN DE LA TRANSITION, MALBEC DÉPASSE DÉJÀ en bas de l'écran (6 %
+       de la course au bureau : ~14 % d'écran ; 2,4 % au doigt : ~8 %) : on
        voit qu'il y a une suite. Le fondu du canvas (FONDU_DEBUT → FONDU_FIN)
        se termine avant que Malbec n'entre : il n'est jamais vu à travers. */
     const DEPASSE = total * DEPASSE_PART;
