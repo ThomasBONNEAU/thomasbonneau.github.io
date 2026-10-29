@@ -497,7 +497,10 @@ body.zone-fondu .cursor {
 .cursor__indice { transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1), left 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
 .cursor.vers-bas .cursor__indice { left: calc(var(--pointe-x, 0px) + 0.75em); top: calc(var(--pointe-y, 0px) - 1.05em); margin-left: 0; }
 body:has(#projPanel.open) .cursor.vers-bas .cursor__fleche,
-body:has(#worksPanel.open) .cursor.vers-bas .cursor__fleche { rotate: 0deg; }
+body:has(#worksPanel.open) .cursor.vers-bas .cursor__fleche,
+/* (29/10) sur TB, Index ou un lien, même en haut de l'accueil : la flèche
+   de clic (droite, un rien plus grande), plus celle qui invite à défiler */
+.cursor.vers-bas.hover-link .cursor__fleche { rotate: 0deg; }
 .cursor.hover-link .cursor__indice,
 body:has(#projPanel.open) .cursor__indice,
 body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
@@ -1164,7 +1167,7 @@ footer {
 .footer-nom {
   --sig-x: clamp(18px, 1.35vw, 26px);
   margin: auto 0 0;
-  padding: 0 var(--sig-x) clamp(80px, 11.3vh, 122px);   /* plus près des mentions (sa demande du 29/10) */
+  padding: 0 var(--sig-x) clamp(92px, 13vh, 140px);   /* (29/10) un rien remonté, au-dessus des mentions */
   font-family: 'Castillon', serif;
   font-weight: 160;
   font-size: calc((100cqw - var(--sig-x) * 2 - 32.5pt) / 8.9043);   /* 13 × 2,5 pt */
@@ -1186,7 +1189,7 @@ footer {
 }
 @keyframes nom-graisse { from { font-weight: 1; } to { font-weight: 160; } }
 /* chaque lettre dans sa case, à sa largeur finale (voir figerLettres) */
-.nom-l { display: inline-block; }
+.nom-l { display: inline-block; text-indent: 0; }   /* l'alinéa du nom ne se répète pas dans chaque case */
 @keyframes nom-encre { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── UNE SEULE LIGNE d'informations, posée sous le filet d'ouverture ────
@@ -1215,6 +1218,12 @@ footer.filet-anime::before {
   transition: transform 1.25s cubic-bezier(0.65, 0, 0.35, 1), background-color var(--zone-duree) var(--zone-courbe);
 }
 footer.filet-anime.pied-arrive::before { transform: scaleX(1); }
+/* (29/10) LE FILET N'EXISTE QUE SUR LE NOIR : sur le crème, juste sous le
+   texte de « Vision », il faisait une barre beige-grise d'un pixel qui
+   grésillait au défilement de Safari. Il paraît avec le noir du pied (et se
+   trace à ce moment-là, voir filetDuPied). */
+body:not(.zone-foot) footer { border-top-color: transparent; }
+body:not(.zone-foot) footer.filet-anime::before { background-color: transparent; }
 footer.filet-anime.sans-anim::before { transition: none !important; }
 .footer-meta > .fm-pays { display: none; }
 .footer-meta strong { font-weight: 500; color: var(--text); }
@@ -1382,6 +1391,14 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
    milieu, « THOMAS BONNEAU » en blanc — la signature du pied de l'accueil,
    même dessin, même mesure ; aux coins bas, les deux mentions, en blanc. */
 .proj-panel-intro, .proj-panel-gallery { position: relative; z-index: 1; background: #fff; }
+/* (29/10) LE « TIRET NOIR » : le pied noir est posé SOUS le texte et la
+   galerie. Pendant que la page monte, et au défilement de Safari (par
+   fractions de pixel), un interstice d'une fraction de pixel s'ouvrait
+   entre ces deux blocs blancs, et le noir passait au travers : un trait gris
+   au bord haut de la première image. Le second bloc recouvre le premier
+   d'un pixel : plus d'interstice. */
+.proj-panel > .proj-panel-intro + .proj-panel-gallery,
+.proj-panel > .proj-panel-gallery + .proj-panel-intro { margin-top: -1px; }
 .proj-panel-pied {
   --sig-x: var(--ui-x);
   /* le blanc du projet s'arrête sous TB et la croix : l'écran noir laisse
@@ -3815,8 +3832,11 @@ const sourisFine = matchMedia('(hover: hover) and (pointer: fine)');
 const indiceEl = cursor && cursor.querySelector('.cursor__indice');
 if (indiceEl) lettres(indiceEl);
 
+/* (29/10) l'invitation à défiler arrive dès que l'accueil paraît, sans
+   attendre la fin de l'entrée de la phrase (voir introSignature) */
+let indiceTot = false;
 function updateIndice() {
-  if (!indiceEl || !heroPret) return;
+  if (!indiceEl || !(heroPret || indiceTot)) return;
   /* il reste pendant le début de la descente, et revient en haut */
   const la = sourisFine.matches && motionState.scroll.y < innerHeight * 1.2;
   indiceEl.classList.toggle('lettres-in', la);
@@ -5587,7 +5607,12 @@ const ibImages = ib && ib.querySelector('.ib-images');
 let ibActif = -1, ibCartes = [], ibSurvol = null;
 /* pos : la position montrée, en projets ; leve : 0 = tous couchés (la vue
    de loin de l'ouverture), 1 = le regardé debout ; envol : 0 → 1 au clic */
-const ibEtat = { pos: 0, leve: 1, envol: 0, raf: 0, prec: 0, pas: 400, H: 400, anims: [] };
+const ibEtat = { pos: 0, leve: 1, envol: 0, raf: 0, prec: 0, pas: 400, H: 400, anims: [], tenuK: -1, tenuT: 0, libre: 0 };
+/* (29/10) LA TENUE : un projet qui s'est redressé reste debout au moins ce
+   temps, même si l'on défile vite — on n'enchaîne plus deux projets d'un
+   coup. Le défilement reste libre : la pile rattrape ensuite, projet par
+   projet. */
+const IB_TENUE = 550;
 const IB_ANGLE = 64 * Math.PI / 180;            // la pente d'un dossier couché
 function buildIndexBureau(cards) {
   if (!ibImages) return;
@@ -5721,8 +5746,19 @@ function ibBoucle(ts) {
     return false;
   });
   const cible = ibCible();
-  ibEtat.pos += (cible - ibEtat.pos) * (1 - Math.pow(0.7, dt60));
-  if (Math.abs(cible - ibEtat.pos) < 0.0005) ibEtat.pos = cible;
+  const proche = Math.round(ibEtat.pos);
+  if (Math.abs(ibEtat.pos - proche) < 0.04 && proche !== ibEtat.tenuK) { ibEtat.tenuK = proche; ibEtat.tenuT = maintenant; }
+  /* UN PROJET À LA FOIS : on ne vise jamais plus loin que le voisin du
+     dernier projet tenu ; arrivé, il est tenu debout IB_TENUE ms, puis la
+     pile peut repartir vers le suivant */
+  const enTenue = maintenant - ibEtat.tenuT < IB_TENUE;
+  let vise = cible;
+  if (maintenant > ibEtat.libre && ibEtat.tenuK >= 0) {
+    const marge = enTenue ? 0.04 : 1;
+    vise = Math.max(ibEtat.tenuK - marge, Math.min(ibEtat.tenuK + marge, cible));
+  }
+  ibEtat.pos += (vise - ibEtat.pos) * (1 - Math.pow(0.7, dt60));
+  if (Math.abs(vise - ibEtat.pos) < 0.0005) ibEtat.pos = vise;
   ibDessiner();
   const k = Math.round(ibEtat.pos);
   if (k !== ibActif) ibChoisir(k);
@@ -5780,7 +5816,11 @@ function ibArreter() {
    non). */
 function ibClic(i) {
   if (ibEtat.envol > 0 || !worksPanel.classList.contains('open')) return;
-  if (i !== ibActif) { worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' }); return; }
+  if (i !== ibActif) {
+    ibEtat.libre = performance.now() + 1400;       // amené d'un clic : il traverse sans s'arrêter
+    worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' });
+    return;
+  }
   const card = ibCartes[i].card;
   worksDepart = true;
   projetDepuisIndex = true;
@@ -6612,13 +6652,24 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   const RESTAURATION = 1200;
   let charge = 0;
   addEventListener('load', () => { charge = performance.now(); }, { once: true });
+  const tracer = direct => {
+    pied.classList.toggle('sans-anim', direct);
+    pied.classList.add('pied-arrive');
+    if (direct) requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
+  };
   const io = new IntersectionObserver(entries => {
     if (!entries.some(en => en.isIntersecting)) return;
     io.disconnect();
     const direct = !charge || performance.now() - charge < RESTAURATION;
-    pied.classList.toggle('sans-anim', direct);
-    pied.classList.add('pied-arrive');
-    if (direct) requestAnimationFrame(() => requestAnimationFrame(() => pied.classList.remove('sans-anim')));
+    /* (29/10) le filet se trace quand le NOIR arrive, pas avant : sur le
+       crème, il n'existe pas (voir la règle body:not(.zone-foot)) */
+    if (direct || document.body.classList.contains('zone-foot')) { tracer(direct); return; }
+    const mo = new MutationObserver(() => {
+      if (!document.body.classList.contains('zone-foot')) return;
+      mo.disconnect();
+      tracer(false);
+    });
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }, { rootMargin: '0px 0px -14% 0px' });
   io.observe(meta);
 })();
@@ -7146,6 +7197,7 @@ function figerLettres(nom) {
     intro.classList.add('is-fin');                       // TB tourne au noir
     setTimeout(() => {
       intro.classList.add('is-retrait');                 // TB retourne à rien
+      setTimeout(() => { indiceTot = true; updateIndice(); }, RETRAIT + 250);
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
       setTimeout(() => intro.remove(), RETRAIT + 40);
       setTimeout(() => { phrase.classList.remove('phrase-attente', 'phrase-entre'); fini(); },
@@ -7413,8 +7465,11 @@ uniform float uEncre;     // 0 pendant l'intro : la phrase du DOM sort de la lum
    le bord, sa couleur diluée sur le blanc), la netteté du contour (0 : la
    brume d'avant, 1 : un bord franc) */
 #define ONDE 140.0
-#define AURORE 1.0
-#define DILUE 0.6
+/* (29/10) l'aurore éteinte : immobile, l'ouverture devenait un disque et
+   son bord coloré un ANNEAU irisé — une bulle de savon, surtout au moment
+   de défiler. Le bord reste la vapeur de l'aura, sans arc-en-ciel. */
+#define AURORE 0.0
+#define DILUE 0.0
 #define NET 0.45
 ${CHAMP_IO}
 
@@ -7630,7 +7685,7 @@ void main() {
      le focus reste propre. Jamais dedans : au bord. */
   float cl      = brume(px / 220.0 + vec2(uTemps * 0.03, uTemps * 0.02) + 21.0);
   float vient   = smoothstep(0.25, 0.8, 0.5 + 0.5 * sin(uTemps * 0.33 + cl * 4.0));
-  float aurore  = vient * (1.0 - 0.6 * objet) * (1.0 - g) * fin;
+  float aurore  = vient * (1.0 - 0.6 * objet) * (1.0 - g) * fin * step(0.001, AURORE);
   if (aurore > 0.003) {
     float rideau = 0.6 + 0.4 * vnoise(vec2(px.x / 22.0 + uTemps * 0.35, px.y / 240.0 - uTemps * 0.05));
     float h = clamp(cl * 1.6 - 0.3, 0.0, 1.0);                      // vert → cyan → violet
