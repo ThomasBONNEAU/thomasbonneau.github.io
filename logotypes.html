@@ -806,10 +806,10 @@ body.light {
 /* ══ L'INTRO — LE MONOGRAMME QUI SE REMPLIT (29/10) ═════════════════════
    Plus de ligne ni de pourcentage : le chargement est DANS le monogramme.
    Sur le blanc, TB naît de rien (échelle 0 → 1), en gris presque blanc
-   (5 %). Puis une vapeur ocre monte lentement en lui et s'épaissit en un
-   ocre plein : c'est la progression. Quand le hero est prêt (voir
-   introSignature), le monogramme tourne au NOIR, d'un coup, sur toute sa
-   hauteur, puis il se retire et l'accueil est là. Le
+   (5 %). Puis l'ocre plein monte lentement en lui : c'est la progression. Quand le hero est prêt (voir
+   introSignature), le monogramme tourne au NOIR sur toute sa hauteur, du
+   même fondu que le site du crème au noir, puis il se retire et l'accueil
+   est là. Le
    monogramme est le fichier d'origine, intact, posé en MASQUE : les
    couleurs coulent dans son dessin exact.
    Vers la moitié de l'ocre, une présence commence à naître derrière
@@ -823,19 +823,16 @@ body.light {
 }
 /* pendant le retrait le blanc n'est plus un écran : c'est déjà le hero */
 .intro.is-retrait { background: transparent; }
-/* (29/10) LA VAPEUR MONTE, puis le monogramme TOURNE AU NOIR. Dans TB, une
-   vapeur OCRE — l'ocre des textes de l'À propos, en deux nuages, l'un
-   exact, l'autre un cran plus profond, comme les couleurs d'une aura —
-   monte lentement en roulant ; elle s'épaissit en un ocre plein, puis tout
-   tourne au noir d'un coup, et disparaît. Les nuages
-   sont des images (un bruit fractal teinté, plus dense en bas qu'en haut),
-   déplacées : rien n'est recalculé. Tout est propriétés animées d'UNE seule
-   couche, que le masque découpe toujours — dans Safari, des calques enfants
-   y échappaient. Une image de vapeur fait trois fois la hauteur du
-   monogramme : 0 % la laisse sous lui, 100 % le remplit. */
-@property --brun  { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+/* (29/10) L'OCRE MONTE, PUIS TOURNE AU NOIR. Une seule couleur : l'ocre
+   des textes de l'À propos, PLEIN, monte lentement dans TB, son bord à
+   peine ondulé (aucun dégradé). Quand le hero est prêt, l'ocre tourne au
+   noir comme le site passe du crème au noir en bas de page : le même fondu
+   (--zone-courbe), sur tout le monogramme. Tout est propriétés animées
+   d'UNE seule couche, que le masque découpe toujours — dans Safari, des
+   calques enfants y échappaient. L'image de l'ocre fait trois fois la
+   hauteur du monogramme : -8 % la pose sous lui, 62 % au-dessus. */
+@property --brun  { syntax: '<percentage>'; inherits: false; initial-value: -8%; }
 @property --vx    { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-@property --plein { syntax: '<number>'; inherits: false; initial-value: 0; }
 @property --nuit  { syntax: '<number>'; inherits: false; initial-value: 0; }
 .intro__signe {
   display: block;
@@ -850,43 +847,36 @@ body.light {
   -webkit-mask-position: center; mask-position: center;
   background-color: #f2f2f3;                /* le gris, à 5 % */
   background-image:
-    linear-gradient(rgba(4, 4, 5, var(--nuit)), rgba(4, 4, 5, var(--nuit))),      /* le noir */
-    linear-gradient(rgba(193, 103, 0, var(--plein)), rgba(193, 103, 0, var(--plein))),  /* l'ocre plein (#c16700, celui de l'À propos) */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='v' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.028' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.62  0 0 0 0 0.325  0 0 0 0 0  0 0 0 2.1 -0.72'/%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='white' stop-opacity='0'/%3E%3Cstop offset='.3' stop-color='white' stop-opacity='0'/%3E%3Cstop offset='.56' stop-color='white' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='white'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='200' height='300' fill='url(%23g)'/%3E%3C/mask%3E%3C/defs%3E%3Crect width='200' height='300' filter='url(%23v)' mask='url(%23m)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='v' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.02' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.757  0 0 0 0 0.404  0 0 0 0 0  0 0 0 2.3 -0.62'/%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='white' stop-opacity='0'/%3E%3Cstop offset='.3' stop-color='white' stop-opacity='0'/%3E%3Cstop offset='.56' stop-color='white' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='white'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='200' height='300' fill='url(%23g)'/%3E%3C/mask%3E%3C/defs%3E%3Crect width='200' height='300' filter='url(%23v)' mask='url(%23m)'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 100% 100%, 200% 300%, 200% 300%;
-  background-repeat: no-repeat, no-repeat, repeat-x, repeat-x;
-  background-position: 0 0, 0 0,
-    calc(var(--vx) * -0.7 + 31%) calc(var(--brun) * 1.06), var(--vx) var(--brun);
+    linear-gradient(rgba(0, 0, 0, var(--nuit)), rgba(0, 0, 0, var(--nuit))),   /* le noir */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cpath d='M0 100 Q12.5 94 25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 V300 H0 Z' fill='%23c16700'/%3E%3C/svg%3E");                                                                 /* l'ocre, plein */
+  background-size: 100% 100%, 200% 300%;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 0 0, var(--vx) var(--brun);
   transform: scale(0);
   /* l'entrée part dès le premier affichage, sans attendre le script : si la
      page met du temps à se lire, le monogramme est déjà là pour la couvrir */
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 7s linear infinite,
-             intro-brun 2800ms cubic-bezier(0.33, 0, 0.35, 1) 450ms forwards,
-             intro-plein 1100ms ease-in-out 2350ms forwards;
+             intro-vague 3s linear infinite,
+             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards;
 }
 .intro.is-fin .intro__signe {
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 7s linear infinite,
-             intro-brun 2800ms cubic-bezier(0.33, 0, 0.35, 1) 450ms forwards,
-             intro-plein 1100ms ease-in-out 2350ms forwards,
-             intro-nuit 900ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
+             intro-vague 3s linear infinite,
+             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
+             intro-nuit 800ms cubic-bezier(0.45, 0, 0.2, 1) forwards;     /* = --zone-duree, --zone-courbe */
 }
 /* LE RETRAIT — par où il est venu : il retourne à rien */
 .intro.is-retrait .intro__signe {
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
-             intro-vague 7s linear infinite,
-             intro-brun 2800ms cubic-bezier(0.33, 0, 0.35, 1) 450ms forwards,
-             intro-plein 1100ms ease-in-out 2350ms forwards,
-             intro-nuit 900ms cubic-bezier(0.45, 0, 0.55, 1) forwards,
+             intro-vague 3s linear infinite,
+             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
+             intro-nuit 800ms cubic-bezier(0.45, 0, 0.2, 1) forwards,
              intro-part 380ms cubic-bezier(0.64, 0, 0.78, 0) forwards;
 }
 @keyframes intro-nait  { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes intro-part  { from { transform: scale(1); } to { transform: scale(0); } }
 @keyframes intro-vague { from { --vx: 0%; } to { --vx: 100%; } }
-@keyframes intro-brun  { from { --brun: 0%; } to { --brun: 100%; } }
-@keyframes intro-plein { from { --plein: 0; } to { --plein: 1; } }
+@keyframes intro-brun  { from { --brun: -8%; } to { --brun: 62%; } }
 @keyframes intro-nuit  { from { --nuit: 0; } to { --nuit: 1; } }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
@@ -1092,6 +1082,15 @@ footer {
   display: flex;
   flex-direction: column;
 }
+/* (29/10, au bureau) LA PAGE S'ARRÊTE SUR CET ÉCRAN : le pied fait la
+   hauteur de la fenêtre, moins un rien en haut — en bas de page, la ligne
+   d'informations reste visible juste sous TB et Index, le contact au
+   milieu, la signature en bas, au-dessus des deux mentions. */
+@media (min-width: 901px) {
+  /* (la marge du cadre, --ui-y, n'existe que dans le cadre : sa valeur ici) */
+  footer { min-height: 0; height: calc(100vh - clamp(16px, 1.2vw, 24px) - 18px); }
+  footer .footer-haut { min-height: 0; flex: 1; }
+}
 /* Le dernier écran est NOIR et ne contient qu'une adresse. C'est le seul
    endroit du site où une pleine hauteur est le sujet et non du vide : sans
    elle le footer ne mesurait que 450px, plus court que l'écran, et le noir
@@ -1119,9 +1118,9 @@ footer {
 .footer-amorce {
   font-family: 'LumaSans', 'Helvetica Neue', Arial, sans-serif;
   font-size: 9.2px; font-weight: 500;
-  line-height: 1.7; letter-spacing: 0.08em; text-transform: uppercase;
+  line-height: 1.7; letter-spacing: 0.13em; text-transform: uppercase;   /* (29/10) plus espacé */
   color: var(--muted);
-  margin: 0 0 clamp(26px, 4vh, 44px);
+  margin: 0 0 clamp(16px, 2.6vh, 30px);    /* (29/10) un peu plus bas, plus près du contact */
   transition-property: color;
   transition-duration: var(--zone-duree);
   transition-timing-function: var(--zone-courbe);
@@ -1130,7 +1129,7 @@ footer {
   position: relative;
   display: inline-flex; align-items: flex-start; gap: 0.1em;
   font-family: 'Castillon', serif;
-  font-size: clamp(31px, 3.8vw, 62px);
+  font-size: clamp(31px, 3.4vw, 56px);     /* (29/10) un peu plus petit */
   line-height: 0.95; letter-spacing: -0.035em;
   color: var(--text); text-decoration: none;
   transition-property: color;
@@ -1140,7 +1139,7 @@ footer {
 .footer-email .fe-text {
   position: relative; display: inline-block;
   font-style: italic;
-  letter-spacing: -0.005em;      /* l'approche de l'adresse (−35) desserrée de 30 */
+  letter-spacing: 0.02em;        /* (29/10) desserré encore, d'un rien */
 }
 .footer-email .fe-text::after {
   content: ""; position: absolute; left: 0; bottom: 0.06em;
@@ -7143,7 +7142,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 900, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 1500,
+  const FIN = 800, RETRAIT = 380, PHRASE_APRES = 300, PRESENCE = 1300,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -7159,8 +7158,8 @@ function figerLettres(nom) {
   let pretGL = !!window.__refractionPrete, bascule = false, arrive = false;
   addEventListener('refraction-prete', () => { pretGL = true; }, { once: true });
 
-  /* la présence : une fois, vers la moitié de la vapeur (sa montée dure
-     2,8 s) ; au plus tard quand elle est en haut */
+  /* la présence : une fois, vers la moitié de l'ocre (sa montée dure
+     2,4 s) ; au plus tard quand il est en haut */
   function presence() {
     if (window.__introPresence) return;
     window.__introPresence = true;
@@ -7194,7 +7193,7 @@ function figerLettres(nom) {
   /* on suit l'animation elle-même, pas une montre : si la page met du temps
      à s'afficher, la mise en scène part avec le premier affichage et le
      script l'attend, au lieu de basculer avant qu'on ait rien vu */
-  intro.addEventListener('animationend', e => { if (e.animationName === 'intro-plein') attendre(); });   // le brun est plein
+  intro.addEventListener('animationend', e => { if (e.animationName === 'intro-brun') attendre(); });   // l'ocre est en haut
   setTimeout(attendre, 6000);                            // garde-fou : onglet en arrière-plan
 })();
 
