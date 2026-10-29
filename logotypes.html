@@ -1130,7 +1130,7 @@ footer {
   position: relative;
   display: inline-flex; align-items: flex-start; gap: 0.1em;
   font-family: 'Castillon', serif;
-  font-size: clamp(31px, 4.25vw, 70px);
+  font-size: clamp(31px, 3.8vw, 62px);
   line-height: 0.95; letter-spacing: -0.035em;
   color: var(--text); text-decoration: none;
   transition-property: color;
@@ -1140,7 +1140,7 @@ footer {
 .footer-email .fe-text {
   position: relative; display: inline-block;
   font-style: italic;
-  letter-spacing: -0.025em;      /* l'approche de l'adresse (−35) desserrée de 10 */
+  letter-spacing: -0.005em;      /* l'approche de l'adresse (−35) desserrée de 30 */
 }
 .footer-email .fe-text::after {
   content: ""; position: absolute; left: 0; bottom: 0.06em;
@@ -1172,11 +1172,11 @@ footer {
 .footer-nom {
   --sig-x: clamp(18px, 1.35vw, 26px);
   margin: auto 0 0;
-  padding: 0 var(--sig-x) clamp(104px, 15vh, 160px);   /* remontée : plus de noir au-dessus des mentions */
+  padding: 0 var(--sig-x) clamp(80px, 11.3vh, 122px);   /* plus près des mentions (sa demande du 29/10) */
   font-family: 'Castillon', serif;
   font-weight: 160;
-  font-size: calc((100cqw - var(--sig-x) * 2 - 13pt) / 8.9043);
-  line-height: 0.9; letter-spacing: calc(-0.035em + 1pt);
+  font-size: calc((100cqw - var(--sig-x) * 2 - 32.5pt) / 8.9043);   /* 13 × 2,5 pt */
+  line-height: 0.9; letter-spacing: calc(-0.035em + 2.5pt);   /* plus d'interlettrage (29/10), le corps s'en déduit */
   text-transform: uppercase;
   white-space: nowrap; text-indent: -0.0412em;
   color: var(--text);
@@ -1406,8 +1406,8 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
   margin: 0; width: 100%; box-sizing: border-box;
   padding: 0 var(--sig-x) clamp(64px, 9vh, 104px);
   font-family: 'Castillon', serif; font-weight: 160;
-  font-size: calc((100cqw - var(--sig-x) * 2 - 13pt) / 8.9043);
-  line-height: 0.9; letter-spacing: calc(-0.035em + 1pt);
+  font-size: calc((100cqw - var(--sig-x) * 2 - 32.5pt) / 8.9043);   /* 13 × 2,5 pt */
+  line-height: 0.9; letter-spacing: calc(-0.035em + 2.5pt);   /* plus d'interlettrage (29/10), le corps s'en déduit */
   text-transform: uppercase; white-space: nowrap; text-indent: -0.0412em;
   text-align: center; color: #fff;
 }
@@ -2479,7 +2479,7 @@ body {
   /* ── LA HIÉRARCHIE ──────────────────────────────────────────────────── */
   --t-repere:  clamp(10px, 0.76vw, 11.5px);   /* 1 · repère */
   --t-titre:   clamp(47px, 5.3vw, 90px);      /* 2 · le titre d'un sujet (un rien plus grand, sa demande du 28/10) */
-  --t-titre-liste: clamp(26px, 2.8vw, 48px);  /* 2 · le titre d'une rangée */
+  --t-titre-liste: clamp(24px, 2.667vw, 45.5px);  /* 2 · le titre d'une rangée (deux points de moins, 29/10) */
   --t-citation: clamp(24px, 2.3vw, 38px);     /* 2 · une citation à la place du titre */
   /* LES MESURES — une seule largeur de texte pour tout l'À propos ; la
      colonne des titres d'une liste tient « BOULANGERIE », le plus long mot,
@@ -2490,7 +2490,7 @@ body {
   --ab-col-gap:    clamp(32px, 5vw, 100px);
   --ab-rang-gap:   clamp(30px, 6vh, 78px);
   --ab-sous-titre: clamp(26px, 4.2vh, 46px);   /* du titre d'un sujet à son texte */
-  --t-texte:   clamp(14px, 1.04vw, 16.5px);   /* 3 · texte */
+  --t-texte:   clamp(13px, 0.973vw, 15.5px);  /* 3 · texte (un point de moins, 29/10) */
 
   /* ── LE RYTHME ──────────────────────────────────────────────────────── */
   --sp-sm:  clamp(14px, 1.8vh, 22px);
@@ -2669,7 +2669,7 @@ body.zone-foot .about-story {
   line-height: 1.04; letter-spacing: 0;
 }
 /* le nom d'un sujet en capitales ; les titres de liste en bas de casse */
-.ab-seul .ab-titre { font-size: var(--t-titre); font-weight: 100; letter-spacing: 0.01em; text-transform: uppercase; }
+.ab-seul .ab-titre { font-size: var(--t-titre); font-weight: 100; letter-spacing: -0.012em; text-transform: uppercase; }
 .ab-citation {
   font-size: var(--t-citation); font-weight: 100;
   line-height: 1.12; letter-spacing: -0.005em;
@@ -2688,6 +2688,8 @@ body.zone-foot .about-story {
    le texte, à droite, part à la hauteur du nom */
 .ab-tete { display: flex; flex-direction: column; align-items: flex-start; }
 .ab-fonction em { font-weight: 120; }   /* les années : Thin italique, un rien nourri */
+/* (29/10) les années en petit, espacées : une légende, plus une ligne de texte */
+.ab-fonction em { font-size: 0.7em; letter-spacing: 0.1em; font-weight: 240; }
 .ab-fonction {
   margin: clamp(14px, 2.2vh, 22px) 0 0;
   font-family: var(--ab-serif); font-size: var(--t-texte); font-weight: 300;
@@ -2873,23 +2875,19 @@ body.zone-foot .about-story {
     transition-property: color, background-color;
   }
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre) + var(--ab-repos)); }
-  /* LE DÉVOILEMENT (voir zoneWash) : tant que la carte Studio Synapse le
-     recouvre, « Qui je suis » attend, flou et transparent ; quand elle a
-     levé un tiers de l'écran, il se condense — le portrait d'abord, puis le
-     repère, puis le nom et le texte — et se pose net. Une seule transition,
+  /* LE DÉVOILEMENT (voir zoneWash) : la carte Studio Synapse se lève sur
+     « Qui je suis ». Le portrait est déjà là, net, immobile ; quand elle a
+     levé un tiers de l'écran, le repère puis le nom et le texte S'ÉLÈVENT
+     en place — aucun flou (sa demande du 29/10). Une seule transition,
      déclenchée une fois par passage : rien n'est recalculé au défilement. */
-  .about-story .about-portrait,
   .about-story .about-chapter:first-child > * {
-    transition: filter 1.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.1s ease, translate 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 0.9s ease, translate 1.2s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .about-story .about-chapter:first-child > .repere { transition-delay: 0.12s; }
-  .about-story .about-chapter:first-child > .about-chapter__corps { transition-delay: 0.24s; }
-  .about-story:not(.ab-devoile) .about-portrait,
+  .about-story .about-chapter:first-child > .about-chapter__corps { transition-delay: 0.12s; }
   .about-story:not(.ab-devoile) .about-chapter:first-child > * {
-    filter: blur(16px); opacity: 0;
-    transition-duration: 0.5s; transition-delay: 0s;
+    opacity: 0; translate: 0 40px;
+    transition-duration: 0.4s; transition-delay: 0s;
   }
-  .about-story:not(.ab-devoile) .about-chapter:first-child > * { translate: 0 22px; }
 }
 /* ══ LES PLANS GLISSENT NATIVEMENT (29/10) ════════════════════════════════
    Un script déplaçait chaque plan, image par image, d'après le défilement.
@@ -2955,73 +2953,80 @@ body.zone-foot .about-story {
 @media (min-width: 901px) {
 
   .works-list, .works-aura { display: none; }
-  /* FOND BLANC, ENCRE NOIRE ; à gauche, seul, le nom du projet regardé — Castillon Thin,
-     grand, son numéro en italique devant, comme l'ancienne liste —, au
-     milieu de la colonne */
+  /* L'INDEX (29/10) : FOND BLANC, ENCRE NOIRE, TROIS COLONNES. Au milieu,
+     l'image du projet regardé, nette, au centre de l'écran ; au-dessus et
+     au-dessous, le bord du projet précédent et du suivant, flous et pâles.
+     À gauche, le nom — Castillon Thin, son numéro en italique devant — sur
+     la marge du cadre (l'axe de TB et de « Design graphique ») ; tout à
+     droite, sur l'autre marge, ce qu'est le projet. Le défilement reste
+     libre (une aimantation retenait la molette sur le même projet). */
   .works-panel { background: #fff; }
   .index-bureau {
     --ib-x: clamp(18px, 1.35vw, 26px);          /* la marge du cadre */
-    display: grid; grid-template-columns: 46vw minmax(0, 1fr);   /* plus d'air pour le nom */
+    --ib-h: min(60vh, 30vw);                    /* l'image, en 4/3 */
+    --ib-l: calc(var(--ib-h) * 4 / 3);
+    --ib-gap: clamp(16px, 3vh, 30px);
+    --ib-fs: clamp(2rem, 3.4vw, 4.4rem);        /* le corps du nom */
+    display: grid; grid-template-columns: minmax(0, 1fr) var(--ib-l) minmax(0, 1fr);
     min-height: 100vh;
   }
-  /* UN PROJET PAR ÉCRAN : chaque image tient toute la partie droite, du haut
-     au bas et jusqu'au bord ; le défilement reste libre (une aimantation
-     retenait la molette de la souris sur le même projet) */
-  .ib-texte {
+  .ib-texte, .ib-fonction {
     position: sticky; top: 0; height: 100vh; box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 2vw 0 var(--ib-x);
+    display: flex; align-items: center;
+  }
+  .ib-texte { grid-column: 1; grid-row: 1; padding: 0 2vw 0 var(--ib-x); }
+  .ib-fonction {
+    grid-column: 3; grid-row: 1; justify-content: flex-end;
+    padding: 0 var(--ib-x) 0 2vw; margin: 0;
+    /* la ligne a le corps et l'interligne du nom : la fonction se pose sur
+       la MÊME ligne de base que lui */
+    font-family: 'Castillon', serif; font-size: var(--ib-fs); line-height: 1.05;
+  }
+  .ib-fonction > span {
+    display: inline-block;
+    font-size: clamp(15px, 1.3vw, 21px); font-style: italic; font-weight: 200;
+    letter-spacing: 0.02em; white-space: nowrap;
+    color: rgba(17, 17, 20, 0.74);
+    transition: opacity 0.18s ease;
   }
   .ib-titre {
-    margin: 0; display: inline-flex; align-items: baseline; gap: 0.55rem;
+    margin: 0; display: inline-flex; align-items: baseline; gap: 0.5rem;
     font-family: 'Castillon', serif; font-weight: 100;
-    font-size: clamp(2.6rem, 4.4vw, 5.6rem); line-height: 1.05; letter-spacing: -0.01em;
-    color: #111114; text-align: center;
+    font-size: var(--ib-fs); line-height: 1.05; letter-spacing: -0.01em;
+    white-space: nowrap; color: #111114;
     transition: opacity 0.18s ease;
   }
   .ib-num {
-    font-style: italic; font-weight: 200; font-size: max(0.19em, 10px);
+    font-style: italic; font-weight: 200; font-size: max(0.22em, 10px);
     letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
     color: rgba(17, 17, 20, 0.74);
   }
-  .index-bureau.ib-change .ib-titre { opacity: 0; }
-  /* LA PARTIE DROITE, COMME LA PILE DE L'ACCUEIL : chaque image est COLLÉE
-     en haut, immobile ; en descendant, la suivante monte et la recouvre —
-     c'est le navigateur qui le fait (sticky), sans script. Un temps d'arrêt
-     sur chacune (16 % d'écran, celui de l'accueil). Le bord haut de l'image
-     qui arrive porte un filet BLANC d'un pixel ; un pixel blanc aussi à la
-     limite avec la colonne du nom. */
+  .index-bureau.ib-change .ib-titre,
+  .index-bureau.ib-change .ib-fonction > span { opacity: 0; }
+  /* LA COLONNE DES IMAGES : la première et la dernière peuvent venir au
+     centre de l'écran (les retraits haut et bas) */
   .ib-images {
-    display: flex; flex-direction: column; gap: 0;
-    padding: 0 0 0 1px;
-    background: #fff;
+    grid-column: 2; grid-row: 1;
+    display: flex; flex-direction: column; gap: var(--ib-gap);
+    padding: calc((100vh - var(--ib-h)) / 2) 0;
   }
-  .ib-carte.sans-zoom img { transition: none !important; }
   .ib-carte {
-    display: block; width: 100%; height: 100vh; box-sizing: border-box;
-    position: sticky; top: 0;
-    margin: 0 0 16vh; padding: 0; border: 0; overflow: hidden; cursor: pointer;
+    display: block; width: 100%; height: var(--ib-h); flex: none;
+    margin: 0; padding: 0; border: 0; overflow: hidden; cursor: none;
     background: #fff;
   }
-  .ib-carte:last-child { margin-bottom: 0; }
-  .ib-carte + .ib-carte { border-top: 1px solid #fff; }
-  /* les images restent nettes et immobiles, comme celles de l'accueil : ni
-     flou, ni zoom (ces règles l'emportent sur celles d'avant) */
-  .index-bureau .ib-carte img, .index-bureau .ib-carte.est-actif img { filter: none; opacity: 1; scale: 1; transition: none; }
-  /* le projet regardé, net ; il arrive par un léger ZOOM qui se pose (1,12
-     → 1) ; les autres, flous et éteints, restent agrandis */
+  /* le projet regardé, net ; ses voisins, flous et pâles */
   .ib-carte img {
     width: 100%; height: 100%; object-fit: cover; display: block;
-    filter: blur(10px);
-    opacity: 0.4;
-    scale: 1.12;
-    transition: opacity 0.6s ease, filter 0.6s ease, scale 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: blur(8px); opacity: 0.5;
+    transition: opacity 0.6s ease, filter 0.6s ease;
   }
-  .ib-carte.est-actif img { filter: none; opacity: 1; scale: 1; }
+  .ib-carte.est-actif img { filter: none; opacity: 1; }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
-  .ib-carte { cursor: none; }
-  /* (les images défilent jusqu'aux bords de l'écran, sous TB, la croix et
-     les mentions : plus de bande qui les coupe) */
+  /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
+     passent pas devant l'Index) */
+  body.index-ouvert #siteNav .cadre-bas-apropos,
+  body.index-ouvert #siteNav .cadre-trait-apropos { opacity: 0; visibility: hidden; }
 
 }
 /* AU DOIGT, LA BARRE DE SAFARI est transparente et flotte sur la page :
@@ -3105,6 +3110,7 @@ body.zone-foot .about-story {
   .footer-cta { padding: 36px var(--foot-pad); }
   .footer-nom {
     white-space: normal; text-indent: 0; text-align: center;
+    letter-spacing: calc(-0.035em + 1pt);
     font-size: calc((100cqw - var(--sig-x) * 2) * 0.84 / 4.57995);
     line-height: 0.86;
     padding-bottom: 50px;                  /* juste au-dessus de la bande des mentions */
@@ -3255,6 +3261,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
       <p class="ib-titre"><em class="ib-num"></em><span class="ib-nom"></span></p>
     </aside>
     <div class="ib-images"></div>
+    <p class="ib-fonction"><span></span></p>
   </div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
     <figure class="works-trace"><img alt=""></figure>
@@ -5465,12 +5472,13 @@ function openWorksPanel() {
   if (indexBureau.matches) { worksPanel.scrollTop = 0; ibActif = -1; ibPeindre(); }
 }
 
-/* ══ L'INDEX EN GALERIE (essai du 27/10, au bureau) ════════════════════════
-   À droite, la grande image de chaque projet, l'une sous l'autre ; à
-   gauche, fixe, ce qui la nomme : « Index », le nom du projet en gris, son
-   premier texte en petit, sa légende (vignette, année, domaines). Le texte
-   suit l'image qui passe au milieu de l'écran, en fondu. Un clic sur une
-   image ouvre le projet, l'Index restant dessous, comme pour un nom. */
+/* ══ L'INDEX EN GALERIE (au bureau, refait le 29/10) ═══════════════════════
+   Au milieu, les images des projets l'une sous l'autre : celle qui passe au
+   centre de l'écran est nette, ses voisines floues. À gauche, fixe, son nom
+   et son numéro ; tout à droite, ce qu'est le projet (le premier domaine de
+   sa légende qui ne répète pas son nom). Le texte suit l'image du centre,
+   en fondu. Un clic sur une image ouvre le projet, l'Index restant dessous,
+   comme pour un nom. */
 const indexBureau = matchMedia('(min-width: 901px)');
 const ib = document.querySelector('.index-bureau');
 const ibImages = ib && ib.querySelector('.ib-images');
@@ -5506,19 +5514,30 @@ function buildIndexBureau(cards) {
     return { card, b, src: deja || src };
   });
 }
+function ibFonction(card) {
+  const titre = (card.dataset.title || '').trim().toLowerCase();
+  const domaines = (card.dataset.cat || '').split('·').map(t => t.trim()).filter(Boolean);
+  return domaines.find(t => t.toLowerCase() !== titre) || domaines[0] || '';
+}
 function ibPoser(k) {
   const c = ibCartes[k]; if (!c || !ib) return;
   ib.querySelector('.ib-num').textContent = String(k + 1).padStart(2, '0');
   ib.querySelector('.ib-nom').textContent = c.card.dataset.title || '';
+  const f = ib.querySelector('.ib-fonction > span');
+  if (f) f.textContent = ibFonction(c.card);
 }
 function ibPeindre() {
   ibRaf = 0;
   if (!indexBureau.matches || !worksPanel.classList.contains('open') || !ibCartes.length) return;
-  /* les images collées se recouvrent : le projet regardé est le DERNIER
-     dont le haut a passé le milieu de l'écran */
+  /* le projet regardé est celui dont le centre est le plus près du milieu
+     de l'écran */
   const milieu = innerHeight / 2;
-  let k = 0;
-  ibCartes.forEach((c, i) => { if (c.b.getBoundingClientRect().top <= milieu) k = i; });
+  let k = 0, ecart = Infinity;
+  ibCartes.forEach((c, i) => {
+    const r = c.b.getBoundingClientRect();
+    const d = Math.abs(r.top + r.height / 2 - milieu);
+    if (d < ecart) { ecart = d; k = i; }
+  });
   if (k === ibActif) return;
   const premier = ibActif < 0;
   ibActif = k;
@@ -5575,7 +5594,7 @@ if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
     : passage(worksPanel, 'monte', openWorksPanel, null, entreeIndex));
 /* l'Index découvert : le nom, puis la première image, montent en place */
 function entreeIndex() {
-  if (indexBureau.matches) entreeBlocs([document.querySelector('.ib-titre'), document.querySelector('.ib-carte')]);
+  if (indexBureau.matches) entreeBlocs([document.querySelector('.ib-titre'), document.querySelector('.ib-carte'), document.querySelector('.ib-fonction > span')]);
 }
 
 
@@ -6290,10 +6309,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     let bg = '';                                    // zone haute : couleur du thème (blanc / nuit)
     if (y >= blackStart)      bg = BLACK;           // footer → tout noir
     else if (y >= ocreStart)  bg = OCRE;            // présentation → tout ocre
-    /* (révélation) UNE MARGE, PAS UNE LIGNE : le crème venu, il ne repart que
-       si la carte redescend franchement (un tiers d'écran). Un petit geste du
-       pavé tactile autour du seuil ne fait plus battre blanc / crème. */
-    else if (recouvre && zone === OCRE && y >= fige - vh * 0.33) bg = OCRE;
+    /* (révélation) le crème venu, il repart dès que la carte redescend : en
+       remontant vers l'accueil, tout redevient blanc (sa demande du 29/10).
+       La marge entre l'arrivée (fige + 4 %) et le départ (fige) suffit : un
+       petit geste du pavé tactile autour du seuil ne fait pas battre les deux. */
+    else if (recouvre && zone === OCRE && y >= fige) bg = OCRE;
     /* la zone change : le temps du fondu, le cadre et la flèche prennent la
        même durée que le fond (--zone-duree) au lieu de leur bascule rapide */
     if (bg !== zone) {
