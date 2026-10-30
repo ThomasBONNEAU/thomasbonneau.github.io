@@ -1421,6 +1421,11 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
    d'un pixel : plus d'interstice. */
 .proj-panel > .proj-panel-intro + .proj-panel-gallery,
 .proj-panel > .proj-panel-gallery + .proj-panel-intro { margin-top: -1px; }
+/* (30/10) LE PIED NOIR N'EST LÀ QU'EN FIN DE PROJET : posé sous la galerie,
+   il pouvait se montrer par éclairs au milieu d'une page dans Safari (pendant
+   un défilement rapide, ou le temps qu'un visuel se peigne). Il n'est donc
+   affiché qu'à moins d'un écran et demi du bas (voir piedDuVolet). */
+.proj-panel:not(.pied-proche) .proj-panel-pied { visibility: hidden; }
 .proj-panel-pied {
   --sig-x: var(--ui-x);
   /* le blanc du projet s'arrête sous TB et la croix : l'écran noir laisse
@@ -1700,9 +1705,13 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 .proj-panel-gallery-row video.media-load.a-apercu { opacity: 1; }
 .proj-panel-gallery-row img.media-load,
 .proj-panel-gallery-row video.media-load {
-  opacity: 0;
-  filter: blur(12px);
-  transition: opacity 0.45s ease, filter 0.55s cubic-bezier(0.16,1,0.3,1);   /* court : la photo est déjà là */
+  /* (30/10) plus de fondu flou à l'entrée : en défilant vite, les photos
+     arrivaient floues puis se précisaient d'un coup — on aurait dit des
+     sauts. Elles sont déjà chargées à l'ouverture ; celle qui ne l'est pas
+     encore montre son aperçu, puis la photo s'y pose. */
+  opacity: 1;
+  filter: none;
+  transition: none;
 }
 .proj-panel-gallery-row img.media-in,
 .proj-panel-gallery-row video.media-in { opacity: 1; filter: blur(0); }
@@ -2228,7 +2237,7 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
   display: block;
 }
 /* le négatif garde l'apparition flou → net du reste de la galerie */
-.proj-panel-gallery-row .logo-fuse__neg.media-load { filter: invert(1) blur(12px); }
+.proj-panel-gallery-row .logo-fuse__neg.media-load { filter: invert(1); }
 .proj-panel-gallery-row .logo-fuse__neg.media-in   { filter: invert(1); }
 
 .logo-fuse__pos {
@@ -5395,6 +5404,23 @@ addEventListener('resize', () => {
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() =>
   { document.querySelectorAll('#projPanel .proj-panel-desc.drapeau').forEach(p => { p._mesure = 0; }); composerColonnes(); });
 
+/* (30/10) LE PIED DU VOLET, seulement près du bas : une lecture de la
+   position à chaque défilement, une classe qui change rarement */
+(function piedDuVolet() {
+  const volet = document.getElementById('projPanel');
+  if (!volet) return;
+  let raf = 0;
+  const voir = () => {
+    raf = 0;
+    const reste = volet.scrollHeight - volet.scrollTop - volet.clientHeight;
+    volet.classList.toggle('pied-proche', reste < volet.clientHeight * 1.5);
+  };
+  const relire = () => { if (!raf) raf = requestAnimationFrame(voir); };
+  volet.addEventListener('scroll', relire, { passive: true });
+  addEventListener('resize', relire);
+  /* un projet qui s'ouvre ou qui change : la hauteur change, on relit */
+  if ('ResizeObserver' in window) new ResizeObserver(relire).observe(document.getElementById('projPanelGallery') || volet);
+})();
 function closePanel() {
   panel.classList.remove('open');
   /* revenu sur l'Index : la page d'accueil, dessous, ne défile toujours pas */
