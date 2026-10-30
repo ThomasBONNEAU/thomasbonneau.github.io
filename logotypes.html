@@ -1420,10 +1420,14 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
     --fen-y: calc(var(--ui-y) * 2 + 24px);          /* le haut et le bas : la barre */
     --fen-h: calc(100vh - var(--fen-y) * 2);        /* la fenêtre */
     --fen-gap: 6px;                                 /* entre deux rangées, entre deux images */
-    background: #000;
+    /* (30/10, sa demande) l'essai sur fond BLANC — le noir : #000 ici, sur la
+       barre, la bande du bas et la galerie */
+    --fen-fond: #fff;
+    --fen-encre: #101014;
+    background: var(--fen-fond);
   }
   /* le cadre : la barre du haut, noire, au-dessus de ce qui défile */
-  .proj-panel.mise-fenetre .proj-panel-topbar { background: #000; height: var(--fen-y); box-sizing: border-box; }
+  .proj-panel.mise-fenetre .proj-panel-topbar { background: var(--fen-fond); height: var(--fen-y); box-sizing: border-box; }
   /* collée au bas du volet (le volet est transformé : une position fixe
      y suivrait le contenu) ; posée après la galerie, elle tient tout du long */
   .proj-panel.mise-fenetre .fen-bas {
@@ -1431,7 +1435,7 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
     position: sticky; bottom: 0; z-index: 10;
     height: var(--fen-y); box-sizing: border-box;
     padding: 0 var(--ui-x) var(--ui-y);
-    background: #000; color: #fff; pointer-events: none;
+    background: var(--fen-fond); color: var(--fen-encre); pointer-events: none;
     font-family: 'Castillon', Georgia, serif; font-size: 19px; font-weight: 160;
     letter-spacing: 0.05em; line-height: 1;
     transition: opacity 0.35s ease;
@@ -1448,7 +1452,7 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
   /* la galerie : la même fenêtre, rangée après rangée, sur le noir (opaque :
      le pied noir dessous ne transparaît jamais) */
   .proj-panel.mise-fenetre .proj-panel-gallery {
-    background: #000;
+    background: var(--fen-fond);
     padding: 0 var(--fen-x);
     display: flex; flex-direction: column; gap: var(--fen-gap);
   }
