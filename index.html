@@ -3915,6 +3915,91 @@ function onMotionPointer(fn) { _pointerConsumers.push(fn); return fn; }
   window.addEventListener('scroll', () => { if (!sTick) { sTick = true; requestAnimationFrame(flush); } }, { passive: true });
 })();
 
+/* ══ L'INERTIE (30/10, sa demande : « partout ») ════════════════════════════
+   La molette et le pavé tactile ne déplacent plus la page d'un coup : ils
+   fixent une DESTINATION, et la page la rejoint en douceur, avec une
+   décélération naturelle — comme Lenis, sans bibliothèque. Partout où l'on
+   défile au bureau : l'accueil, les volets des projets, l'Index.
+   Rien d'autre ne change : c'est toujours le vrai défilement du navigateur
+   qui bouge (les éléments collés, les transitions, les écouteurs du site le
+   suivent comme avant) ; seul le chemin entre deux positions est lissé.
+   Le clavier, la barre de défilement, les sauts du site (TB → « Qui je
+   suis », un dossier de l'Index amené au centre) restent ceux du navigateur :
+   l'inertie se recale sur eux. Le doigt (téléphone, tablette) et le réglage
+   « réduire les animations » gardent le défilement natif.
+   Le lissage dépend du TEMPS, pas du nombre d'images : la même douceur à 30
+   qu'à 60 images par seconde (Safari en économie d'énergie). */
+const inertie = (function inertieDuDefilement() {
+  const fin = matchMedia('(hover: hover) and (pointer: fine)');
+  if (!fin.matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+  const TAU = 105;                                   // ms : la constante de décélération
+  const pistes = new Map();                          // un élément défilant → son état
+  const racine = document.scrollingElement || document.documentElement;
+  function piste(el) {
+    let p = pistes.get(el);
+    if (!p) {
+      p = { el, cible: 0, pos: 0, ecrit: -1, raf: 0, prec: 0 };
+      const lire = () => (el === racine ? window.scrollY : el.scrollTop);
+      p.lire = lire;
+      /* un défilement venu d'ailleurs (clavier, barre, saut du site) : on s'y recale */
+      (el === racine ? window : el).addEventListener('scroll', () => {
+        const y = lire();
+        if (Math.abs(y - p.ecrit) > 1.5) { p.pos = p.cible = y; p.ecrit = -1; if (p.raf) { cancelAnimationFrame(p.raf); p.raf = 0; } }
+      }, { passive: true });
+      pistes.set(el, p);
+    }
+    return p;
+  }
+  function max(el) { return Math.max(0, el.scrollHeight - el.clientHeight); }
+  function ecrire(p, y) {
+    p.ecrit = Math.round(y * 2) / 2;
+    if (p.el === racine) window.scrollTo({ top: y, behavior: 'instant' });
+    else p.el.scrollTo({ top: y, behavior: 'instant' });
+  }
+  function boucle(p, ts) {
+    p.raf = 0;
+    const dt = p.prec ? Math.min(64, Math.max(4, ts - p.prec)) : 16.7;
+    p.prec = ts;
+    p.pos += (p.cible - p.pos) * (1 - Math.exp(-dt / TAU));
+    if (Math.abs(p.cible - p.pos) < 0.4) p.pos = p.cible;
+    ecrire(p, p.pos);
+    if (p.pos !== p.cible) p.raf = requestAnimationFrame(t => boucle(p, t));
+    else p.prec = 0;
+  }
+  /* l'élément qui doit défiler sous le pointeur : un volet ouvert, sinon la page */
+  function cibleDe(e) {
+    const volet = document.getElementById('projPanel'), index = document.getElementById('worksPanel');
+    if (volet && volet.classList.contains('open')) return volet.contains(e.target) ? volet : null;
+    if (index && index.classList.contains('open')) return index.contains(e.target) ? index : null;
+    if (document.body.style.overflow === 'hidden') return null;
+    return racine;
+  }
+  /* un élément qui défile lui-même (une liste, une visionneuse) garde sa main */
+  function defileLuiMeme(t, jusqua) {
+    for (let n = t; n && n !== jusqua && n !== document.body; n = n.parentElement) {
+      if (n.nodeType !== 1) continue;
+      const cs = getComputedStyle(n);
+      if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight + 1) return true;
+    }
+    return false;
+  }
+  window.addEventListener('wheel', e => {
+    if (e.ctrlKey || e.defaultPrevented) return;             // le zoom au pavé
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;     // l'horizontal reste natif
+    const el = cibleDe(e);
+    if (!el || defileLuiMeme(e.target, el)) return;
+    /* un volet verrouillé (pendant son passage) ne défile pas */
+    if (el !== racine && getComputedStyle(el).overflowY === 'hidden') return;
+    const p = piste(el);
+    if (!p.raf) p.pos = p.cible = p.lire();                  // on repart de la vraie position
+    const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * el.clientHeight : e.deltaY;
+    p.cible = Math.max(0, Math.min(max(el), p.cible + d));
+    e.preventDefault();
+    if (!p.raf) p.raf = requestAnimationFrame(t => boucle(p, t));
+  }, { passive: false });
+  return { actif: true };
+})();
+
 // Cursor = flèche Castillon simple (lit motionState). Pas d'after-image.
 const cursor = document.getElementById('cursor');
 const cursorRing = document.getElementById('cursorRing');
@@ -8339,7 +8424,9 @@ void main() {
     if (rawProgress > 1.02) { smoothProgress = 1; return false; }
     const diff = targetProgress - smoothProgress;
     if (Math.abs(diff) < 0.0001) { smoothProgress = targetProgress; return false; }
-    const taux = targetProgress <= 0 || targetProgress >= 1 ? 0.30 : 0.07;
+    /* (30/10) avec l'inertie, le défilement arrive déjà lissé : la transition
+       ne rajoute qu'un peu de matière, sinon les deux retards s'additionnent */
+    const taux = targetProgress <= 0 || targetProgress >= 1 ? 0.30 : (inertie ? 0.16 : 0.07);
     smoothProgress += diff * (1 - Math.pow(1 - taux, dt60));
     return true;
   }
