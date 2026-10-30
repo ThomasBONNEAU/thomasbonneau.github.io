@@ -629,8 +629,9 @@ body.curtain-live .works-panel.open { transition: none; }
 .site-frame__bl, .site-frame__br { will-change: opacity; }
 
 /* le monogramme conserve exactement sa taille optique */
-/* TB mène à « Qui je suis » ; au survol, les mots arrivent à côté du
-   monogramme, lettre à lettre, comme « Faites défiler » */
+/* TB, à la souris, change la version du site (30/10) ; au survol, le nom
+   de la version qui vient arrive à côté du monogramme, lettre à lettre,
+   comme « Faites défiler ». Au doigt, il mène toujours à « Qui je suis ». */
 .frame-logo { display: block; position: relative; color: inherit; text-decoration: none; cursor: pointer; }
 .frame-logo__mot {
   position: absolute;
@@ -3253,6 +3254,11 @@ body.zone-foot .about-story {
   }
   /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
   .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
+  /* (30/10) le dossier regardé s'élargit, très légèrement (6 %), et vite */
+  @media (hover: hover) and (pointer: fine) {
+    .ib-carte { transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), left 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+    .ib-carte.est-actif { width: 106%; left: -3%; }
+  }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
      passent pas devant l'Index) */
@@ -3469,6 +3475,74 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   }
 }
 
+
+/* ══ LES VERSIONS DU SITE (30/10, sa demande) ═════════════════════════════
+   TB fait passer tout le site à la version suivante : le blanc d'origine,
+   le NOIR (fond noir, encre blanche), le CRÈME (fond crème, encre ocre).
+   Accueil, projets, Index, À propos suivent ; les photographies, le pied
+   noir et l'intro ne changent pas. Dans le noir, l'À propos garde son
+   ocre, sur le noir. Le passage : un fondu enchaîné (voir versionDuSite). */
+html.version-noir  { --v-fond: #000000; --v-encre: #ffffff; --v-douce: rgba(255, 255, 255, 0.55); --v-pale: rgba(255, 255, 255, 0.22); }
+html.version-creme { --v-fond: #fcfaeb; --v-encre: #c16700; --v-douce: rgba(193, 103, 0, 0.62); --v-pale: rgba(193, 103, 0, 0.26); }
+:is(html.version-noir, html.version-creme) { background: var(--v-fond); }
+:is(html.version-noir, html.version-creme) body { background-color: var(--v-fond); color: var(--v-encre); --night: var(--v-fond); --text: var(--v-encre); }
+/* le passage : rien ne fond de son côté, c'est la page entière qui fond */
+html.version-bascule *, html.version-bascule *::before, html.version-bascule *::after { transition: none !important; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.8s; animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1); }
+
+/* l'accueil : la phrase, la couche de la réfraction, « Faites défiler » */
+:is(html.version-noir, html.version-creme) .hero-phrase { color: var(--v-encre); }
+:is(html.version-noir, html.version-creme) .hero-project-transition { background: var(--v-fond); }
+:is(html.version-noir, html.version-creme) #siteNav .site-frame__bc { color: var(--v-encre); }
+/* le cadre lit déjà ce qu'il a derrière lui (voir frameContrast) ; dans le
+   crème, l'encre du clair est l'ocre */
+html.version-creme #siteNav .site-frame__tl.on-light, html.version-creme #siteNav .site-frame__tr.on-light,
+html.version-creme #siteNav .site-frame__bl.on-light, html.version-creme #siteNav .site-frame__br.on-light { color: var(--ocre); }
+html.version-creme .cursor.sur-clair { color: var(--ocre); }
+html.version-creme .cursor-ring:not(.on-dark) { color: var(--ocre); }
+html.version-creme .ascenseur:not(.sur-sombre) .ascenseur__poignee { background: var(--ocre); }
+html.version-noir .ascenseur:not(.sur-sombre) .ascenseur__poignee { background: rgba(255, 255, 255, 0.72); }
+
+/* les volets projet */
+:is(html.version-noir, html.version-creme) .proj-panel,
+:is(html.version-noir, html.version-creme) .proj-panel-intro,
+:is(html.version-noir, html.version-creme) .proj-panel-gallery,
+:is(html.version-noir, html.version-creme) .proj-note { background: var(--v-fond); }
+:is(html.version-noir, html.version-creme) .proj-panel { --text: var(--v-encre); color: var(--v-encre); }
+:is(html.version-noir, html.version-creme) :is(.proj-panel-title, .proj-panel-desc, .gal-texte p, .proj-note__body, .feuillet-lien:hover, .feuillet-lien:focus-visible) { color: var(--v-encre); }
+:is(html.version-noir, html.version-creme) :is(.proj-panel-year, .marque-regle__cote, .proj-panel-img-placeholder) { color: var(--v-douce); }
+:is(html.version-noir, html.version-creme) .marque-fleche:not(.affiches .marque-fleche):not(.media-feuillet .marque-fleche) { color: var(--v-encre); }
+:is(html.version-noir, html.version-creme) .marque-fleche:hover { border-color: var(--v-encre); }
+/* au téléphone, les deux flèches sous le visuel ont leur rond (au bureau, la flèche seule) */
+@media (max-width: 600px) {
+  :is(html.version-noir, html.version-creme) :is(.fleches .marque-fleche, .fleches .marque-fleche:hover) { background: var(--v-fond); border-color: var(--v-pale); color: var(--v-encre); }
+}
+:is(html.version-noir, html.version-creme) .indice-bas { background: var(--v-fond); border-color: var(--v-pale); color: var(--v-encre); }
+
+/* l'Index : son blanc devient le fond de la version (le noir de
+   l'ouverture reste noir) */
+:is(html.version-noir, html.version-creme) .works-panel:not(.ib-noir) { background-color: var(--v-fond); }
+:is(html.version-noir, html.version-creme) :is(.ib-titre, .works-line, .works-list.is-hovering .works-line:hover) { color: var(--v-encre); }
+:is(html.version-noir, html.version-creme) :is(.ib-fct > span, .works-line__idx, .works-list.is-hovering .works-line:hover .works-line__idx) { color: var(--v-douce); }
+:is(html.version-noir, html.version-creme) :is(.works-list.is-hovering .works-line, .works-list.is-hovering .works-line__idx) { color: var(--v-pale); }
+:is(html.version-noir, html.version-creme) body.index-cadre:not(.ib-cadre-noir) #siteNav.site-frame :is(.site-frame__tl, .site-frame__tr, .site-frame__bl, .site-frame__br) { color: var(--v-encre); }
+/* les logotypes : noirs sur la trame ; dans le noir, blancs sur une trame blanche */
+html.version-noir .marque-plan { background-image: radial-gradient(circle, #fff 0.6px, transparent 0.7px); }
+html.version-noir .marque-plan :is(img, video) { filter: invert(1); }
+html.version-creme .marque-plan { background-image: radial-gradient(circle, #c16700 0.6px, transparent 0.7px); }
+html.version-noir .ib-carte { background: #1a1a1a; box-shadow: 0 46px 110px -26px rgba(0, 0, 0, 0.6); }
+
+/* l'À propos : dans le noir, ses plans sont noirs et ses textes gardent
+   l'ocre ; dans le crème, il est crème dès le premier plan */
+html.version-noir body:not(.zone-foot) .about-story { --ab-encre: var(--ocre); --ab-signal: var(--ocre); --ab-plane: #000000; }
+html.version-creme body:not(.zone-foot) .about-story { --ab-encre: var(--ocre); --ab-signal: var(--ocre); --ab-plane: #fcfaeb; }
+html.version-noir body .about-story, html.version-noir body .about-story .about-chapter { background-color: #000; }
+html.version-creme body:not(.zone-foot) .about-story, html.version-creme body:not(.zone-foot) .about-story .about-chapter { background-color: #fcfaeb; }
+html.version-noir #siteNav :is(.cadre-bas-apropos, .cadre-trait-apropos) { background-color: #000; }
+html.version-noir #siteNav .cadre-trait-apropos::before { background-color: var(--ocre); }
+html.version-creme body:not(.zone-foot) #siteNav :is(.cadre-bas-apropos, .cadre-trait-apropos) { background-color: #fcfaeb; }
+html.version-creme #siteNav .cadre-trait-apropos::before { background-color: var(--ocre); }
+html.version-noir .cadre-bas-apropos::before { background: linear-gradient(rgba(0, 0, 0, 0), #000); }
 </style>
 </head>
 <body class="light">
@@ -5963,14 +6037,17 @@ function buildWorksPanel() {
 const son = (function sonDuSite() {
   const AC = window.AudioContext || window.webkitAudioContext;
   const muet = { jouer() {}, actif: () => false };
-  if (!AC) return muet;
+  /* (30/10, sa demande) rien ne change au téléphone ni à la tablette : le
+     son n'existe qu'à la souris */
+  if (!AC || !matchMedia('(hover: hover) and (pointer: fine)').matches) return muet;
   const DOSSIER = 'son/';
   /* ouverte en fichier, la page ne peut pas faire passer ses médias par le
      contexte audio (le navigateur les rendrait muets) : la musique y règle
      alors le volume de l'élément lui-même */
   const LOCAL = location.protocol === 'file:';
   const SONS = { ouvre: 'note-D5', ferme: 'note-G4', suivant: 'note-F5', precedent: 'note-As4', version: 'note-G5', index: 'air' };
-  const VOL = { musique: 0.17, projet: 0.6, souffle: 0.3, note: 0.2, air: 0.2 };
+  /* (30/10) la musique reste DESSOUS : on doit entendre les notes des passages */
+  const VOL = { musique: 0.11, projet: 0.6, souffle: 0.3, note: 0.26, air: 0.24 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false, pret = null;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false;
@@ -6086,6 +6163,13 @@ const son = (function sonDuSite() {
     const vol = (f === 'air' ? VOL.air : VOL.note) * (0.9 + Math.random() * 0.18);
     if (b === 'element') { const a = new Audio(DOSSIER + f + '.m4a'); a.volume = vol; const l = a.play(); if (l) l.catch(() => {}); return; }
     if (voix.length >= 3) { const v = voix.shift(); v.g.gain.setTargetAtTime(0, t, 0.06); v.s.stop(t + 0.4); }
+    /* la musique s'efface un instant sous la note, puis revient */
+    if (gMusique) {
+      const m = gMusique.gain;
+      m.cancelScheduledValues(t); m.setValueAtTime(m.value, t);
+      m.linearRampToValueAtTime(niveauMusique() * 0.6, t + 0.12);
+      m.setTargetAtTime(niveauMusique(), t + 0.9, 0.5);
+    }
     const s = ctx.createBufferSource(); s.buffer = b;
     const g = ctx.createGain(); g.gain.value = vol;
     s.connect(g); g.connect(maitre); s.start(t);
@@ -6157,6 +6241,8 @@ const son = (function sonDuSite() {
   const GESTES = ['pointerdown', 'click', 'touchend', 'keydown'];
   const premierGeste = e => {
     if (e.type === 'keydown' && (e.key === 'm' || e.key === 'M' || e.key === 'Escape')) return;
+    /* un clic simulé par la page n'est pas un geste : le navigateur refuserait */
+    if (navigator.userActivation && !navigator.userActivation.isActive) return;
     if (!actif) allumer();
     else if (ctx && ctx.state !== 'running') ctx.resume();
     const l = pistes[courante] && pistes[courante].a.paused && pistes[courante].a.play(); if (l) l.catch(() => {});
@@ -6165,6 +6251,46 @@ const son = (function sonDuSite() {
   if (!coupe) GESTES.forEach(t => addEventListener(t, premierGeste, true));
 
   return { jouer, actif: () => actif };
+})();
+
+/* ══ LES VERSIONS DU SITE (30/10, sa demande) ════════════════════════════
+   Chaque toucher de TB fait passer TOUT le site à la version suivante : le
+   blanc d'origine, le noir (fond noir, encre blanche), le crème (fond
+   crème, encre ocre), puis de nouveau le blanc. Le passage est un fondu
+   enchaîné de la page entière, là où le navigateur sait le faire ; sinon la
+   bascule est franche. Chaque visite commence en blanc. */
+const versionSite = (function versionDuSite() {
+  const VERSIONS = [
+    { mot: 'Blanc', classe: '',              fond: [1, 1, 1],                         encre: [16 / 255, 16 / 255, 20 / 255], meta: '#ffffff' },
+    { mot: 'Noir',  classe: 'version-noir',  fond: [0, 0, 0],                         encre: [1, 1, 1],                      meta: '#000000' },
+    { mot: 'Crème', classe: 'version-creme', fond: [252 / 255, 250 / 255, 235 / 255], encre: [193 / 255, 103 / 255, 0],      meta: '#fcfaeb' }
+  ];
+  const racine = document.documentElement;
+  let i = 0, enCours = false;
+  const suivante = () => VERSIONS[(i + 1) % VERSIONS.length];
+  function poser(k) {
+    VERSIONS.forEach(v => { if (v.classe) racine.classList.remove(v.classe); });
+    i = k;
+    const v = VERSIONS[i];
+    if (v.classe) racine.classList.add(v.classe);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', v.meta);
+    dispatchEvent(new CustomEvent('version-site', { detail: { fond: v.fond, encre: v.encre, autre: !!v.classe, suivante: suivante() } }));
+  }
+  function changer() {
+    if (enCours) return;
+    son.jouer('version');
+    const k = (i + 1) % VERSIONS.length;
+    const bascule = () => { racine.classList.add('version-bascule'); poser(k); void document.body.offsetWidth; };
+    const fin = () => requestAnimationFrame(() => requestAnimationFrame(() => racine.classList.remove('version-bascule')));
+    if (document.startViewTransition && !motionState.reducedMotion) {
+      enCours = true;
+      let t;
+      try { t = document.startViewTransition(bascule); } catch (e) { enCours = false; bascule(); fin(); return; }
+      t.finished.catch(() => {}).then(() => { enCours = false; fin(); });
+    } else { bascule(); fin(); }
+  }
+  return { changer, suivante };
 })();
 
 function openWorksPanel() {
@@ -6920,7 +7046,14 @@ function retourProjet(versAccueil) {
   leaveProject();
 }
 panelClose.addEventListener('click', () => retourProjet(false));
-document.getElementById('projPanelLogo').addEventListener('click', () => retourProjet(true));
+/* (30/10) TB, à la souris, change la version du site, dans un projet aussi
+   (la croix ramène) ; au doigt, il ramène toujours à l'accueil */
+const tbVolet = document.getElementById('projPanelLogo');
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) tbVolet.setAttribute('aria-label', 'Changer la version du site');
+tbVolet.addEventListener('click', () => {
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) versionSite.changer();
+  else retourProjet(true);
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProjet(true); closeWorksPanel(); } });
 
 /* ══ À PROPOS — LE MOTEUR ══════════════════════════════════════════════════
@@ -7182,16 +7315,25 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     relancer();
   }
 
-  /* ── LE RACCOURCI : TB mène à « Qui je suis » ────────────────────────────
-     On n'y va pas en traversant toute la page à toute vitesse : le crème de
-     l'À propos couvre l'écran, la page saute dessous, et il se retire sur le
-     chapitre 01 déjà installé, la photo figée. De près, un simple défilé. */
+  /* ── TB ─────────────────────────────────────────────────────────────────
+     À LA SOURIS (30/10, sa demande) : TB change la version du site (voir
+     versionDuSite) ; au survol, le mot dit la version qui vient.
+     AU DOIGT, rien ne change : TB mène à « Qui je suis ». On n'y va pas en
+     traversant toute la page à toute vitesse : le crème de l'À propos
+     couvre l'écran, la page saute dessous, et il se retire sur le chapitre
+     01 déjà installé, la photo figée. De près, un simple défilé. */
   const logo = document.getElementById('frameLogo');
   const voile = document.getElementById('voileSaut');
   if (!logo) return;
+  const souris = matchMedia('(hover: hover) and (pointer: fine)');
   const mot = logo.querySelector('.frame-logo__mot');
+  if (souris.matches) logo.setAttribute('aria-label', 'Changer la version du site');
   if (mot) {
-    lettres(mot);
+    const ecrire = nom => { mot._lettresBrut = null; mot.textContent = nom; lettres(mot); };
+    if (souris.matches) {
+      ecrire(versionSite.suivante().mot);
+      addEventListener('version-site', e => ecrire(e.detail.suivante.mot));
+    } else lettres(mot);
     const montrer = on => mot.classList.toggle('lettres-in', on);
     logo.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') montrer(true); });
     logo.addEventListener('pointerleave', () => montrer(false));
@@ -7212,6 +7354,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   let saut = 0;
   logo.addEventListener('click', e => {
     e.preventDefault();
+    if (souris.matches) { versionSite.changer(); return; }
     const index = document.body.classList.contains('index-ouvert');
     if (index) closeWorksPanel();                  // l'Index s'efface : la page saute dessous
     const y = cible();
@@ -7261,12 +7404,21 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   const foot = document.querySelector('footer');
   const photo = document.querySelector('.about-portrait');   // le plan collant de gauche
   if (!pres) return;
-  const OCRE = '#fcfaeb', BLACK = '#000000';   // le FOND est le crème ; l'encre est l'ocre
+  const BLACK = '#000000';
+  /* le FOND de l'À propos est le crème (l'encre est l'ocre) ; dans la
+     version noire, le noir (30/10) */
+  /* (#000001 : un noir que rien ne distingue du noir, mais que zoneWash ne
+     confond pas avec celui du pied) */
+  const fondPres = () => document.documentElement.classList.contains('version-noir') ? '#000001' : '#fcfaeb';
+  let OCRE = fondPres();
   const absTop = (el) => el.getBoundingClientRect().top + window.scrollY;  // position absolue robuste
   const dureeFondu = () => (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zone-duree')) || 0.8) * 1000;
   let raf = 0, zone = null, fondu = 0;
   function apply() {
     raf = 0;
+    const avant = OCRE;
+    OCRE = fondPres();
+    if (zone === avant) zone = OCRE;               // même zone, autre version : pas de « fondu » de zone
     const y = window.scrollY, vh = window.innerHeight;
     // ── OCRE : une fois le portrait FIGÉ, pas avant. Le portrait se fige quand son
     //    bord haut rejoint son « top » collant ; on lit la position NATURELLE de la
@@ -7324,6 +7476,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
   }
   onMotionScroll(() => { if (!raf) raf = requestAnimationFrame(apply); });   // scroll CENTRAL
   addEventListener('resize', apply);
+  addEventListener('version-site', apply);
   apply();
 })();
 
@@ -7622,6 +7775,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
 
   const kick = () => { if (!raf) raf = requestAnimationFrame(apply); };
   onMotionScroll(kick);                       // scroll CENTRAL
+  addEventListener('version-site', kick);     // (30/10) TB a changé le fond
   addEventListener('resize', kick, { passive: true });
   /* les photographies arrivent après : on remesure quand elles sont décodées */
   addEventListener('load', kick);
@@ -7669,6 +7823,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   volet.addEventListener('scroll', kick, { passive: true });
   volet.addEventListener('load', kick, true);               // les visuels arrivent
   volet.addEventListener('transitionend', kick);            // apparitions, affiches, ouverture
+  addEventListener('version-site', kick);                   // (30/10) TB a changé le fond
   addEventListener('resize', kick, { passive: true });
   new MutationObserver(kick).observe(volet, { attributes: true, attributeFilter: ['class'] });
 })();
@@ -8070,6 +8225,9 @@ uniform vec2  uOrigin;    // là où l'ouverture a été touchée en dernier
 uniform float uDpr;
 uniform float uTemps;     // s — la vapeur dérive à peine pendant qu'elle vit
 uniform float uEncre;     // 0 pendant l'intro : la phrase du DOM sort de la lumière dessous
+uniform vec3  uPapier;    // (30/10) le fond de la version du site : blanc, noir ou crème
+uniform vec3  uEncreV;    // et son encre
+uniform float uVersion;   // 0 : le blanc d'origine, au bit près ; 1 : une autre version
 /* le défocus : douze prélèvements, huit sur les petits écrans */
 #define TAPS ${innerWidth < 900 ? 8 : 12}
 /* l'onde du bord de l'ouverture (px), la force de l'aurore (sa lumière sur
@@ -8206,7 +8364,7 @@ void main() {
     m.z *= 2.0;
 #endif
     if (m.z < 0.0004 && m.w < 0.004) {
-      fragColor = vec4(mix(vec3(1.0), heroVu, encre), 1.0);
+      fragColor = vec4(mix(uPapier, heroVu, encre), 1.0);
       return;
     }
   }
@@ -8220,7 +8378,7 @@ void main() {
   vec4  F  = lireChamp(uField, tc + vec2(ou.x, -ou.y) * onde / uRes);
   /* le blanc intact : la phrase seule */
   if (F.z < 0.0004 && F.w < 0.004 && G < 0.002) {
-    fragColor = vec4(mix(vec3(1.0), heroVu, encre), 1.0);
+    fragColor = vec4(mix(uPapier, heroVu, encre), 1.0);
     return;
   }
 
@@ -8247,7 +8405,7 @@ void main() {
   Rp = mix(Rp, smoother(0.06, 0.5, Rp), NET);
   float Rv = 1.0 - (1.0 - Rp) * (1.0 - G);
   if (Rv < 0.003 && F.w < 0.004) {
-    fragColor = vec4(mix(vec3(1.0), heroVu, encre), 1.0);
+    fragColor = vec4(mix(uPapier, heroVu, encre), 1.0);
     return;
   }
   float g   = clamp(p / 0.84, 0.0, 1.0);                    // l'ampleur du défilement
@@ -8263,13 +8421,25 @@ void main() {
      voit : nette au cœur, de plus en plus hors de la mise au point vers le
      blanc, et dissoute dans la lumière. */
   vec3 img = defocus(uProjectTexture, vUv, (1.0 - focus) * 24.0 * optique);
+  vec3 brut = img;
   img = lumiere(img, 1.0 + 8.0 * pow(1.0 - vis, 1.2) * optique, lilas, optique);
+  /* (30/10) dans une autre version, l'image se dissout dans SON fond — le
+     noir, le crème —, de la même quantité qu'elle se dissolvait dans le blanc */
+  /* (sur un fond clair — le crème —, rien ne change ici : l'image se
+     dissout dans la lumière, puis le fond la teinte, plus bas) */
+  bool sombre = uVersion > 0.5 && dot(uPapier, vec3(0.2126, 0.7152, 0.0722)) < 0.5;
+  if (sombre) {
+    float l0 = dot(brut, vec3(0.2126, 0.7152, 0.0722)), l1 = dot(img, vec3(0.2126, 0.7152, 0.0722));
+    img = mix(brut, uPapier, clamp((l1 - l0) / max(1.0 - l0, 0.02), 0.0, 1.0));
+  }
   /* tant que le blanc domine, le noir du studio n'est qu'une ombre :
      la phrase reste lisible par-dessus ; au défilement, l'image retrouve
      toute sa profondeur */
   float lum   = dot(img, vec3(0.2126, 0.7152, 0.0722));
   float ombre = mix(mix(0.36, 1.0, smoothstep(0.04, 0.5, lum)), 1.0, smoother(0.30, 0.75, p));
-  vec3 surface = mix(vec3(1.0), img, vis * ombre);
+  /* sur le blanc et le crème, l'image se pose comme une encre sur le papier
+     (le fond la teinte) ; sur le noir, elle sort du noir */
+  vec3 surface = sombre ? mix(uPapier, img, vis * ombre) : uPapier * mix(vec3(1.0), img, vis * ombre);
 
   /* là où la vapeur passe, autour de ce qui se révèle (elle suit le
      pointeur avec retard : jamais une couronne), le blanc prend l'aura.
@@ -8319,6 +8489,13 @@ void main() {
   float traverse = 4.0 * vis * (1.0 - vis) * (1.0 - focus) * fin;
   vec3  hero = traverse > 0.02 ? lumiere(heroVu, 1.0 + 0.8 * traverse, lilas, 1.0) : heroVu;
   vec3 col = surface * mix(vec3(1.0), hero, encre);
+  /* (30/10) une autre version : l'encre de la version, posée sur ce qui se
+     révèle, à la part de lettre de chaque pixel de la phrase */
+  if (uVersion > 0.5) {
+    vec3  ecart  = uEncreV - uPapier;
+    float lettre = clamp(dot(heroVu - uPapier, ecart) / max(dot(ecart, ecart), 1e-4), 0.0, 1.0);
+    col = mix(surface, uEncreV, lettre * encre);
+  }
 
   /* garantie : photographie strictement propre, identique à la frame DOM */
   vec3 propre = texture(uProjectTexture, vUv).rgb;
@@ -8359,7 +8536,10 @@ void main() {
   const U = n => gl.getUniformLocation(prog, n);
   const uProgress = U('uProgress'), uRes = U('uRes'), uOrigin = U('uOrigin'),
         uDpr = U('uDpr'), uTemps = U('uTemps'),
-        uEncre = U('uEncre');
+        uEncre = U('uEncre'),
+        uPapier = U('uPapier'), uEncreV = U('uEncreV'), uVersion = U('uVersion');
+  /* (30/10) la version du site : le blanc d'origine tant qu'on n'a pas touché TB */
+  let vPapier = [1, 1, 1], vEncre = [16 / 255, 16 / 255, 20 / 255], vAutre = 0;
   gl.useProgram(prog);
   gl.uniform1i(U('uHeroTexture'), 0);
   gl.uniform1i(U('uProjectTexture'), 1);
@@ -8834,6 +9014,9 @@ void main() {
     gl.uniform1f(uDpr, dpr);
     gl.uniform1f(uTemps, (now || 0) % 1000);
     gl.uniform1f(uEncre, encre);
+    gl.uniform3fv(uPapier, vPapier);
+    gl.uniform3fv(uEncreV, vEncre);
+    gl.uniform1f(uVersion, vAutre);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, heroTex);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, projTex);
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, champTex[lu]);
@@ -9072,6 +9255,15 @@ void main() {
       if (active) draw(smoothProgress, performance.now() / 1000);
       holder.classList.remove('en-presence');
     }
+    lastP = -1; kick();
+  });
+
+  /* (30/10) TB a changé la version : la phrase est recalquée dans ses
+     nouvelles couleurs, le fond et l'encre passent au shader */
+  addEventListener('version-site', e => {
+    vPapier = e.detail.fond; vEncre = e.detail.encre; vAutre = e.detail.autre ? 1 : 0;
+    if (!installed) return;
+    buildHeroTexture();
     lastP = -1; kick();
   });
 
