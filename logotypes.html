@@ -605,25 +605,6 @@ body.curtain-live .works-panel.open { transition: none; }
 @keyframes defiler-respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 @media (prefers-reduced-motion: reduce) { .defiler-fleche { animation: none; } }
 .site-frame__br { bottom: var(--ui-y); right: var(--ui-x); text-align: right; }
-/* LE SON — en haut, au milieu : un mot, la voix du cadre. « Son » quand il
-   est coupé, « Couper » quand il joue ; le mot change en fondu, comme les
-   mentions du bas. Le même mot dans la barre des volets. */
-.site-frame__tc { position: absolute; top: var(--ui-y); left: 50%; translate: -50% 0; pointer-events: auto; white-space: nowrap; transition: opacity 0.6s ease; }
-.frame-son, .proj-panel-son {
-  background: none; border: 0; margin: 0; padding: 0;
-  font: inherit; font-weight: 160; letter-spacing: inherit; line-height: 1;
-  color: inherit; cursor: pointer;
-}
-.proj-panel-son {
-  position: absolute; top: var(--ui-y); left: 50%; translate: -50% 0;
-  pointer-events: auto; white-space: nowrap;
-  color: var(--text, #0a0a0a); transition: color 100ms linear;
-}
-.proj-panel-son.sur-sombre { color: #fff; }
-.frame-son:focus-visible, .proj-panel-son:focus-visible { outline: 1px solid currentColor; outline-offset: 5px; }
-.son-mot { display: block; transition: opacity 260ms cubic-bezier(0.16, 1, 0.3, 1), transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
-.son-mot.is-out { opacity: 0; transform: translateY(-4px); transition-duration: 150ms; }
-.son-mot.is-in  { opacity: 0; transform: translateY(4px); transition: none; }
 /* pendant la séquence d'apparition les quatre éléments sont masqués : c'est
    la couche WebGL qui dessine leur typographie. Ils reprennent la main au
    SNAP, au pixel près, et plus aucune copie ne subsiste. */
@@ -702,8 +683,7 @@ body.curtain-live .works-panel.open { transition: none; }
    « Index » se change en croix — le même signe × que les volets projet. */
 body.index-cadre .site-frame { z-index: 160; }
 body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
-body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br,
-body.index-cadre #siteNav.site-frame .site-frame__tc { color: #101014; }
+body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #101014; }
 .site-frame .frame-menu__mot {
   display: inline-block;
   transition: opacity 0.35s ease, filter 0.35s ease;
@@ -740,13 +720,12 @@ body.index-ouvert .site-frame .frame-menu:hover .frame-menu__croix { rotate: 90d
 /* apparition sobre après la formation du titre — même logique qu'avant */
 nav.header-forming .site-frame__tl, nav.header-forming .site-frame__tr,
 nav.header-forming .site-frame__bl, nav.header-forming .site-frame__br,
-nav.header-forming .site-frame__bc, nav.header-forming .site-frame__tc { opacity: 0; pointer-events: none; }
+nav.header-forming .site-frame__bc { opacity: 0; pointer-events: none; }
 nav.header-ready .site-frame__tl, nav.header-ready .site-frame__tr,
 nav.header-ready .site-frame__bl, nav.header-ready .site-frame__br { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   nav.header-forming .site-frame__tl, nav.header-forming .site-frame__tr,
-  nav.header-forming .site-frame__bl, nav.header-forming .site-frame__br,
-  nav.header-forming .site-frame__tc { opacity: 1; pointer-events: auto; }
+  nav.header-forming .site-frame__bl, nav.header-forming .site-frame__br { opacity: 1; pointer-events: auto; }
 }
 
 
@@ -3420,15 +3399,14 @@ body.on-projects #siteNav { --text: #fff; color: #fff; }                  /* sur
    Le sélecteur passe par #siteNav pour primer sur les règles de zone. */
 #siteNav .site-frame__tl.on-light, #siteNav .site-frame__tr.on-light,
 #siteNav .site-frame__bl.on-light, #siteNav .site-frame__br.on-light,
-#siteNav .site-frame__bc.on-light, #siteNav .site-frame__tc.on-light { color: #101014; }
+#siteNav .site-frame__bc.on-light { color: #101014; }
 #siteNav .site-frame__tl.on-dark,  #siteNav .site-frame__tr.on-dark,
 #siteNav .site-frame__bl.on-dark,  #siteNav .site-frame__br.on-dark,
-#siteNav .site-frame__bc.on-dark, #siteNav .site-frame__tc.on-dark { color: #ffffff; }
+#siteNav .site-frame__bc.on-dark  { color: #ffffff; }
 /* SUR LE CRÈME, le cadre ne change JAMAIS : les quatre coins restent ocre,
    quoi que la sonde lise dessous (rien de sombre ne passe sous eux ici) */
 body.zone-pres #siteNav .site-frame__tl, body.zone-pres #siteNav .site-frame__tr,
-body.zone-pres #siteNav .site-frame__bl, body.zone-pres #siteNav .site-frame__br,
-body.zone-pres #siteNav .site-frame__tc { color: var(--ocre); }
+body.zone-pres #siteNav .site-frame__bl, body.zone-pres #siteNav .site-frame__br { color: var(--ocre); }
 .site-frame__tl, .site-frame__tr,
 .site-frame__bl, .site-frame__br { transition: color 100ms linear; }
 /* …sauf quand c'est la ZONE qui change : le cadre passe alors d'une encre à
@@ -3510,7 +3488,6 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <div class="proj-panel" id="projPanel">
   <div class="proj-panel-topbar">
     <button type="button" class="proj-panel-logo" id="projPanelLogo" aria-label="Accueil"><svg class="nav-logo-svg" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg></button>
-    <button type="button" class="proj-panel-son" id="projPanelSon" data-son aria-pressed="false" aria-label="Activer le son"><span class="son-mot">Son</span></button>
     <button type="button" class="proj-panel-cross" id="projPanelClose" aria-label="Fermer">
       <span class="ppg ppg-cross" aria-hidden="true">&#215;</span>
     </button>
@@ -3565,11 +3542,6 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <nav id="siteNav" class="site-frame header-forming" aria-label="Interface">
   <div class="site-frame__tl">
     <a class="frame-logo" id="frameLogo" href="#apropos" aria-label="Qui je suis"><svg class="nav-logo-svg" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg><span class="frame-logo__mot" aria-hidden="true">Qui je suis</span></a>
-  </div>
-  <!-- LE SON (30/10) : en haut, au milieu, entre TB et Index ; coupé tant
-       qu'on ne l'a pas demandé (voir sonDuSite) -->
-  <div class="site-frame__tc">
-    <button type="button" class="frame-son" data-son aria-pressed="false" aria-label="Activer le son"><span class="son-mot">Son</span></button>
   </div>
   <div class="site-frame__tr">
     <button type="button" class="frame-menu menu-trigger" id="menuTrigger" aria-controls="worksPanel" aria-expanded="false"><span class="frame-menu__mot">Index</span><span class="frame-menu__croix" aria-hidden="true">&#215;</span></button>
@@ -5960,21 +5932,21 @@ function buildWorksPanel() {
   if (indexBureau.matches) buildIndexBureau(cards);
 }
 
-/* ══ LE SON — coupé par défaut (30/10, sa demande) ═══════════════════════
-   Une musique d'ambiance jazz (piano, contrebasse, souffle de vinyle), très
-   bas, en boucle par fondu enchaîné ; au hero, UN souffle continu que la
-   vitesse du curseur ouvre et referme (jamais relancé à chaque geste) ; aux
-   moments de passage, une note de piano accordée sur la musique (sol
+/* ══ LE SON (30/10, sa demande) ═══════════════════════════════════════════
+   Une musique de fond jazz (piano, contrebasse, trompette en sourdine),
+   très bas, en boucle par fondu enchaîné ; au hero, UN souffle continu que
+   la vitesse du curseur ouvre et referme (jamais relancé à chaque geste) ;
+   aux moments de passage, une note de piano accordée sur la musique (sol
    mineur : ré pour ouvrir, sol pour revenir, fa et si bémol pour suivant et
-   précédent). Rien ne se charge ni ne joue avant le clic sur « Son »
-   (Safari l'exige) ; un seul contexte, un seul gain maître, toujours en
-   fondu ; rien ne tourne pendant le défilement. Le choix tient le temps de
-   la visite : rechargée, la page reprend le son au premier clic. */
+   précédent). AUCUN mot à l'écran (sa demande) : aucun navigateur ne laisse
+   une page jouer avant le premier geste du visiteur, le son monte donc en
+   fondu à son premier clic (ou toucher, ou touche). La touche M le coupe et
+   le rend, le temps de la visite. Un seul contexte, un seul gain maître,
+   toujours en fondu ; rien ne tourne pendant le défilement. */
 const son = (function sonDuSite() {
-  const boutons = [...document.querySelectorAll('[data-son]')];
   const AC = window.AudioContext || window.webkitAudioContext;
   const muet = { jouer() {}, actif: () => false };
-  if (!boutons.length || !AC) { boutons.forEach(b => { b.hidden = true; }); return muet; }
+  if (!AC) return muet;
   const DOSSIER = 'son/';
   /* ouverte en fichier, la page ne peut pas faire passer ses médias par le
      contexte audio (le navigateur les rendrait muets) : la musique y règle
@@ -5987,23 +5959,6 @@ const son = (function sonDuSite() {
   let pistes = [], courante = 0, enchaine = false, dansProjet = false;
   const tampons = {}, dernier = {}, voix = [];
   let souffle = null;
-
-  function libelle() {
-    boutons.forEach(b => {
-      b.setAttribute('aria-pressed', actif ? 'true' : 'false');
-      b.setAttribute('aria-label', actif ? 'Couper le son' : 'Activer le son');
-      const mot = b.querySelector('.son-mot');
-      const texte = actif ? 'Couper' : 'Son';
-      if (!mot || mot.textContent === texte) return;
-      mot.classList.add('is-out');
-      setTimeout(() => {
-        mot.textContent = texte;
-        mot.classList.remove('is-out'); mot.classList.add('is-in');
-        void mot.offsetWidth;
-        mot.classList.remove('is-in');
-      }, 160);
-    });
-  }
 
   /* un gain qui glisse vers sa cible, sans claquement */
   function glisse(param, cible, duree) {
@@ -6132,8 +6087,7 @@ const son = (function sonDuSite() {
   function allumer() {
     if (actif) return;
     actif = true;
-    libelle();
-    try { sessionStorage.setItem('son', '1'); } catch (e) {}
+    try { sessionStorage.removeItem('son-coupe'); } catch (e) {}
     if (!ctx) {
       ctx = new AC();
       maitre = ctx.createGain(); maitre.gain.value = 0; maitre.connect(ctx.destination);
@@ -6154,8 +6108,8 @@ const son = (function sonDuSite() {
   function eteindre() {
     if (!actif) return;
     actif = false;
-    libelle();
-    try { sessionStorage.removeItem('son'); } catch (e) {}
+    try { sessionStorage.setItem('son-coupe', '1'); } catch (e) {}
+    GESTES.forEach(t => removeEventListener(t, premierGeste, true));
     if (!ctx) return;
     glisse(maitre.gain, 0, DESCENTE);
     if (LOCAL) pistes.forEach(p => glisseVolume(p, 0, DESCENTE));
@@ -6165,10 +6119,12 @@ const son = (function sonDuSite() {
       ctx.suspend();
     }, DESCENTE * 1000 + 80);
   }
-  boutons.forEach(b => b.addEventListener('click', e => {
-    e.stopPropagation();
+  /* M coupe et rend le son ; aucune trace à l'écran */
+  addEventListener('keydown', e => {
+    if (e.key !== 'm' && e.key !== 'M') return;
+    if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
     actif ? eteindre() : allumer();
-  }));
+  });
 
   /* onglet caché : tout s'arrête ; de retour, tout reprend */
   document.addEventListener('visibilitychange', () => {
@@ -6177,18 +6133,19 @@ const son = (function sonDuSite() {
     else { ctx.resume(); const l = pistes[courante].a.play(); if (l) l.catch(() => {}); }
   });
 
-  /* le son était là avant de recharger : il revient au premier geste */
-  let avant = false;
-  try { avant = sessionStorage.getItem('son') === '1'; } catch (e) {}
-  if (avant) {
-    const reprendre = e => {
-      if (e.target.closest && e.target.closest('[data-son]')) return;   // le mot lui-même décide
-      removeEventListener('click', reprendre, true); removeEventListener('keydown', reprendre, true);
-      if (!actif) allumer();
-    };
-    addEventListener('click', reprendre, true);
-    addEventListener('keydown', reprendre, true);
-  }
+  /* LE PREMIER GESTE : le son monte. On écoute jusqu'à ce que le contexte
+     tourne vraiment (un défilement au doigt n'est pas un geste qui compte) */
+  let coupe = false;
+  try { coupe = sessionStorage.getItem('son-coupe') === '1'; } catch (e) {}
+  const GESTES = ['pointerdown', 'click', 'touchend', 'keydown'];
+  const premierGeste = e => {
+    if (e.type === 'keydown' && (e.key === 'm' || e.key === 'M' || e.key === 'Escape')) return;
+    if (!actif) allumer();
+    else if (ctx && ctx.state !== 'running') ctx.resume();
+    const l = pistes[courante] && pistes[courante].a.paused && pistes[courante].a.play(); if (l) l.catch(() => {});
+    if (ctx && ctx.state === 'running' && pistes[courante] && !pistes[courante].a.paused) GESTES.forEach(t => removeEventListener(t, premierGeste, true));
+  };
+  if (!coupe) GESTES.forEach(t => addEventListener(t, premierGeste, true));
 
   return { jouer, actif: () => actif };
 })();
@@ -7590,7 +7547,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
 })();
 
 (function frameContrast() {
-  const nodes = ['.site-frame__tl', '.site-frame__tr', '.site-frame__bl', '.site-frame__br', '.site-frame__tc']
+  const nodes = ['.site-frame__tl', '.site-frame__tr', '.site-frame__bl', '.site-frame__br']
     .map(sel => document.querySelector(sel)).filter(Boolean);
   if (!nodes.length) return;
   const light = nodes.map(() => true);
@@ -7666,7 +7623,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
    la couleur qui se lit sur la plus grande part de lui-même. */
 (function voletContrast() {
   const volet = document.getElementById('projPanel');
-  const nodes = [document.getElementById('projPanelLogo'), document.getElementById('projPanelClose'), document.getElementById('projPanelSon')];
+  const nodes = [document.getElementById('projPanelLogo'), document.getElementById('projPanelClose')];
   if (!volet || nodes.some(n => !n)) return;
   const clair = nodes.map(() => true);
   const POINTS = [];
