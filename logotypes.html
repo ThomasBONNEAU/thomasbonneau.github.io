@@ -1404,6 +1404,69 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
    d'un pixel : plus d'interstice. */
 .proj-panel > .proj-panel-intro + .proj-panel-gallery,
 .proj-panel > .proj-panel-gallery + .proj-panel-intro { margin-top: -1px; }
+/* ══ ESSAI DU 30/10 — LA FENÊTRE (Arch'ocktail seulement, au bureau) ══════
+   D'après SA vidéo de référence. Sur fond noir, tout passe dans une FENÊTRE
+   fixe au centre de l'écran : quatre marges noires l'encadrent, TB et la
+   croix en haut, le nom du projet et sa catégorie en bas — les quatre
+   coins. Le texte d'ouverture, puis chaque rangée de la galerie (une image
+   seule, ou deux côte à côte, dans l'ordre d'avant), remplissent EXACTEMENT
+   la fenêtre, recadrés à son format. Le contenu défile sous les bandes
+   noires du haut et du bas, qui font le cadre. Pour revenir en arrière :
+   retirer data-mise="fenetre" de la carte d'Arch'ocktail. */
+.fen-bas { display: none; }
+@media (min-width: 901px) {
+  .proj-panel.mise-fenetre {
+    --fen-x: 9vw;                                   /* les côtés */
+    --fen-y: calc(var(--ui-y) * 2 + 24px);          /* le haut et le bas : la barre */
+    --fen-h: calc(100vh - var(--fen-y) * 2);        /* la fenêtre */
+    --fen-gap: 6px;                                 /* entre deux rangées, entre deux images */
+    background: #000;
+  }
+  /* le cadre : la barre du haut, noire, au-dessus de ce qui défile */
+  .proj-panel.mise-fenetre .proj-panel-topbar { background: #000; height: var(--fen-y); box-sizing: border-box; }
+  /* collée au bas du volet (le volet est transformé : une position fixe
+     y suivrait le contenu) ; posée après la galerie, elle tient tout du long */
+  .proj-panel.mise-fenetre .fen-bas {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    position: sticky; bottom: 0; z-index: 10;
+    height: var(--fen-y); box-sizing: border-box;
+    padding: 0 var(--ui-x) var(--ui-y);
+    background: #000; color: #fff; pointer-events: none;
+    font-family: 'Castillon', Georgia, serif; font-size: 19px; font-weight: 160;
+    letter-spacing: 0.05em; line-height: 1;
+    transition: opacity 0.35s ease;
+  }
+  /* au bas du projet, le pied noir et ses propres mentions prennent le relais */
+  .proj-panel.mise-fenetre.pied-proche .fen-bas { opacity: 0; }
+  /* le texte d'ouverture : une fenêtre blanche, son contenu au milieu */
+  .proj-panel.mise-fenetre .proj-panel-intro {
+    margin: 0 var(--fen-x) var(--fen-gap);
+    min-height: var(--fen-h); box-sizing: border-box;
+    align-content: center;
+    background: #fff;
+  }
+  /* la galerie : la même fenêtre, rangée après rangée, sur le noir (opaque :
+     le pied noir dessous ne transparaît jamais) */
+  .proj-panel.mise-fenetre .proj-panel-gallery {
+    background: #000;
+    padding: 0 var(--fen-x);
+    display: flex; flex-direction: column; gap: var(--fen-gap);
+  }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row {
+    height: var(--fen-h); margin: 0 !important; padding: 0 !important;
+    display: flex; gap: var(--fen-gap);
+  }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row > * { flex: 1 1 0; min-width: 0; height: 100%; margin: 0; }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row img,
+  .proj-panel.mise-fenetre .proj-panel-gallery-row video {
+    width: 100% !important; height: 100% !important;
+    aspect-ratio: auto !important; object-fit: cover; transform: none !important;
+  }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row .video-wrap {
+    position: relative; height: 100%; padding: 0 !important; aspect-ratio: auto !important; overflow: hidden;
+  }
+}
+
 /* (30/10) LE PIED NOIR N'EST LÀ QU'EN FIN DE PROJET : posé sous la galerie,
    il pouvait se montrer par éclairs au milieu d'une page dans Safari (pendant
    un défilement rapide, ou le temps qu'un visuel se peigne). Il n'est donc
@@ -3444,6 +3507,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="proj-panel-gallery" id="projPanelGallery"></div>
   <!-- LE PIED DU VOLET : un écran noir, posé SOUS le projet ; le dernier
        visuel remonte comme un rideau et le découvre -->
+  <!-- (essai du 30/10, Arch'ocktail) la bande du bas de la fenêtre : les deux coins bas -->
+  <div class="fen-bas" aria-hidden="true"><span class="fen-g"></span><span class="fen-d"></span></div>
   <div class="proj-panel-pied" aria-label="Thomas Bonneau">
     <nav class="ppp-nav" aria-label="Projets">
       <button type="button" class="ppp-lien ppp-prec" data-sens="-1"><span class="ppp-apercu" aria-hidden="true"><span class="ppp-apercu-image"><img alt=""></span><span class="ppp-apercu-nom"></span></span><svg class="ppp-fleche" viewBox="0 0 26 14" aria-hidden="true"><path d="M1 7h24M18 1l7 6-7 6"/></svg>Projet précédent</button>
@@ -3510,7 +3575,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- PROJETS -->
 <section class="projects" id="projets">
   <div class="projects-stack">
-    <div class="stack-card" data-bg="#D7E8CF" data-fg="#2E5D34" data-num="01" data-title="Arch’ocktail" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000511182735404407000000000000000000000000000000000000000000000000608284858685846000000000000000000000000000000000000000000000000060808074818385170000000000000000000000000000000000000000000000005967726970758409000000000000000000000000000000000000000000000000607980818184830800000000000000000000000000000000000000000000000059778079798181080000000000000000000000000000000000000000000000005976717279797908000000000000000000000000000000000000000000000000597662678679790800000000000000000000000000000000000000000000000059767671827778070000000000000000000000000000000000000000000000005875778179787807000000000000000000000000000000010204060910111010597576797879790803020202010101010101000000172330384654616668696872747779798081135452514947454341393735333045536168758084878787867774777979808016878787878787868686858278716975808385878889898988716467707173771258596162636465666563605446848688898989898989898983797670646468060505050606060606060606050491929292929292929191919090898987858071656057534842352719130906049595959595959595949392929190898989898989888886827564534334272116" data-cat="Direction artistique · Identité visuelle" data-desc="Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités complémentaires. L’identité s’est construite autour de cette dualité, avec le doseur comme symbole d’équilibre et de précision. Les nuances de vert distinguent subtilement les deux frères, tandis que les illustrations à l’aquarelle apportent une dimension plus artisanale et sensible. Un univers pensé à leur image, entre exigence, prestige, créativité et savoir-faire français dans l’univers de la mixologie." data-tags="Direction artistique, Identité visuelle, Typographie, Édition" data-imgs="web/proj-archocktail-livret.webp,v:web/proj-archocktail-p2.webp,web/proj-archocktail-doseur.webp,proj-archocktail-motion.mp4,d:web/proj-archocktail-livret3.webp,web/proj-archocktail-livret2.webp,web/proj-archocktail-cocktail.webp,d:web/proj-archocktail-carte.webp,web/proj-archocktail-img4282.webp,proj-archocktail-site.mp4">
+    <div class="stack-card" data-bg="#D7E8CF" data-fg="#2E5D34" data-num="01" data-title="Arch’ocktail" data-mise="fenetre" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000511182735404407000000000000000000000000000000000000000000000000608284858685846000000000000000000000000000000000000000000000000060808074818385170000000000000000000000000000000000000000000000005967726970758409000000000000000000000000000000000000000000000000607980818184830800000000000000000000000000000000000000000000000059778079798181080000000000000000000000000000000000000000000000005976717279797908000000000000000000000000000000000000000000000000597662678679790800000000000000000000000000000000000000000000000059767671827778070000000000000000000000000000000000000000000000005875778179787807000000000000000000000000000000010204060910111010597576797879790803020202010101010101000000172330384654616668696872747779798081135452514947454341393735333045536168758084878787867774777979808016878787878787868686858278716975808385878889898988716467707173771258596162636465666563605446848688898989898989898983797670646468060505050606060606060606050491929292929292929191919090898987858071656057534842352719130906049595959595959595949392929190898989898989888886827564534334272116" data-cat="Direction artistique · Identité visuelle" data-desc="Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités complémentaires. L’identité s’est construite autour de cette dualité, avec le doseur comme symbole d’équilibre et de précision. Les nuances de vert distinguent subtilement les deux frères, tandis que les illustrations à l’aquarelle apportent une dimension plus artisanale et sensible. Un univers pensé à leur image, entre exigence, prestige, créativité et savoir-faire français dans l’univers de la mixologie." data-tags="Direction artistique, Identité visuelle, Typographie, Édition" data-imgs="web/proj-archocktail-livret.webp,v:web/proj-archocktail-p2.webp,web/proj-archocktail-doseur.webp,proj-archocktail-motion.mp4,d:web/proj-archocktail-livret3.webp,web/proj-archocktail-livret2.webp,web/proj-archocktail-cocktail.webp,d:web/proj-archocktail-carte.webp,web/proj-archocktail-img4282.webp,proj-archocktail-site.mp4">
       <div class="proj-image"><img src="web/proj-archocktail-livret.webp" srcset="web/proj-archocktail-livret-w960.webp 960w, web/proj-archocktail-livret-w1036.webp 1036w, web/proj-archocktail-livret-w1119.webp 1119w, web/proj-archocktail-livret-w1209.webp 1209w, web/proj-archocktail-livret-w1306.webp 1306w, web/proj-archocktail-livret-w1410.webp 1410w, web/proj-archocktail-livret-w1523.webp 1523w, web/proj-archocktail-livret-w1645.webp 1645w, web/proj-archocktail-livret-w1776.webp 1776w, web/proj-archocktail-livret-w1919.webp 1919w, web/proj-archocktail-livret-w2072.webp 2072w, web/proj-archocktail-livret-w2238.webp 2238w, web/proj-archocktail-livret-w2417.webp 2417w, web/proj-archocktail-livret-w2610.webp 2610w, web/proj-archocktail-livret-w2800.webp 2800w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(149vh * 0.67), (min-aspect-ratio: 1483/1000) 100vw, 149vh" alt="Arch’ocktail — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--carte" fetchpriority="high" decoding="async"></div>
       <div class="proj-info">
         <div>
@@ -5300,6 +5365,14 @@ let altProjet = '', altRang = 0;
 function altVisuel() { return altProjet ? altProjet + ' — visuel ' + (++altRang) : ''; }
 function openPanel(card) {
   const { title, desc, year } = card.dataset;
+  /* (essai du 30/10) LA FENÊTRE : un projet peut se présenter dans une
+     fenêtre centrée sur fond noir (voir .mise-fenetre) — Arch'ocktail */
+  panel.classList.toggle('mise-fenetre', card.dataset.mise === 'fenetre');
+  const fenBas = panel.querySelector('.fen-bas');
+  if (fenBas) {
+    fenBas.querySelector('.fen-g').textContent = title || '';
+    fenBas.querySelector('.fen-d').textContent = (card.dataset.cat || '').split('·')[0].trim();
+  }
   const imgs = card.dataset.imgs ? card.dataset.imgs.split(',') : (card.dataset.img ? [card.dataset.img, null, null] : [null, null, null]);
 
   /* Le titre du volet peut être coupé à un endroit précis : data-title-lignes
