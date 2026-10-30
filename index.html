@@ -1444,16 +1444,20 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
     background: var(--fen-fond);
   }
   /* le cadre : la barre du haut, noire, au-dessus de ce qui défile */
-  .proj-panel.mise-fenetre .proj-panel-topbar { background: var(--fen-fond); height: var(--fen-y); box-sizing: border-box; }
-  .proj-panel.mise-fenetre .proj-panel-logo, .proj-panel.mise-fenetre .proj-panel-cross { color: var(--fen-encre); }
-  /* collée au bas du volet (le volet est transformé : une position fixe
-     y suivrait le contenu) ; posée après la galerie, elle tient tout du long */
+  /* (30/10, sa demande) PLUS DE BANDES en haut ni en bas : le contenu
+     défile en continu jusqu'aux bords ; les quatre coins flottent dessus
+     (TB et la croix lisent ce qui passe dessous, voir voletContrast) */
+  .proj-panel.mise-fenetre .proj-panel-topbar { background: transparent; height: var(--fen-y); box-sizing: border-box; }
+  /* les deux coins bas, collés au bas du volet (le volet est transformé :
+     une position fixe y suivrait le contenu) ; posés après la galerie, ils
+     tiennent tout du long — sans bande, en continu */
   .proj-panel.mise-fenetre .fen-bas {
     display: flex; justify-content: space-between; align-items: flex-end;
     position: sticky; bottom: 0; z-index: 10;
     height: var(--fen-y); box-sizing: border-box;
     padding: 0 var(--ui-x) var(--ui-y);
-    background: var(--fen-fond); color: var(--fen-encre); pointer-events: none;
+    background: transparent; color: #fff; mix-blend-mode: difference;   /* lisible sur le fond comme sur une photo */
+    pointer-events: none;
     font-family: 'Castillon', Georgia, serif; font-size: 19px; font-weight: 160;
     letter-spacing: 0.05em; line-height: 1;
     transition: opacity 0.35s ease;
