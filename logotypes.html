@@ -3097,20 +3097,27 @@ body.zone-foot .about-story {
   body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__bl, body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__br {
     color: #fff; transition: none;
   }
+  /* (30/10) LES TEXTES SUIVENT LES DOSSIERS : un nom et une fonction par
+     projet, empilés au milieu de leur colonne. Celui du projet qui part se
+     couche en arrière en s'effaçant ; celui qui arrive monte de dessous,
+     couché, et se redresse jusqu'à son plein (voir ibDessiner). */
   .ib-texte, .ib-fonction {
     position: relative; z-index: 2; height: 100vh; box-sizing: border-box;
-    display: flex; align-items: center;
+    perspective: 900px;
     transition: opacity 0.6s ease;
   }
-  .ib-texte { grid-column: 1; justify-content: center; padding: 0 1.5vw; }
-  .ib-fonction {
-    grid-column: 3; justify-content: center;
-    padding: 0 1.5vw; margin: 0;
-    /* la ligne a le corps et l'interligne du nom : la fonction se pose sur
-       la MÊME ligne de base que lui */
-    font-family: 'Castillon', serif; font-size: var(--ib-fs); line-height: 1.05;
+  .ib-texte { grid-column: 1; }
+  .ib-fonction { grid-column: 3; margin: 0; }
+  .ib-titre, .ib-fct {
+    position: absolute; left: 50%; top: 50%;
+    transform-origin: 50% 100%;
+    backface-visibility: hidden;
+    pointer-events: none;
   }
-  .ib-fonction > span {
+  /* la ligne a le corps et l'interligne du nom : la fonction se pose sur
+     la MÊME ligne de base que lui */
+  .ib-fct { margin: 0; font-family: 'Castillon', serif; font-size: var(--ib-fs); line-height: 1.05; white-space: nowrap; }
+  .ib-fct > span {
     display: inline-block;
     font-size: clamp(15px, 1.3vw, 21px); font-style: italic; font-weight: 200;
     letter-spacing: 0.02em; white-space: nowrap;
@@ -3122,16 +3129,10 @@ body.zone-foot .about-story {
     font-size: var(--ib-fs); line-height: 1.05; letter-spacing: -0.01em;
     white-space: pre; text-align: center; color: #111114;   /* un nom de deux mots : deux lignes */
   }
-  .ib-num { display: none; }
   /* dans le noir de l'ouverture, et pendant que la pile s'envole, les
      textes se retirent */
   .index-bureau.ib-sans-texte .ib-texte,
   .index-bureau.ib-sans-texte .ib-fonction { opacity: 0; transition-duration: 0.25s; }
-  /* le projet change : le nom et la fonction changent AUSSITÔT, et
-     s'allument en un éclair (aucune attente de fondu) */
-  @keyframes ib-allume { from { opacity: 0.15; } to { opacity: 1; } }
-  .index-bureau.ib-change .ib-titre,
-  .index-bureau.ib-change .ib-fonction > span { animation: ib-allume 0.22s ease-out both; }
   /* LA PILE : une perspective commune ; chaque dossier, posé au centre,
      pivote autour de son bord BAS (il est debout dans le tiroir). L'ordre
      d'empilement est celui du document : le plus proche passe devant. */
@@ -3395,11 +3396,9 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <!-- au bureau (essai du 27/10) : l'Index en galerie, construit par buildIndexBureau -->
   <div class="index-bureau">
     <div class="ib-scene">
-      <aside class="ib-texte">
-        <p class="ib-titre"><em class="ib-num"></em><span class="ib-nom"></span></p>
-      </aside>
+      <aside class="ib-texte"></aside>
       <div class="ib-images"></div>
-      <p class="ib-fonction"><span></span></p>
+      <div class="ib-fonction"></div>
     </div>
   </div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
@@ -5649,6 +5648,8 @@ const IB_ANGLE = 64 * Math.PI / 180;            // la pente d'un dossier couché
 function buildIndexBureau(cards) {
   if (!ibImages) return;
   ibImages.innerHTML = '';
+  const colTexte = ib.querySelector('.ib-texte'), colFonction = ib.querySelector('.ib-fonction');
+  colTexte.innerHTML = ''; colFonction.innerHTML = '';
   ibCartes = cards.map((card, i) => {
     /* l'image que l'accueil a DÉJÀ chargée pour la carte (la bonne taille,
        en cache) : elle paraît tout de suite ; sinon la vignette du projet */
@@ -5671,7 +5672,16 @@ function buildIndexBureau(cards) {
     b.addEventListener('pointerenter', () => prechargerProjet(card));
     b.addEventListener('click', () => ibClic(i));
     ibImages.appendChild(b);
-    return { card, b, src: deja || src };
+    /* son nom (deux mots : deux lignes) et sa fonction, chacun dans sa colonne */
+    const t = document.createElement('p');
+    t.className = 'ib-titre';
+    t.textContent = (card.dataset.title || '').trim().split(/\s+/).join('\n');
+    colTexte.appendChild(t);
+    const f = document.createElement('p');
+    f.className = 'ib-fct';
+    const fs = document.createElement('span'); fs.textContent = ibFonction(card); f.appendChild(fs);
+    colFonction.appendChild(f);
+    return { card, b, t, f, src: deja || src };
   });
   ibMesurer();
 }
@@ -5680,30 +5690,17 @@ function ibMesurer() {
   ibEtat.pas = Math.round(innerHeight * 0.55);
   ib.style.setProperty('--ib-piste', (innerHeight + ibEtat.pas * (ibCartes.length - 1)) + 'px');
   ibEtat.H = ibCartes[0].b.offsetHeight || innerHeight * 0.58;
+  ibEtat.fs = parseFloat(getComputedStyle(ibCartes[0].t).fontSize) || 50;
 }
 function ibFonction(card) {
   const titre = (card.dataset.title || '').trim().toLowerCase();
   const domaines = (card.dataset.cat || '').split('·').map(t => t.trim()).filter(Boolean);
   return domaines.find(t => t.toLowerCase() !== titre) || domaines[0] || '';
 }
-function ibPoser(k) {
-  const c = ibCartes[k]; if (!c || !ib) return;
-  ib.querySelector('.ib-num').textContent = String(k + 1).padStart(2, '0');
-  /* un nom de deux mots sur deux lignes : « Studio » / « Synapse » */
-  ib.querySelector('.ib-nom').textContent = (c.card.dataset.title || '').trim().split(/\s+/).join('\n');
-  const f = ib.querySelector('.ib-fonction > span');
-  if (f) f.textContent = ibFonction(c.card);
-}
 function ibChoisir(k) {
-  const premier = ibActif < 0;
   ibActif = k;
   ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
-  ibPoser(k);
   if (typeof cursor !== 'undefined' && cursor && ibSurvol) cursor.classList.toggle('sur-ib', ibSurvol.classList.contains('est-actif'));
-  ib.classList.remove('ib-change');
-  if (premier) return;
-  void ib.offsetWidth;                      // relance l'éclair
-  ib.classList.add('ib-change');
 }
 /* le défilement → la position visée : un PALIER sur chaque projet (12 %
    du pas de chaque côté), la bascule adoucie entre deux */
@@ -5759,6 +5756,15 @@ function ibDessiner() {
     const op = 1 - ibEtat.leve * (1 - voile);
     c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
+    /* les textes : le sortant se couche en arrière et s'efface, l'entrant
+       monte couché de dessous et se redresse — au même pas que les dossiers */
+    const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
+    const tT = 'translate(-50%, -50%) translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
+    [c.t, c.f].forEach(el => {
+      el.style.transform = tT;
+      el.style.opacity = opT.toFixed(3);
+      el.style.visibility = opT <= 0.001 ? 'hidden' : '';
+    });
     /* loin du regardé, un dossier est hors de l'écran : on ne le peint plus */
     c.b.style.opacity = op < 0.999 ? op.toFixed(3) : '';
     c.b.style.visibility = (ibEtat.leve >= 1 && Math.abs(d) > 6.5) || op <= 0.001 ? 'hidden' : '';
