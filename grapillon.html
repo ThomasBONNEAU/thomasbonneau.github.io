@@ -1434,6 +1434,7 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
   }
   /* le cadre : la barre du haut, noire, au-dessus de ce qui défile */
   .proj-panel.mise-fenetre .proj-panel-topbar { background: var(--fen-fond); height: var(--fen-y); box-sizing: border-box; }
+  .proj-panel.mise-fenetre .proj-panel-logo, .proj-panel.mise-fenetre .proj-panel-cross { color: var(--fen-encre); }
   /* collée au bas du volet (le volet est transformé : une position fixe
      y suivrait le contenu) ; posée après la galerie, elle tient tout du long */
   .proj-panel.mise-fenetre .fen-bas {
@@ -1462,19 +1463,35 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
     padding: 0 var(--fen-x);
     display: flex; flex-direction: column; gap: var(--fen-gap);
   }
+  /* (30/10) LES FORMATS DE SA RÉFÉRENCE : une image seule tient toute la
+     largeur de la fenêtre en 3:2 ; deux images côte à côte, presque
+     carrées, en 4:5. Les rangées passent sous le cadre en défilant. */
   .proj-panel.mise-fenetre .proj-panel-gallery-row {
-    height: var(--fen-h); margin: 0 !important; padding: 0 !important;
+    height: auto; margin: 0 !important; padding: 0 !important;
     display: flex; gap: var(--fen-gap);
   }
-  .proj-panel.mise-fenetre .proj-panel-gallery-row > * { flex: 1 1 0; min-width: 0; height: 100%; margin: 0; }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row > * { flex: 1 1 0; min-width: 0; margin: 0; aspect-ratio: 3 / 2; }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row.duo > * { aspect-ratio: 4 / 5; }
   .proj-panel.mise-fenetre .proj-panel-gallery-row img,
   .proj-panel.mise-fenetre .proj-panel-gallery-row video {
-    width: 100% !important; height: 100% !important;
-    aspect-ratio: auto !important; object-fit: cover; transform: none !important;
+    width: 100% !important; height: 100% !important; display: block;
+    object-fit: cover; transform: none !important;
   }
-  .proj-panel.mise-fenetre .proj-panel-gallery-row .video-wrap {
-    position: relative; height: 100%; padding: 0 !important; aspect-ratio: auto !important; overflow: hidden;
+  .proj-panel.mise-fenetre .proj-panel-gallery-row .video-wrap { position: relative; padding: 0 !important; overflow: hidden; }
+  .proj-panel.mise-fenetre .proj-panel-gallery-row .video-wrap video { position: absolute; inset: 0; aspect-ratio: auto !important; }
+  /* LA MEMBRANE (30/10, son idée) : un quart de cercle autour de TB, dans
+     l'angle ; un point glisse dessus et fait passer le fond du blanc au
+     noir (voir membraneFond) */
+  .fen-membrane { display: none; }
+  .proj-panel.mise-fenetre .fen-membrane {
+    display: block; position: absolute; left: 0; top: 0; z-index: 11;
+    width: 96px; height: 96px; overflow: visible; pointer-events: none;
+    color: var(--fen-encre);
   }
+  .fen-membrane .arc { fill: none; stroke: currentColor; stroke-width: 0.75; opacity: 0.45; }
+  .fen-membrane .prise { fill: none; stroke: transparent; stroke-width: 22; pointer-events: stroke; cursor: grab; }
+  .fen-membrane .point { fill: currentColor; pointer-events: auto; cursor: grab; transition: r 0.25s ease; }
+  .fen-membrane.tient .point, .fen-membrane .point:hover { r: 6.5; }
 }
 
 /* (30/10) LE PIED NOIR N'EST LÀ QU'EN FIN DE PROJET : posé sous la galerie,
@@ -3494,6 +3511,12 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <div class="proj-panel" id="projPanel">
   <div class="proj-panel-topbar">
     <button type="button" class="proj-panel-logo" id="projPanelLogo" aria-label="Accueil"><svg class="nav-logo-svg" viewBox="0 0 89.33 90.58" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M85.35,54.17c-2.4-3.37-6.05-6.03-10.95-7.97-4.63-1.83-10.35-2.81-17.1-2.99,5.46-.65,10.16-1.91,13.93-3.91,4.05-2.15,7.07-4.81,9.05-7.97,1.98-3.17,2.97-6.56,2.97-10.19,0-6.84-2.4-12-7.21-15.51C71.23,2.13,63.68.38,53.39.38c-1.77,0-5.82.13-12.15.38-3.04.17-5.15.25-6.33.25h0s-15.26,0-15.26,0c-4.08,0-7.44-.02-10.07-.06-2.63-.04-4.93-.11-6.88-.19v.39c0-.42-.39,3.74-1.15,12.48-.17,1.45-.34,3.06-.51,4.84-.17,1.78-.39,3.74-.64,5.86l.25.13c1.87-7.39,3.59-12.46,5.16-15.23,1.57-2.76,4.12-4.57,7.65-5.41,3.52-.85,9.7-1.28,18.54-1.28h1.53v68.81c0,5.18-.36,8.88-1.08,11.08-.72,2.21-2.13,3.8-4.21,4.78s-5.8,1.89-11.15,2.74v.25h32.68c6.1,0,11.52-.39,16.08-1.16,7.81-1.31,13.61-3.84,17.41-7.6,3.8-3.75,5.7-8.92,5.7-15.51,0-4.47-1.2-8.4-3.61-11.77ZM67.94,5.18c7.01,3.12,10.51,8.74,10.51,16.84,0,9.28-4.09,15.25-12.28,17.91-7.61,2.47-17.01,3.06-28.05,1.92V2.78c13.31-1.22,23.35-.48,29.82,2.4ZM74.84,83.48c-7.4,4.38-14.46,5.21-21.33,5.63-.65.04-2.14.11-4.05-.12-3.41-.41-5.49-1.48-6.06-1.78-.84-.45-1.7-.92-2.55-1.85-.73-.81-1.29-1.79-1.66-2.93-.72-2.21-1.08-5.9-1.08-11.08v-26.88c12.02-1.3,22.6-.65,31.59,2.11,9.62,2.95,14.43,9.62,14.43,20,0,7.6-3.1,13.23-9.31,16.9Z"/></svg></button>
+    <!-- (essai du 30/10, Arch'ocktail) la membrane : le point glisse du blanc au noir -->
+    <svg class="fen-membrane" viewBox="0 0 96 96" aria-label="Fond, du blanc au noir" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+      <path class="arc" d="M78 0 A78 78 0 0 1 0 78"/>
+      <path class="prise" d="M78 0 A78 78 0 0 1 0 78"/>
+      <circle class="point" cx="77.04" cy="12.2" r="5"/>
+    </svg>
     <button type="button" class="proj-panel-cross" id="projPanelClose" aria-label="Fermer">
       <span class="ppg ppg-cross" aria-hidden="true">&#215;</span>
     </button>
@@ -5486,6 +5509,54 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(() =>
   addEventListener('resize', relire);
   /* un projet qui s'ouvre ou qui change : la hauteur change, on relit */
   if ('ResizeObserver' in window) new ResizeObserver(relire).observe(document.getElementById('projPanelGallery') || volet);
+})();
+/* (essai du 30/10, Arch'ocktail) LA MEMBRANE : un quart de cercle dans
+   l'angle, autour de TB ; on fait glisser son point d'un bout à l'autre et
+   le fond de la fenêtre passe du blanc au noir (l'encre s'inverse à mi-
+   course). Le réglage est gardé dans ce navigateur. */
+(function membraneFond() {
+  const svg = document.querySelector('.fen-membrane');
+  const volet = document.getElementById('projPanel');
+  if (!svg || !volet) return;
+  const point = svg.querySelector('.point');
+  const R = 78;
+  let t = 0, tient = false;
+  try { t = Math.min(1, Math.max(0, parseFloat(localStorage.getItem('fen-fond')) || 0)); } catch (e) {}
+  const poser = v => {
+    t = Math.min(1, Math.max(0, v));
+    /* le point reste entier : sa course va de 9° à 81° de l'arc */
+    const a = (9 + t * 72) * Math.PI / 180;
+    point.setAttribute('cx', (R * Math.cos(a)).toFixed(2));
+    point.setAttribute('cy', (R * Math.sin(a)).toFixed(2));
+    const g = Math.round(255 * (1 - t));
+    volet.style.setProperty('--fen-fond', 'rgb(' + g + ',' + g + ',' + g + ')');
+    volet.style.setProperty('--fen-encre', t > 0.5 ? '#f4f4f2' : '#101014');
+    svg.setAttribute('aria-valuenow', String(Math.round(t * 100)));
+  };
+  /* l'angle du pointeur depuis le coin : 0 en haut (blanc), 1 à gauche (noir) */
+  const depuis = e => {
+    const r = svg.getBoundingClientRect(), k = r.width / 96;
+    const x = (e.clientX - r.left) / k, y = (e.clientY - r.top) / k;
+    return (Math.atan2(Math.max(0, y), Math.max(0.001, x)) * 180 / Math.PI - 9) / 72;
+  };
+  const lache = () => {
+    if (!tient) return;
+    tient = false; svg.classList.remove('tient');
+    try { localStorage.setItem('fen-fond', String(t)); } catch (e) {}
+  };
+  svg.addEventListener('pointerdown', e => {
+    tient = true; svg.classList.add('tient');
+    try { e.target.setPointerCapture(e.pointerId); } catch (x) {}
+    poser(depuis(e)); e.preventDefault(); e.stopPropagation();
+  });
+  svg.addEventListener('pointermove', e => { if (tient) { poser(depuis(e)); e.preventDefault(); } });
+  svg.addEventListener('pointerup', lache);
+  svg.addEventListener('pointercancel', lache);
+  svg.addEventListener('keydown', e => {
+    const pas = { ArrowRight: 0.05, ArrowDown: 0.05, ArrowLeft: -0.05, ArrowUp: -0.05 }[e.key];
+    if (pas) { poser(t + pas); e.preventDefault(); try { localStorage.setItem('fen-fond', String(t)); } catch (x) {} }
+  });
+  poser(t);
 })();
 function closePanel() {
   panel.classList.remove('open');
