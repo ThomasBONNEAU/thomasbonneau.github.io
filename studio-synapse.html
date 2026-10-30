@@ -3918,7 +3918,7 @@ function onMotionPointer(fn) { _pointerConsumers.push(fn); return fn; }
 const inertie = (function inertieDuDefilement() {
   const fin = matchMedia('(hover: hover) and (pointer: fine)');
   if (!fin.matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-  const TAU = 260;                                   // ms : la constante de décélération (30/10 : « plus d'inertie », 105 → 175 → 260)
+  const TAU = 380;                                   // ms : la constante de décélération (30/10 : « plus d'inertie », 105 → 175 → 260 → 380)
   const pistes = new Map();                          // un élément défilant → son état
   const racine = document.scrollingElement || document.documentElement;
   function piste(el) {
