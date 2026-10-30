@@ -4178,44 +4178,65 @@ document.addEventListener('mouseover', e => {
    la boucle du curseur — aucun rAF ni listener supplémentaire.
    En file:// le canvas est « tainté » : on retombe alors sur la zone. */
 const lumMaps = new WeakMap();
-function lumGrid(img) {
-  if (lumMaps.has(img)) return lumMaps.get(img);
-  let g = null;
+/* (30/10) LA LECTURE NE SE FAIT JAMAIS PENDANT QU'ON DÉFILE. Relire les
+   pixels d'une grande photo (la dessiner en 32×20 puis la relire) bloquait
+   jusqu'à 78 ms, au moment même où un coin du cadre arrivait dessus : une
+   image sautait. Désormais, la première fois, on répond avec la grille
+   16×10 INSCRITE dans le HTML (ou rien), et la mesure fine se fait quand la
+   page est au repos — elle remplace alors la grille grossière. */
+function grilleInscrite(img) {
+  const holder = img.closest && img.closest('[data-lum]');
+  const raw = holder && holder.getAttribute('data-lum');
+  /* 2 chiffres par case : 320 signes = 16 × 10, 1280 = 32 × 20. La grille
+     fine est réservée aux images à césure franche, que la grossière lit mal. */
+  if (!raw || (raw.length !== 320 && raw.length !== 1280)) return null;
+  const gw = raw.length === 1280 ? 32 : 16, gh = gw * 10 / 16, n = gw * gh;
+  const f = new Float32Array(n);
+  for (let i = 0; i < n; i++) f[i] = parseInt(raw.substr(i * 2, 2), 10) / 99;
+  return { w: gw, h: gh, d: f };
+}
+function grilleMesuree(img) {
   try {
     const nw = img.naturalWidth, nh = img.naturalHeight;
     const r = img.getBoundingClientRect();
-    if (nw && nh && r.width > 0 && r.height > 0) {
-      const contain = getComputedStyle(img).objectFit === 'contain';
-      const sc = contain ? Math.min(r.width / nw, r.height / nh) : Math.max(r.width / nw, r.height / nh);
-      const sw = Math.min(nw, r.width / sc), sh = Math.min(nh, r.height / sc);
-      const c = document.createElement('canvas'); c.width = 32; c.height = 20;
-      const x = c.getContext('2d', { willReadFrequently: true });
-      x.drawImage(img, (nw - sw) / 2, (nh - sh) / 2, sw, sh, 0, 0, 32, 20);
-      const d = x.getImageData(0, 0, 32, 20).data;
-      const f = new Float32Array(640);
-      for (let i = 0; i < 640; i++) f[i] = (0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]) / 255;
-      g = { w: 32, h: 20, d: f };
-    }
-  } catch (e) { g = null; }
-  /* Page ouverte en file:// : Chrome refuse de relire les pixels d'une image
-     locale (canvas « tainté ») et getImageData lève. On se rabat alors sur la
-     grille 16×10 PRÉ-CALCULÉE, inscrite dans le HTML à côté de chaque projet :
-     la lecture reste juste, simplement moins fine. Servie en http, c'est la
-     grille 32×20 mesurée en direct qui sert. */
-  if (!g) {
-    const holder = img.closest && img.closest('[data-lum]');
-    const raw = holder && holder.getAttribute('data-lum');
-    /* 2 chiffres par case : 320 signes = 16 × 10, 1280 = 32 × 20. La grille
-       fine est réservée aux images à césure franche, que la grossière lit mal. */
-    if (raw && (raw.length === 320 || raw.length === 1280)) {
-      const gw = raw.length === 1280 ? 32 : 16, gh = gw * 10 / 16, n = gw * gh;
-      const f = new Float32Array(n);
-      for (let i = 0; i < n; i++) f[i] = parseInt(raw.substr(i * 2, 2), 10) / 99;
-      g = { w: gw, h: gh, d: f };
-    }
-  }
-  lumMaps.set(img, g);
-  return g;
+    if (!(nw && nh && r.width > 0 && r.height > 0)) return null;
+    const contain = getComputedStyle(img).objectFit === 'contain';
+    const sc = contain ? Math.min(r.width / nw, r.height / nh) : Math.max(r.width / nw, r.height / nh);
+    const sw = Math.min(nw, r.width / sc), sh = Math.min(nh, r.height / sc);
+    const c = document.createElement('canvas'); c.width = 32; c.height = 20;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.drawImage(img, (nw - sw) / 2, (nh - sh) / 2, sw, sh, 0, 0, 32, 20);
+    const d = x.getImageData(0, 0, 32, 20).data;
+    const f = new Float32Array(640);
+    for (let i = 0; i < 640; i++) f[i] = (0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]) / 255;
+    return { w: 32, h: 20, d: f };
+  } catch (e) { return null; }     // file:// : Chrome refuse de relire une image locale
+}
+let dernierDefilement = 0;
+addEventListener('scroll', () => { dernierDefilement = performance.now(); }, { passive: true, capture: true });
+addEventListener('wheel', () => { dernierDefilement = performance.now(); }, { passive: true, capture: true });
+const aMesurer = new Set();
+let mesureEnCours = 0;
+function mesurerAuRepos() {
+  mesureEnCours = 0;
+  if (!aMesurer.size) return;
+  /* on attend que la page soit immobile depuis 350 ms ; une image à la fois */
+  if (performance.now() - dernierDefilement < 350) { mesureEnCours = setTimeout(mesurerAuRepos, 200); return; }
+  const img = aMesurer.values().next().value;
+  aMesurer.delete(img);
+  const g = grilleMesuree(img);
+  if (g) lumMaps.set(img, g);
+  if (aMesurer.size) mesureEnCours = setTimeout(mesurerAuRepos, 60);
+}
+function lumGrid(img) {
+  if (lumMaps.has(img)) return lumMaps.get(img);
+  const brute = grilleInscrite(img);
+  lumMaps.set(img, brute);                 // en attendant la mesure fine
+  if (img.complete && img.naturalWidth) {
+    aMesurer.add(img);
+    if (!mesureEnCours) mesureEnCours = setTimeout(mesurerAuRepos, 200);
+  } else img.addEventListener('load', () => { lumMaps.delete(img); }, { once: true });
+  return brute;
 }
 let ringOnLight = true;
 function bgIsLight(img, x, y) {
