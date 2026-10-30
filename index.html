@@ -3053,19 +3053,9 @@ body.zone-foot .about-story {
     transition-property: color, background-color;
   }
   .about-right { height: calc(var(--ab-photo) + var(--ab-course) + var(--ab-recouvre) + var(--ab-repos)); }
-  /* LE DÉVOILEMENT (voir zoneWash) : la carte Studio Synapse se lève sur
-     « Qui je suis ». Le portrait est déjà là, net, immobile ; quand elle a
-     levé un tiers de l'écran, le repère puis le nom et le texte S'ÉLÈVENT
-     en place — aucun flou (sa demande du 29/10). Une seule transition,
-     déclenchée une fois par passage : rien n'est recalculé au défilement. */
-  .about-story .about-chapter:first-child > * {
-    transition: opacity 0.9s ease, translate 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .about-story .about-chapter:first-child > .about-chapter__corps { transition-delay: 0.12s; }
-  .about-story:not(.ab-devoile) .about-chapter:first-child > * {
-    opacity: 0; translate: 0 40px;
-    transition-duration: 0.4s; transition-delay: 0s;
-  }
+  /* (30/10, sa demande) PLUS D'EFFET DE TEXTE : quand la carte Studio
+     Synapse se lève sur « Qui je suis », le repère, le nom et le texte sont
+     déjà là, posés, comme le portrait — rien ne s'élève ni ne s'allume. */
 }
 /* ══ LES PLANS GLISSENT NATIVEMENT (29/10) ════════════════════════════════
    Un script déplaçait chaque plan, image par image, d'après le défilement.
