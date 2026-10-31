@@ -990,27 +990,6 @@ body.refraction-on .hero { position: sticky; top: 0; }
 /* (30/10) Malbec qui attend sous l'écran, puis monte (voir malbecPointe) */
 .stack-card.carte-pointe { transition: translate 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
 .stack-card.carte-pointe.attend { translate: 0 var(--malbec-pointe, 0px); transition-duration: 0.5s; }
-/* (31/10, d'après SA vidéo) LE MOUVEMENT DANS LES IMAGES : quand un projet
-   arrive en défilant, sa photo monte moins vite que sa carte — elle glisse
-   dans son cadre, et se pose à sa place exacte quand la carte est posée
-   (le cadrage final ne change pas, le sol des podiums n'est jamais coupé :
-   le bas encore découvert est sous l'écran). C'est le navigateur qui le
-   calcule, au rythme du défilement (animation-timeline) : rien n'est écrit
-   image par image, Safari ne peut pas prendre de retard. Pas sur
-   Arch'ocktail, que la vapeur du hero dépose au pixel. À la souris. */
-@supports (animation-timeline: view()) {
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    /* (la chronologie est celle de la CARTE, nommée : le cadre de la photo,
-       qui coupe ce qui dépasse, serait sinon pris pour le défilement) */
-    .projects-stack .stack-card:not(:first-child) { view-timeline: --carte block; }
-    .projects-stack .stack-card:not(:first-child) .proj-photo {
-      animation: photo-glisse linear both;
-      animation-timeline: --carte;
-      animation-range: entry 0% entry 100%;
-    }
-  }
-}
-@keyframes photo-glisse { from { transform: translateY(-18%); } to { transform: none; } }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
    sa photo très large y était rognée jusqu'à un énorme zoom) ; le <picture>
    ne compte pas dans la mise en page, l'image reste l'enfant direct du cadre */
@@ -3977,9 +3956,13 @@ const inertie = (function inertieDuDefilement() {
     return p;
   }
   function max(el) { return Math.max(0, el.scrollHeight - el.clientHeight); }
+  /* (31/10) ceux qui suivent la page dans la MÊME image que son défilement
+     (les photos qui glissent) : prévenus juste après l'écriture — dans
+     Safari, aucun décalage d'une image */
+  const apres = [];
   function ecrire(p, y) {
     p.ecrit = Math.round(y * 2) / 2;
-    if (p.el === racine) window.scrollTo({ top: y, behavior: 'instant' });
+    if (p.el === racine) { window.scrollTo({ top: y, behavior: 'instant' }); apres.forEach(f => f()); }
     else p.el.scrollTo({ top: y, behavior: 'instant' });
   }
   function boucle(p, ts) {
@@ -4023,7 +4006,7 @@ const inertie = (function inertieDuDefilement() {
     e.preventDefault();
     if (!p.raf) p.raf = requestAnimationFrame(t => boucle(p, t));
   }, { passive: false });
-  return { actif: true };
+  return { actif: true, apres: f => apres.push(f) };
 })();
 
 // Cursor = flèche Castillon simple (lit motionState). Pas d'after-image.
@@ -5997,8 +5980,9 @@ function buildWorksPanel() {
    Aux moments de passage (ouvrir, revenir, suivant, précédent, TB), un
    MOUVEMENT très doux : le vent qui gonfle et retombe, sa lumière qui
    balaie, d'un côté à l'autre — on sent quelque chose passer, sans choc
-   (31/10 : le souffle d'avant « faisait glitch »). Dans l'Index, des
-   dossiers qui s'empilent : un papier qui glisse, feutré. PLUS AUCUNE
+   (31/10 : le souffle d'avant « faisait glitch »). Dans l'Index, chaque
+   dossier qui se pose déplace un peu d'air : grave, feutré, on le sent
+   plus qu'on ne l'entend (le papier faisait « bas de gamme »). PLUS AUCUNE
    NOTE DE PIANO (31/10 : « je veux pas de touches de piano »).
    AUCUN mot à l'écran : aucun navigateur ne laisse une page jouer avant le
    premier geste du visiteur, le son naît donc à son premier clic (ou
@@ -6032,7 +6016,7 @@ var son = (function sonDuSite() {
      de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
      plus fort de la descente, notes ≈ −12 dB en crête) */
   const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.12, grain: 0.3,
-                mouvement: 0.3, papier: 0.2 };
+                mouvement: 0.3, pose: 0.34 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false;
@@ -6279,37 +6263,37 @@ var son = (function sonDuSite() {
     s.start(t, 0.25 + Math.random() * (b.duration - 2.5), D + 0.9);
     s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
   }
-  /* UN DOSSIER QUI SE POSE : un instant du papier qui glisse (une tranche
-     prise au hasard dans l'enregistrement), feutré, posé de côté ou d'autre */
-  let dernierPapier = 0;
-  function papier(force, retard) {
-    const b = tampons.papier;
+  /* UN DOSSIER QUI SE POSE : un peu d'air déplacé — le vent, ralenti,
+     gardé dans le grave (sous 400 Hz), qui gonfle à peine et retombe */
+  let dernierePose = 0;
+  function pose() {
+    const b = tampons.vent;
     if (!b || b === 'element') return;
-    const t = ctx.currentTime + (retard || 0);
-    if (!retard && t - dernierPapier < 0.12) return;
-    dernierPapier = t;
-    const D = 0.36 + Math.random() * 0.2;
-    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.9 + Math.random() * 0.2;
+    const t = ctx.currentTime;
+    if (t - dernierePose < 0.14) return;
+    dernierePose = t;
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.7;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 45;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.7;
+    lp.frequency.setValueAtTime(180, t);
+    lp.frequency.exponentialRampToValueAtTime(420, t + 0.16);
+    lp.frequency.exponentialRampToValueAtTime(200, t + 0.6);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(VOL.papier * force, t + 0.04);
-    g.gain.linearRampToValueAtTime(0, t + D);
-    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    s.connect(g);
-    if (pan) { pan.pan.value = Math.random() - 0.5; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
-    s.start(t, 0.45 + Math.random() * 1.9, D + 0.05);
-    s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
+    g.gain.linearRampToValueAtTime(VOL.pose, t + 0.08);
+    g.gain.setTargetAtTime(0, t + 0.14, 0.15);
+    s.connect(hp); hp.connect(lp); lp.connect(g); g.connect(maitre);
+    s.start(t, 0.25 + Math.random() * (b.duration - 2), 1);
+    s.onended = () => g.disconnect();
   }
-  /* un passage ; jamais deux en 0,12 s. « pile » : un dossier qui se pose ;
-     « index » : la pile qui paraît — trois dossiers, l'un sur l'autre */
+  /* un passage ; jamais deux en 0,12 s. « pile » : un dossier qui se pose */
   function jouer(nom) {
     if (nom === 'ouvre' || nom === 'ferme') projet(nom === 'ouvre');
     if (!actif || !ctx || ctx.state !== 'running') return;
-    if (nom === 'pile') { papier(0.75); return; }
+    if (nom === 'pile') { pose(); return; }
     const t = ctx.currentTime;
     if (t - dernier < 0.12) return;
     dernier = t;
-    if (nom === 'index') { [0.55, 0.75, 1].forEach((f, k) => papier(f, 0.12 + k * 0.15)); }
     const m = PASSAGES[nom];
     if (m) mouvement(m);
   }
@@ -6333,7 +6317,7 @@ var son = (function sonDuSite() {
       gMusique = ctx.createGain(); gMusique.gain.value = 0;
       if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      Promise.all(['vent', 'vapeur', 'papier'].map(charger)).then(lancerHero);
+      Promise.all(['vent', 'vapeur'].map(charger)).then(lancerHero);
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
@@ -7149,6 +7133,49 @@ function stackFrame(ts) {
   if (moving || stackDirty) { stackDirty = false; scheduleStack(); }
   else stackPrec = 0;
 }
+
+/* (31/10, d'après SA vidéo) LE MOUVEMENT DANS LES IMAGES — la photo d'un
+   projet glisse dans sa carte, toujours vers le haut, moins vite que le
+   reste : en ENTRANT, elle monte moins vite que sa carte (18 %) et se pose
+   à sa place exacte quand la carte se pose ; RECOUVERTE par la suivante,
+   elle continue de monter, doucement (le quart de ce que la suivante
+   gagne). Ce qui se découvre est toujours sous l'écran ou sous la carte
+   suivante : le cadrage posé ne change pas, le sol des podiums n'est
+   jamais coupé. Arch'ocktail n'entre pas (la vapeur le dépose au pixel) :
+   il ne fait que monter sous Malbec. Calculé dans la même image que le
+   défilement — l'inertie l'appelle juste après avoir écrit la position :
+   dans Safari, aucun retard. À la souris seulement. */
+(function photosQuiGlissent() {
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches || motionState.reducedMotion) return;
+  const ENTREE = 0.18, SORTIE = 0.25;
+  const photos = stackCards.map(c => c.querySelector('.proj-photo'));
+  let dernierY = null;
+  function poser() {
+    const y = window.scrollY;
+    if (y === dernierY || document.body.style.overflow === 'hidden') return;
+    dernierY = y;
+    const vh = innerHeight;
+    const rects = stackCards.map(c => c.getBoundingClientRect());
+    rects.forEach((r, i) => {
+      const ph = photos[i];
+      if (!ph) return;
+      let ty = 0;
+      if (r.bottom > 0 && r.top < vh) {
+        if (i > 0 && r.top > 1) ty = -ENTREE * r.height * Math.min(1, r.top / vh);
+        const n = rects[i + 1];
+        if (n && n.top < vh && r.top <= 1) ty = -SORTIE * Math.min(vh, vh - n.top);
+      }
+      if (ph._glisse === ty) return;
+      ph._glisse = ty;
+      ph.style.transform = ty ? 'translate3d(0,' + ty.toFixed(1) + 'px,0)' : '';
+    });
+  }
+  if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
+  onMotionScroll(poser);                                  // les autres défilements (barre, clavier, sauts)
+  addEventListener('resize', () => { dernierY = null; poser(); }, { passive: true });
+  addEventListener('load', () => { dernierY = null; poser(); });
+  poser();
+})();
 
 // la boucle se (re)lance au scroll, au resize et une fois au chargement
 onMotionScroll(() => { stackDirty = true; scheduleStack(); });   // scroll CENTRAL
