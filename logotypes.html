@@ -5969,7 +5969,7 @@ var son = (function sonDuSite() {
      l'autre, puis redescend */
   const PAS = ['note-G4', 'note-As4', 'note-D5', 'note-F5', 'note-G5', 'note-F5', 'note-D5', 'note-As4'];
   /* (30/10) la musique reste DESSOUS : on doit entendre les notes des passages */
-  const VOL = { musique: 0.11, projet: 0.6, souffle: 0.3, note: 0.26, air: 0.24, pas: 0.12 };
+  const VOL = { musique: 0.11, projet: 0.6, souffle: 0.3, note: 0.26, air: 0.24, pas: 0.15, vapeur: 0.34, accord: 0.16 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false, pret = null;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false;
@@ -6048,7 +6048,13 @@ var son = (function sonDuSite() {
     if (pan) { f.connect(pan); pan.connect(g); } else f.connect(g);
     g.connect(maitre);
     s.start(0, 0.25);
-    souffle = { s, f, pan, g };
+    /* (30/10, « un peu plus de synergie ») la même matière, sur une seconde
+       voie : la vapeur du défilement — elle enfle pendant que la vapeur
+       révèle Arch'ocktail, et s'éteint quand la photo est posée */
+    const fv = ctx.createBiquadFilter(); fv.type = 'lowpass'; fv.frequency.value = 700; fv.Q.value = 0.4;
+    const gv = ctx.createGain(); gv.gain.value = 0;
+    s.connect(fv); fv.connect(gv); gv.connect(maitre);
+    souffle = { s, f, pan, g, fv, gv };
   }
   /* le souffle n'existe qu'au hero, et seulement quand la souris BOUGE :
      la vitesse l'ouvre (plus fort, plus clair), l'arrêt le laisse retomber */
@@ -6177,7 +6183,51 @@ var son = (function sonDuSite() {
   };
   if (!coupe) GESTES.forEach(t => addEventListener(t, premierGeste, true));
 
-  return { jouer, actif: () => actif };
+  /* la vapeur du hero (p : la progression de la transition, 0 → 1) */
+  let pVapeur = -1, vapeurCalme = 0;
+  function vapeur(p) {
+    if (!actif || !souffle || Math.abs(p - pVapeur) < 0.003) return;
+    pVapeur = p;
+    const k = p <= 0 || p >= 0.92 ? 0 : Math.sin(Math.PI * p / 0.92);
+    const c = ctx.currentTime;
+    souffle.gv.gain.setTargetAtTime(VOL.vapeur * k * k, c, 0.08);
+    souffle.fv.frequency.setTargetAtTime(700 + 2400 * k, c, 0.1);
+    /* page arrêtée au milieu de la transition : le souffle retombe — il ne
+       vit que du mouvement */
+    clearTimeout(vapeurCalme);
+    vapeurCalme = setTimeout(() => { if (souffle) souffle.gv.gain.setTargetAtTime(0, ctx.currentTime, 0.5); }, 350);
+  }
+  /* la signature du pied : un accord de sol mineur, égrené */
+  function accord() {
+    if (!actif || !ctx || ctx.state !== 'running') return;
+    ['note-G4', 'note-D5', 'note-G5'].forEach((f, k) => {
+      const b = tampons[f];
+      if (!b || b === 'element') return;
+      const t = ctx.currentTime + k * 0.07;
+      const s = ctx.createBufferSource(); s.buffer = b;
+      const g = ctx.createGain(); g.gain.value = VOL.accord;
+      s.connect(g); g.connect(maitre); s.start(t);
+      s.onended = () => g.disconnect();
+    });
+  }
+
+  /* LES CHAPITRES DE L'À PROPOS : chacun a sa note quand il arrive (il
+     passe le milieu de l'écran) — l'arpège redescend, vers la personne */
+  if ('IntersectionObserver' in window) {
+    const chapitres = [...document.querySelectorAll('.about-story [data-chapter]')];
+    const vus = new Set();
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      const k = chapitres.indexOf(e.target);
+      /* (« Qui je suis », le premier, est déjà là sous la dernière carte :
+         sa note sonne quand le crème arrive — voir zoneWash) */
+      if (k < 1) return;
+      if (e.isIntersecting && !vus.has(k)) { vus.add(k); jouer('pas', 4 + k); }
+      else if (!e.isIntersecting && e.boundingClientRect.top > 0) vus.delete(k);   // repassé sous l'écran : il pourra resonner
+    }), { rootMargin: '0px 0px -50% 0px' });
+    chapitres.forEach(c => io.observe(c));
+  }
+
+  return { jouer, vapeur, accord, actif: () => actif };
 })();
 
 function openWorksPanel() {
@@ -7314,6 +7364,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* la zone change : le temps du fondu, le cadre et la flèche prennent la
        même durée que le fond (--zone-duree) au lieu de leur bascule rapide */
     if (bg !== zone) {
+      if (bg === OCRE && son) son.jouer('pas', 4);   // (30/10) « Qui je suis » se découvre : sa note
       zone = bg;
       document.body.classList.add('zone-fondu');
       clearTimeout(fondu);
@@ -7765,6 +7816,7 @@ function figerLettres(nom) {
         nom.classList.remove('nom-entre');
         void nom.offsetWidth;                     // relance l'animation
         nom.classList.add('nom-entre');
+        if (son && son.accord) son.accord();      // (30/10) un accord avec la signature
         nom.classList.remove('nom-attente');
       } else if (!en.isIntersecting && dedans) {
         dedans = false;
@@ -8874,6 +8926,7 @@ void main() {
     updateTargetProgress();
     const chasing = advanceProgress(dt60);
     const p = smoothProgress;                 // c'est la progression LISSÉE qui est rendue
+    if (son && son.vapeur) son.vapeur(p);     // (30/10) le souffle suit la vapeur
     const amorti = Math.pow(0.88, dt60);
     velTarget *= amorti;
     smoothedVelocity += (velTarget - smoothedVelocity) * (1 - amorti);
