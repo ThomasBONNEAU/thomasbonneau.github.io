@@ -990,6 +990,27 @@ body.refraction-on .hero { position: sticky; top: 0; }
 /* (30/10) Malbec qui attend sous l'écran, puis monte (voir malbecPointe) */
 .stack-card.carte-pointe { transition: translate 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
 .stack-card.carte-pointe.attend { translate: 0 var(--malbec-pointe, 0px); transition-duration: 0.5s; }
+/* (31/10, d'après SA vidéo) LE MOUVEMENT DANS LES IMAGES : quand un projet
+   arrive en défilant, sa photo monte moins vite que sa carte — elle glisse
+   dans son cadre, et se pose à sa place exacte quand la carte est posée
+   (le cadrage final ne change pas, le sol des podiums n'est jamais coupé :
+   le bas encore découvert est sous l'écran). C'est le navigateur qui le
+   calcule, au rythme du défilement (animation-timeline) : rien n'est écrit
+   image par image, Safari ne peut pas prendre de retard. Pas sur
+   Arch'ocktail, que la vapeur du hero dépose au pixel. À la souris. */
+@supports (animation-timeline: view()) {
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    /* (la chronologie est celle de la CARTE, nommée : le cadre de la photo,
+       qui coupe ce qui dépasse, serait sinon pris pour le défilement) */
+    .projects-stack .stack-card:not(:first-child) { view-timeline: --carte block; }
+    .projects-stack .stack-card:not(:first-child) .proj-photo {
+      animation: photo-glisse linear both;
+      animation-timeline: --carte;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+@keyframes photo-glisse { from { transform: translateY(-18%); } to { transform: none; } }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
    sa photo très large y était rognée jusqu'à un énorme zoom) ; le <picture>
    ne compte pas dans la mise en page, l'image reste l'enfant direct du cadre */
@@ -3263,10 +3284,10 @@ body.zone-foot .about-story {
   }
   /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
   .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
-  /* (30/10) le dossier regardé s'élargit, très légèrement (6 %), et vite */
+  /* (31/10) TOUS les dossiers un rien plus larges (6 %), tout le temps — et
+     non plus seulement le regardé, qui passait du carré au rectangle */
   @media (hover: hover) and (pointer: fine) {
-    .ib-carte { transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), left 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
-    .ib-carte.est-actif { width: 106%; left: -3%; }
+    .index-bureau { --ib-l: calc(var(--ib-h) * 4 / 3 * 1.06); }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -5973,9 +5994,12 @@ function buildWorksPanel() {
    au hero (31/10, sa demande) : la musique, un jazz au saxophone, TOUJOURS
    BAS — compressée, adoucie dans l'aigu : même le volume poussé, elle
    reste un fond. Elle se retire quand on remonte au hero.
-   Aux moments de passage (ouvrir, revenir, suivant, précédent, l'Index,
-   TB), un simple mouvement : un souffle d'air, chacun à sa hauteur. PLUS
-   AUCUNE NOTE DE PIANO (31/10 : « je veux pas de touches de piano »).
+   Aux moments de passage (ouvrir, revenir, suivant, précédent, TB), un
+   MOUVEMENT très doux : le vent qui gonfle et retombe, sa lumière qui
+   balaie, d'un côté à l'autre — on sent quelque chose passer, sans choc
+   (31/10 : le souffle d'avant « faisait glitch »). Dans l'Index, des
+   dossiers qui s'empilent : un papier qui glisse, feutré. PLUS AUCUNE
+   NOTE DE PIANO (31/10 : « je veux pas de touches de piano »).
    AUCUN mot à l'écran : aucun navigateur ne laisse une page jouer avant le
    premier geste du visiteur, le son naît donc à son premier clic (ou
    touche). La touche M le coupe et le rend. Un seul contexte, un seul gain
@@ -5993,18 +6017,26 @@ var son = (function sonDuSite() {
      contexte audio (le navigateur les rendrait muets) : la musique y règle
      alors le volume de l'élément lui-même */
   const LOCAL = location.protocol === 'file:';
-  /* les passages : le même souffle d'air, à des hauteurs différentes */
-  const SONS = { ouvre: 0.78, ferme: 1.16, suivant: 1.06, precedent: 0.9, qui: 0.84, index: 1 };
+  /* les passages : la lumière du vent va de f0 à f1, et le son d'un côté à
+     l'autre (de → a) */
+  const PASSAGES = {
+    ouvre:     { f0: 320,  f1: 1500, de: -0.35, a: 0.35,  force: 1 },
+    ferme:     { f0: 1400, f1: 360,  de: 0.35,  a: -0.35, force: 0.9 },
+    suivant:   { f0: 420,  f1: 1400, de: -0.55, a: 0.55,  force: 0.85 },
+    precedent: { f0: 1400, f1: 420,  de: 0.55,  a: -0.55, force: 0.85 },
+    qui:       { f0: 380,  f1: 1200, de: 0,     a: 0,     force: 0.8 },
+    index:     { f0: 300,  f1: 1000, de: -0.2,  a: 0.2,   force: 0.7 }
+  };
   /* la musique (fichier ramené à −18 dB) reste très en dessous des notes */
   /* (31/10, « infiniment un petit peu plus fort » : +3 dB partout ; niveaux
      de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
      plus fort de la descente, notes ≈ −12 dB en crête) */
   const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.12, grain: 0.3,
-                air: 0.25 };          // (31/10) le souffle des passages, un rien moins fort
+                mouvement: 0.3, papier: 0.2 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false;
-  const tampons = {}, voix = [];
+  const tampons = {};
   let dernier = 0;
   let vent = null, brume = null;
 
@@ -6224,31 +6256,62 @@ var son = (function sonDuSite() {
     }, 140);
   }, { passive: true });
 
-  /* un passage : le souffle d'air à sa hauteur ; jamais deux en 0,12 s,
-     jamais plus de trois à la fois */
+  /* UN MOUVEMENT : un souffle du vent (0,95 s) qui gonfle doucement et
+     retombe, sa lumière qui balaie, d'un côté à l'autre */
+  function mouvement(m) {
+    const b = tampons.vent;
+    if (!b || b === 'element') return;
+    const t = ctx.currentTime, D = 0.95;
+    const s = ctx.createBufferSource(); s.buffer = b;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 140;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.6;
+    lp.frequency.setValueAtTime(m.f0, t);
+    lp.frequency.exponentialRampToValueAtTime(m.f1, t + D * 0.55);
+    lp.frequency.exponentialRampToValueAtTime(Math.sqrt(m.f0 * m.f1), t + D);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(VOL.mouvement * m.force, t + 0.34);
+    g.gain.setTargetAtTime(0, t + 0.42, 0.2);
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    s.connect(hp); hp.connect(lp); lp.connect(g);
+    if (pan) { pan.pan.setValueAtTime(m.de, t); pan.pan.linearRampToValueAtTime(m.a, t + D); g.connect(pan); pan.connect(maitre); }
+    else g.connect(maitre);
+    s.start(t, 0.25 + Math.random() * (b.duration - 2.5), D + 0.9);
+    s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
+  }
+  /* UN DOSSIER QUI SE POSE : un instant du papier qui glisse (une tranche
+     prise au hasard dans l'enregistrement), feutré, posé de côté ou d'autre */
+  let dernierPapier = 0;
+  function papier(force, retard) {
+    const b = tampons.papier;
+    if (!b || b === 'element') return;
+    const t = ctx.currentTime + (retard || 0);
+    if (!retard && t - dernierPapier < 0.12) return;
+    dernierPapier = t;
+    const D = 0.36 + Math.random() * 0.2;
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.9 + Math.random() * 0.2;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(VOL.papier * force, t + 0.04);
+    g.gain.linearRampToValueAtTime(0, t + D);
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    s.connect(g);
+    if (pan) { pan.pan.value = Math.random() - 0.5; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
+    s.start(t, 0.45 + Math.random() * 1.9, D + 0.05);
+    s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
+  }
+  /* un passage ; jamais deux en 0,12 s. « pile » : un dossier qui se pose ;
+     « index » : la pile qui paraît — trois dossiers, l'un sur l'autre */
   function jouer(nom) {
     if (nom === 'ouvre' || nom === 'ferme') projet(nom === 'ouvre');
     if (!actif || !ctx || ctx.state !== 'running') return;
-    const rate = SONS[nom], b = tampons.air;
-    if (!rate || !b) return;
+    if (nom === 'pile') { papier(0.75); return; }
     const t = ctx.currentTime;
     if (t - dernier < 0.12) return;
     dernier = t;
-    const vol = VOL.air * (0.9 + Math.random() * 0.18);
-    if (b === 'element') { const a = new Audio(DOSSIER + 'air.m4a'); a.volume = vol; lire(a); return; }
-    if (voix.length >= 3) { const v = voix.shift(); v.g.gain.setTargetAtTime(0, t, 0.06); v.s.stop(t + 0.4); }
-    /* la musique s'efface un instant sous le passage, puis revient */
-    if (gMusique && presente) {
-      const m = gMusique.gain;
-      m.cancelScheduledValues(t); m.setValueAtTime(m.value, t);
-      m.linearRampToValueAtTime(niveauMusique() * 0.6, t + 0.12);
-      m.setTargetAtTime(niveauMusique(), t + 0.9, 0.5);
-    }
-    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = rate;
-    const g = ctx.createGain(); g.gain.value = vol;
-    s.connect(g); g.connect(maitre); s.start(t);
-    const v = { s, g }; voix.push(v);
-    s.onended = () => { const i = voix.indexOf(v); if (i >= 0) voix.splice(i, 1); g.disconnect(); };
+    if (nom === 'index') { [0.55, 0.75, 1].forEach((f, k) => papier(f, 0.12 + k * 0.15)); }
+    const m = PASSAGES[nom];
+    if (m) mouvement(m);
   }
   /* dans un projet, la musique se retire d'un tiers : le travail d'abord */
   function projet(dedans) {
@@ -6270,7 +6333,7 @@ var son = (function sonDuSite() {
       gMusique = ctx.createGain(); gMusique.gain.value = 0;
       if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      Promise.all(['vent', 'vapeur', 'air'].map(charger)).then(lancerHero);
+      Promise.all(['vent', 'vapeur', 'papier'].map(charger)).then(lancerHero);
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
@@ -6427,6 +6490,7 @@ function ibFonction(card) {
   return domaines.find(t => t.toLowerCase() !== titre) || domaines[0] || '';
 }
 function ibChoisir(k) {
+  if (ibActif >= 0 && k !== ibActif) son.jouer('pile');        // (31/10) un dossier qui se pose
   ibActif = k;
   ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
   if (typeof cursor !== 'undefined' && cursor && ibSurvol) cursor.classList.toggle('sur-ib', ibSurvol.classList.contains('est-actif'));
@@ -6462,6 +6526,38 @@ function ibPose(d, n, H, leve) {
   const o = { T: u * H * 0.12 - H * 0.2, z: u * 50, rx: A };
   return { T: o.T + (p.T - o.T) * leve, z: o.z + (p.z - o.z) * leve, rx: o.rx + (p.rx - o.rx) * leve };
 }
+/* (31/10, d'après SA vidéo) LE RELIEF DE L'INDEX — la pile et les textes
+   suivent la souris, en relief, avec inertie : la souris donne une cible,
+   le relief la rejoint lentement (il glisse, il ne saute pas). Le point
+   de fuite se déplace aussi : les dossiers, à leurs profondeurs, se
+   décalent chacun de sa quantité. À la souris seulement. */
+const ibRelief = { x: 0, y: 0, cx: 0, cy: 0, raf: 0, prec: 0 };
+function ibReliefBoucle(ts) {
+  ibRelief.raf = 0;
+  const dt60 = ibRelief.prec && ts ? Math.min(3, Math.max(0.25, (ts - ibRelief.prec) / (1000 / 60))) : 1;
+  ibRelief.prec = ts || 0;
+  const k = 1 - Math.pow(0.93, dt60);
+  ibRelief.x += (ibRelief.cx - ibRelief.x) * k;
+  ibRelief.y += (ibRelief.cy - ibRelief.y) * k;
+  const fini = Math.abs(ibRelief.cx - ibRelief.x) < 0.0008 && Math.abs(ibRelief.cy - ibRelief.y) < 0.0008;
+  if (fini) { ibRelief.x = ibRelief.cx; ibRelief.y = ibRelief.cy; }
+  const im = ib && ib.querySelector('.ib-images');
+  if (im) im.style.perspectiveOrigin = (50 - ibRelief.x * 7).toFixed(2) + '% ' + (50 - ibRelief.y * 5).toFixed(2) + '%';
+  if (ibCartes.length) ibDessiner();
+  if (!fini) ibRelief.raf = requestAnimationFrame(ibReliefBoucle);
+  else ibRelief.prec = 0;
+}
+function ibReliefViser(cx, cy) {
+  ibRelief.cx = cx; ibRelief.cy = cy;
+  if (!ibRelief.raf) ibRelief.raf = requestAnimationFrame(ibReliefBoucle);
+}
+if (matchMedia('(hover: hover) and (pointer: fine)').matches && !motionState.reducedMotion) {
+  worksPanel.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || !indexBureau.matches || ibEtat.envol > 0) return;
+    ibReliefViser(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1);
+  }, { passive: true });
+  worksPanel.addEventListener('pointerleave', () => ibReliefViser(0, 0));
+}
 function ibDessiner() {
   const n = ibCartes.length, H = ibEtat.H, vh = innerHeight;
   ibCartes.forEach((c, i) => {
@@ -6483,12 +6579,17 @@ function ibDessiner() {
     const e = -d;
     const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
     const op = 1 - ibEtat.leve * (1 - voile);
-    c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
+    /* (31/10) le relief : la pile tourne un peu avec la souris, le dossier
+       regardé davantage, et s'incline vers elle (voir ibRelief) */
+    const ry = ibRelief.x * (1.6 + 3.4 * debout), rxr = -ibRelief.y * 3 * debout;
+    c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + (p.rx + rxr).toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
-    const tT = 'translate(-50%, -50%) translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
+    /* les textes glissent à peine à l'opposé de la souris et tournent avec
+       elle : un plan devant la pile */
+    const tT = 'translate(-50%, -50%) translate3d(' + (-ibRelief.x * 10).toFixed(1) + 'px,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs - ibRelief.y * 6).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg) rotateY(' + (ibRelief.x * 7).toFixed(2) + 'deg)';
     [c.t, c.f].forEach(el => {
       el.style.transform = tT;
       el.style.opacity = opT.toFixed(3);
