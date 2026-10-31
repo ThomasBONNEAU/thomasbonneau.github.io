@@ -5966,10 +5966,9 @@ function buildWorksPanel() {
 
 /* ══ LE SON (30-31/10, sa demande) ════════════════════════════════════════
    AU HERO : un petit vent, derrière, que la vitesse de la souris ouvre à
-   peine ; en descendant vers le premier projet, une vapeur dont les couches
-   se multiplient (quatre voix qui entrent l'une après l'autre, et des
-   bouffées de plus en plus rapprochées), qui se dissout quand la photo est
-   posée.
+   peine ; en descendant vers le premier projet, une brume douce et une
+   multitude de petites vapeurs, brèves et feutrées, de plus en plus
+   nombreuses, qui se dissolvent quand la photo est posée.
    À PARTIR DES PROJETS — et dans l'Index, et dans un projet ouvert, PAS
    au hero (31/10, sa demande) : la musique, un jazz au saxophone, TOUJOURS
    BAS — compressée, adoucie dans l'aigu : même le volume poussé, elle
@@ -6000,14 +5999,14 @@ var son = (function sonDuSite() {
   /* (31/10, « infiniment un petit peu plus fort » : +3 dB partout ; niveaux
      de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
      plus fort de la descente, notes ≈ −12 dB en crête) */
-  const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.17, bouffee: 0.17,
-                air: 0.33 };
+  const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.12, grain: 0.3,
+                air: 0.25 };          // (31/10) le souffle des passages, un rien moins fort
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false;
   const tampons = {}, voix = [];
   let dernier = 0;
-  let vent = null, vapeurs = [];
+  let vent = null, brume = null;
 
   /* un gain qui glisse vers sa cible, sans claquement */
   function glisse(param, cible, duree) {
@@ -6128,17 +6127,20 @@ var son = (function sonDuSite() {
       base.connect(maitre); geste.connect(maitre);
       vent = { s, f, pan, base, geste };
     }
-    /* la vapeur : quatre voix de la même matière, à quatre hauteurs, posées
-       de part et d'autre — elles entreront l'une après l'autre */
-    if (!vapeurs.length && bp && bp !== 'element') {
-      [[0.72, -0.55], [0.86, 0.4], [1.0, -0.15], [1.18, 0.62]].forEach(([r, x]) => {
-        const s = boucle(bp, r);
-        const g = ctx.createGain(); g.gain.value = 0;
-        const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-        s.connect(g);
-        if (pan) { pan.pan.value = x; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
-        vapeurs.push({ s, g });
-      });
+    /* (31/10, « ça fait trop sable ») LA BRUME : la vapeur, débarrassée de
+       son grain (tout ce qui grésille est coupé au-dessus de 1,4 kHz), qui
+       respire lentement — un fond, jamais un sifflement */
+    if (!brume && bp && bp !== 'element') {
+      const s = boucle(bp, 0.85);
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; hp.Q.value = 0.5;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400; lp.Q.value = 0.5;
+      const souffle = ctx.createGain(); souffle.gain.value = 0.65;           // la respiration (0,3 à 1)
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.13;
+      const ampleur = ctx.createGain(); ampleur.gain.value = 0.35;
+      lfo.connect(ampleur); ampleur.connect(souffle.gain); lfo.start();
+      const g = ctx.createGain(); g.gain.value = 0;
+      s.connect(hp); hp.connect(lp); lp.connect(souffle); souffle.connect(g); g.connect(maitre);
+      brume = { s, g };
     }
     heros();
   }
@@ -6154,31 +6156,44 @@ var son = (function sonDuSite() {
     const ici = auHero() ? 1 : 0, p = pVap;
     if (vent) viser(0, vent.base.gain, VOL.vent * ici * (1 - lisse(0.3, 0.85, p)), 0.25);
     const fin = 1 - lisse(0.8, 0.94, p), vit = enMouvement ? 1 : 0.35;
-    vapeurs.forEach((v, k) => {
-      const entre = lisse(0.06 + 0.17 * k, 0.2 + 0.17 * k, p);
-      viser(1 + k, v.g.gain, VOL.vapeur * entre * fin * vit * ici, enMouvement ? 0.12 : 0.6);
-    });
+    if (brume) viser(1, brume.g.gain, VOL.vapeur * lisse(0.04, 0.35, p) * fin * vit * ici, enMouvement ? 0.15 : 0.6);
   }
-  /* LES BOUFFÉES : en descendant, à chaque seuil franchi, une bouffée d'air
-     — les seuils se resserrent : la vapeur se multiplie vers le projet */
-  const SEUILS = [0.1, 0.2, 0.29, 0.37, 0.44, 0.5, 0.55, 0.6, 0.64, 0.68, 0.72, 0.75, 0.78, 0.81];
-  function bouffee(force) {
-    const b = tampons.air;
+  /* LES PETITES VAPEURS : des bouffées brèves et feutrées — un éclat de la
+     vapeur, filtré autour du médium (ni grain ni sifflement), qui naît
+     doucement et s'éteint — éparpillées de part et d'autre. En descendant,
+     elles se multiplient : trois par seconde au départ, plus de vingt à
+     l'approche du projet ; puis elles se dissolvent avec la vapeur. */
+  function petiteVapeur(force) {
+    const b = tampons.vapeur;
     if (!b || b === 'element') return;
-    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.7 + Math.random() * 0.6;
-    const g = ctx.createGain(); g.gain.value = VOL.bouffee * force;
+    const t = ctx.currentTime + Math.random() * 0.06;
+    const duree = 0.22 + Math.random() * 0.42, monte = 0.05 + Math.random() * 0.08;
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.8 + Math.random() * 0.45;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 600 + Math.random() * 1300; bp.Q.value = 0.7;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(VOL.grain * force * (0.5 + 0.5 * Math.random()), t + monte);
+    g.gain.linearRampToValueAtTime(0, t + duree);
     const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    s.connect(g);
-    if (pan) { pan.pan.value = Math.random() * 1.4 - 0.7; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
-    s.start();
-    s.onended = () => g.disconnect();
+    s.connect(bp); bp.connect(g);
+    if (pan) { pan.pan.value = Math.random() * 1.6 - 0.8; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
+    s.start(t, 0.25 + Math.random() * (b.duration - 1.5), duree + 0.05);
+    s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
   }
+  let tVap = 0, reserve = 0;
   /* appelé par la réfraction, image par image, pendant la transition */
   function vapeur(p, cible) {
     const avant = pVap;
     pVap = p; pHero = cible == null ? p : cible;
     if (!actif || !ctx || Math.abs(p - avant) < 0.002) { if (actif && ctx) ambiance(); return; }
-    if (p > avant) SEUILS.forEach(s => { if (avant < s && p >= s) bouffee(0.55 + 0.6 * s); });
+    /* en descendant, les petites vapeurs, de plus en plus nombreuses */
+    const maintenant = performance.now(), dt = Math.min(0.1, (maintenant - tVap) / 1000);
+    tVap = maintenant;
+    if (p > avant && auHero()) {
+      const cadence = (3 + 19 * lisse(0.05, 0.8, p)) * (1 - lisse(0.82, 0.94, p));
+      reserve = Math.min(4, reserve + cadence * dt);
+      while (reserve >= 1) { reserve--; petiteVapeur(0.6 + 0.4 * lisse(0.05, 0.7, p)); }
+    }
     enMouvement = true;
     clearTimeout(calmeHero);
     calmeHero = setTimeout(() => { enMouvement = false; heros(); }, 400);   // arrêtée, la vapeur se retire à moitié
