@@ -5970,9 +5970,11 @@ function buildWorksPanel() {
 
 /* ══ LE SON (30-31/10, sa demande) ════════════════════════════════════════
    AU HERO : un petit vent, derrière, que la vitesse de la souris ouvre à
-   peine ; en descendant vers le premier projet, une brume douce et une
-   multitude de petites vapeurs, brèves et feutrées, de plus en plus
-   nombreuses, qui se dissolvent quand la photo est posée.
+   peine ; en descendant vers le premier projet, une brume et des souffles
+   de vapeur — le même vent, qu'on fait résonner doucement sur les notes de
+   sol mineur : des voiles d'air, aériens, sans aucun grain (31/10 : le
+   sifflement d'avant « faisait sable »), de plus en plus nombreux, qui se
+   dissolvent quand la photo est posée.
    À PARTIR DES PROJETS — et dans l'Index, et dans un projet ouvert, PAS
    au hero (31/10, sa demande) : la musique, un jazz au saxophone, TOUJOURS
    BAS — compressée, adoucie dans l'aigu : même le volume poussé, elle
@@ -6015,7 +6017,7 @@ var son = (function sonDuSite() {
   /* (31/10, « infiniment un petit peu plus fort » : +3 dB partout ; niveaux
      de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
      plus fort de la descente, notes ≈ −12 dB en crête) */
-  const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.12, grain: 0.3,
+  const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.13, grain: 1.2,
                 mouvement: 0.3, pose: 0.34 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
@@ -6130,7 +6132,7 @@ var son = (function sonDuSite() {
     return s;
   }
   function lancerHero() {
-    const bv = tampons.vent, bp = tampons.vapeur;
+    const bv = tampons.vent;
     if (!vent && bv && bv !== 'element') {
       const s = boucle(bv);
       const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 900; f.Q.value = 0.5;
@@ -6143,13 +6145,13 @@ var son = (function sonDuSite() {
       base.connect(maitre); geste.connect(maitre);
       vent = { s, f, pan, base, geste };
     }
-    /* (31/10, « ça fait trop sable ») LA BRUME : la vapeur, débarrassée de
-       son grain (tout ce qui grésille est coupé au-dessus de 1,4 kHz), qui
-       respire lentement — un fond, jamais un sifflement */
-    if (!brume && bp && bp !== 'element') {
-      const s = boucle(bp, 0.85);
-      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; hp.Q.value = 0.5;
-      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400; lp.Q.value = 0.5;
+    /* LA BRUME : le vent, ralenti, gardé sous 900 Hz, qui respire lentement
+       — un fond, jamais un sifflement (31/10 : la vapeur enregistrée
+       grésillait, « ça fait sable ») */
+    if (!brume && bv && bv !== 'element') {
+      const s = boucle(bv, 0.8);
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 150; hp.Q.value = 0.5;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.5;
       const souffle = ctx.createGain(); souffle.gain.value = 0.65;           // la respiration (0,3 à 1)
       const lfo = ctx.createOscillator(); lfo.frequency.value = 0.13;
       const ampleur = ctx.createGain(); ampleur.gain.value = 0.35;
@@ -6174,26 +6176,31 @@ var son = (function sonDuSite() {
     const fin = 1 - lisse(0.8, 0.94, p), vit = enMouvement ? 1 : 0.35;
     if (brume) viser(1, brume.g.gain, VOL.vapeur * lisse(0.04, 0.35, p) * fin * vit * ici, enMouvement ? 0.15 : 0.6);
   }
-  /* LES PETITES VAPEURS : des bouffées brèves et feutrées — un éclat de la
-     vapeur, filtré autour du médium (ni grain ni sifflement), qui naît
-     doucement et s'éteint — éparpillées de part et d'autre. En descendant,
-     elles se multiplient : trois par seconde au départ, plus de vingt à
-     l'approche du projet ; puis elles se dissolvent avec la vapeur. */
+  /* LES SOUFFLES DE VAPEUR : un peu du vent, qu'on fait résonner sur une
+     note de sol mineur (sol, si bémol, ré, fa) — un voile d'air presque
+     chanté, qui monte lentement, s'élève d'un rien et s'éteint longuement,
+     posé de part et d'autre. En descendant, ils se multiplient : un et
+     demi par seconde au départ, neuf à l'approche du projet ; puis ils se
+     dissolvent avec la vapeur. Aucun grain : rien au-dessus de 1,2 kHz. */
+  const VOILES = [392, 466.2, 587.3, 698.5, 784, 932.3, 1174.7];
   function petiteVapeur(force) {
-    const b = tampons.vapeur;
+    const b = tampons.vent;
     if (!b || b === 'element') return;
-    const t = ctx.currentTime + Math.random() * 0.06;
-    const duree = 0.22 + Math.random() * 0.42, monte = 0.05 + Math.random() * 0.08;
-    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.8 + Math.random() * 0.45;
-    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 600 + Math.random() * 1300; bp.Q.value = 0.7;
+    const t = ctx.currentTime + Math.random() * 0.08;
+    const duree = 0.8 + Math.random() * 0.7, monte = 0.18 + Math.random() * 0.17;
+    const f = VOILES[Math.floor(Math.random() * VOILES.length)];
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.9 + Math.random() * 0.3;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 7;
+    bp.frequency.setValueAtTime(f, t);
+    bp.frequency.exponentialRampToValueAtTime(f * 1.03, t + duree);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(VOL.grain * force * (0.5 + 0.5 * Math.random()), t + monte);
-    g.gain.linearRampToValueAtTime(0, t + duree);
+    g.gain.linearRampToValueAtTime(VOL.grain * force * (0.6 + 0.4 * Math.random()), t + monte);
+    g.gain.setTargetAtTime(0, t + monte, (duree - monte) / 3);
     const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
     s.connect(bp); bp.connect(g);
     if (pan) { pan.pan.value = Math.random() * 1.6 - 0.8; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
-    s.start(t, 0.25 + Math.random() * (b.duration - 1.5), duree + 0.05);
+    s.start(t, 0.25 + Math.random() * (b.duration - 3), duree + 0.4);
     s.onended = () => { g.disconnect(); if (pan) pan.disconnect(); };
   }
   let tVap = 0, reserve = 0;
@@ -6206,7 +6213,7 @@ var son = (function sonDuSite() {
     const maintenant = performance.now(), dt = Math.min(0.1, (maintenant - tVap) / 1000);
     tVap = maintenant;
     if (p > avant && auHero()) {
-      const cadence = (3 + 19 * lisse(0.05, 0.8, p)) * (1 - lisse(0.82, 0.94, p));
+      const cadence = (1.5 + 7.5 * lisse(0.05, 0.8, p)) * (1 - lisse(0.82, 0.94, p));
       reserve = Math.min(4, reserve + cadence * dt);
       while (reserve >= 1) { reserve--; petiteVapeur(0.6 + 0.4 * lisse(0.05, 0.7, p)); }
     }
@@ -6317,7 +6324,7 @@ var son = (function sonDuSite() {
       gMusique = ctx.createGain(); gMusique.gain.value = 0;
       if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      Promise.all(['vent', 'vapeur'].map(charger)).then(lancerHero);
+      Promise.all(['vent'].map(charger)).then(lancerHero);
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
@@ -6510,11 +6517,10 @@ function ibPose(d, n, H, leve) {
   const o = { T: u * H * 0.12 - H * 0.2, z: u * 50, rx: A };
   return { T: o.T + (p.T - o.T) * leve, z: o.z + (p.z - o.z) * leve, rx: o.rx + (p.rx - o.rx) * leve };
 }
-/* (31/10, d'après SA vidéo) LE RELIEF DE L'INDEX — la pile et les textes
-   suivent la souris, en relief, avec inertie : la souris donne une cible,
-   le relief la rejoint lentement (il glisse, il ne saute pas). Le point
-   de fuite se déplace aussi : les dossiers, à leurs profondeurs, se
-   décalent chacun de sa quantité. À la souris seulement. */
+/* (31/10, d'après SA vidéo) LE RELIEF DE L'INDEX — le dossier sélectionné
+   suit la souris, en relief, avec inertie : la souris donne une cible, le
+   relief la rejoint lentement (il glisse, il ne saute pas). À la souris
+   seulement. */
 const ibRelief = { x: 0, y: 0, cx: 0, cy: 0, raf: 0, prec: 0 };
 function ibReliefBoucle(ts) {
   ibRelief.raf = 0;
@@ -6525,8 +6531,6 @@ function ibReliefBoucle(ts) {
   ibRelief.y += (ibRelief.cy - ibRelief.y) * k;
   const fini = Math.abs(ibRelief.cx - ibRelief.x) < 0.0008 && Math.abs(ibRelief.cy - ibRelief.y) < 0.0008;
   if (fini) { ibRelief.x = ibRelief.cx; ibRelief.y = ibRelief.cy; }
-  const im = ib && ib.querySelector('.ib-images');
-  if (im) im.style.perspectiveOrigin = (50 - ibRelief.x * 7).toFixed(2) + '% ' + (50 - ibRelief.y * 5).toFixed(2) + '%';
   if (ibCartes.length) ibDessiner();
   if (!fini) ibRelief.raf = requestAnimationFrame(ibReliefBoucle);
   else ibRelief.prec = 0;
@@ -6563,17 +6567,16 @@ function ibDessiner() {
     const e = -d;
     const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
     const op = 1 - ibEtat.leve * (1 - voile);
-    /* (31/10) le relief : la pile tourne un peu avec la souris, le dossier
-       regardé davantage, et s'incline vers elle (voir ibRelief) */
-    const ry = ibRelief.x * (1.6 + 3.4 * debout), rxr = -ibRelief.y * 3 * debout;
+    /* (31/10) le relief : SEUL le dossier sélectionné (debout) tourne et
+       s'incline vers la souris ; la pile et les textes ne bougent pas
+       (sa demande : « que sur la carte qui est sélectionnée ») */
+    const ry = ibRelief.x * 5 * debout, rxr = -ibRelief.y * 3 * debout;   // (31/10) le sélectionné seul
     c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + (p.rx + rxr).toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
-    /* les textes glissent à peine à l'opposé de la souris et tournent avec
-       elle : un plan devant la pile */
-    const tT = 'translate(-50%, -50%) translate3d(' + (-ibRelief.x * 10).toFixed(1) + 'px,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs - ibRelief.y * 6).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg) rotateY(' + (ibRelief.x * 7).toFixed(2) + 'deg)';
+    const tT = 'translate(-50%, -50%) translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
     [c.t, c.f].forEach(el => {
       el.style.transform = tT;
       el.style.opacity = opT.toFixed(3);
@@ -7136,9 +7139,9 @@ function stackFrame(ts) {
 
 /* (31/10, d'après SA vidéo) LE MOUVEMENT DANS LES IMAGES — la photo d'un
    projet glisse dans sa carte, toujours vers le haut, moins vite que le
-   reste : en ENTRANT, elle monte moins vite que sa carte (18 %) et se pose
+   reste : en ENTRANT, elle monte moins vite que sa carte (24 %) et se pose
    à sa place exacte quand la carte se pose ; RECOUVERTE par la suivante,
-   elle continue de monter, doucement (le quart de ce que la suivante
+   elle continue de monter, doucement (le tiers de ce que la suivante
    gagne). Ce qui se découvre est toujours sous l'écran ou sous la carte
    suivante : le cadrage posé ne change pas, le sol des podiums n'est
    jamais coupé. Arch'ocktail n'entre pas (la vapeur le dépose au pixel) :
@@ -7147,7 +7150,7 @@ function stackFrame(ts) {
    dans Safari, aucun retard. À la souris seulement. */
 (function photosQuiGlissent() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches || motionState.reducedMotion) return;
-  const ENTREE = 0.18, SORTIE = 0.25;
+  const ENTREE = 0.24, SORTIE = 0.32;                 // (31/10) « encore un tout petit peu plus fort »
   const photos = stackCards.map(c => c.querySelector('.proj-photo'));
   let dernierY = null;
   function poser() {
