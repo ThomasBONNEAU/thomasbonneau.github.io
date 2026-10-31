@@ -6526,7 +6526,7 @@ function ibReliefBoucle(ts) {
   ibRelief.raf = 0;
   const dt60 = ibRelief.prec && ts ? Math.min(3, Math.max(0.25, (ts - ibRelief.prec) / (1000 / 60))) : 1;
   ibRelief.prec = ts || 0;
-  const k = 1 - Math.pow(0.93, dt60);
+  const k = 1 - Math.pow(0.91, dt60);
   ibRelief.x += (ibRelief.cx - ibRelief.x) * k;
   ibRelief.y += (ibRelief.cy - ibRelief.y) * k;
   const fini = Math.abs(ibRelief.cx - ibRelief.x) < 0.0008 && Math.abs(ibRelief.cy - ibRelief.y) < 0.0008;
@@ -6570,8 +6570,11 @@ function ibDessiner() {
     /* (31/10) le relief : SEUL le dossier sélectionné (debout) tourne et
        s'incline vers la souris ; la pile et les textes ne bougent pas
        (sa demande : « que sur la carte qui est sélectionnée ») */
-    const ry = ibRelief.x * 5 * debout, rxr = -ibRelief.y * 3 * debout;   // (31/10) le sélectionné seul
-    c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + (p.rx + rxr).toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
+    /* (31/10, « l'attraction encore plus forte ») il pivote vers le curseur
+       (jusqu'à 10° de côté, 6° en hauteur) et se laisse tirer vers lui */
+    const ry = ibRelief.x * 10 * debout, rxr = -ibRelief.y * 6 * debout;
+    const ax = ibRelief.x * 22 * debout, ay = ibRelief.y * 14 * debout;
+    c.b.style.transform = 'translate3d(' + ax.toFixed(1) + 'px,' + (y + ay).toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + (p.rx + rxr).toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
