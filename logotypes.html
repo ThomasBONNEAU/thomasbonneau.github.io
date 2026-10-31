@@ -6059,6 +6059,7 @@ var son = (function sonDuSite() {
     for (let k = 0; k < 2; k++) {
       const a = new Audio();
       a.preload = k ? 'none' : 'auto';
+      a.loop = true;                       // (31/10) la boucle tient même si le relais était refusé
       a.src = DOSSIER + 'jazz-saxophone.m4a';
       const p = { a, g: null, pas: 0 };
       if (!LOCAL) {
@@ -6073,15 +6074,25 @@ var son = (function sonDuSite() {
       pistes.push(p);
     }
   }
+  /* (31/10, « la musique doit être en boucle ») si le navigateur refuse de
+     lancer l'autre lecteur, celui qui joue continue : il boucle de lui-même */
+  let relaisFin = 0;
   function relais() {
     enchaine = true;
     const avant = pistes[courante], apres = pistes[1 - courante];
     courante = 1 - courante;
     apres.a.currentTime = 0;
-    lire(apres.a);
+    const l = apres.a.play();
     if (LOCAL) { glisseVolume(apres, niveauMusique(), 4); glisseVolume(avant, 0, ENCHAINE - 0.5); }
     else { glisse(apres.g.gain, 1, 4); glisse(avant.g.gain, 0, ENCHAINE - 0.5); }
-    setTimeout(() => { avant.a.pause(); enchaine = false; }, ENCHAINE * 1000);
+    relaisFin = setTimeout(() => { avant.a.pause(); enchaine = false; }, ENCHAINE * 1000);
+    if (l) l.catch(() => {
+      clearTimeout(relaisFin);
+      courante = 1 - courante;
+      if (LOCAL) { glisseVolume(avant, niveauMusique(), 1); glisseVolume(apres, 0, 0.2); }
+      else { glisse(avant.g.gain, 1, 1); glisse(apres.g.gain, 0, 0.2); }
+      enchaine = false;
+    });
   }
 
   /* OÙ EST-ON ? La musique appartient aux projets (et à ce qui suit), à
