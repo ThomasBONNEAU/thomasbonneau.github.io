@@ -3124,6 +3124,30 @@ body.zone-foot .about-story {
   }
   body.zone-pres .about-story, body.zone-pres .about-story .about-chapter { background-color: #fcfaeb; }
   body.zone-foot .about-story, body.zone-foot .about-story .about-chapter { background-color: #000; }
+  /* (31/10) L'ENCRE AVEC LE FOND, SANS RETARD — « fond beige et texte
+     noir » : du blanc au crème, l'écart est infime, le fond paraît crème
+     dès le début de son fondu, quand le noir → ocre, de même durée,
+     semblait encore noir à mi-chemin. L'encre (le nom, les textes, le
+     repère et son trait) change donc plus vite que le fond — 0,3 s, départ
+     franc — et en couleurs écrites en clair, comme les fonds (Safari ne
+     fond pas une couleur qui passe par une variable). */
+  body .about-story {
+    color: #101014;
+    transition: color 0.3s cubic-bezier(0.2, 0, 0, 1), background-color var(--zone-duree) var(--zone-courbe);
+  }
+  /* les chapitres HÉRITENT de l'encre qui fond : leur propre fondu de 0,8 s
+     la rattrapait en retard (c'était lui, le retard) */
+  body .about-story .about-chapter { transition: background-color var(--zone-duree) var(--zone-courbe); }
+  body.zone-pres .about-story { color: #c16700; }
+  /* vers le noir du pied, l'encre fond AVEC le fond (blanche trop tôt,
+     elle passerait sur du crème) */
+  body.zone-foot .about-story { color: #ffffff; transition: color var(--zone-duree) var(--zone-courbe), background-color var(--zone-duree) var(--zone-courbe); }
+  body .about-story .repere { border-top-color: #101014; transition: border-color 0.3s cubic-bezier(0.2, 0, 0, 1); }
+  body.zone-pres .about-story .repere { border-top-color: #c16700; }
+  body.zone-foot .about-story .repere { border-top-color: #ffffff; transition-duration: var(--zone-duree); }
+  body .about-story .repere__num { color: #101014; transition: color 0.3s cubic-bezier(0.2, 0, 0, 1); }
+  body.zone-pres .about-story .repere__num, body.zone-foot .about-story .repere__num { color: #c16700; }
+  body.zone-foot .about-story .repere__num { transition-duration: var(--zone-duree); }
 }
 @media (min-width: 901px) {
 
@@ -5974,10 +5998,11 @@ var son = (function sonDuSite() {
      l'arpège de sol mineur monte d'un projet à l'autre, puis redescend */
   const PAS = ['note-G4', 'note-As4', 'note-D5', 'note-F5', 'note-G5', 'note-F5', 'note-D5', 'note-As4'];
   /* la musique (fichier ramené à −18 dB) reste très en dessous des notes */
-  /* (niveaux de sortie visés : musique ≈ −42 dB, vent ≈ −37 dB, vapeur
-     ≈ −31 dB au plus fort de la descente, notes ≈ −15 dB en crête) */
-  const VOL = { musique: 0.06, projet: 0.6, vent: 0.1, ventGeste: 0.08, vapeur: 0.12, bouffee: 0.12,
-                note: 0.26, air: 0.24, pas: 0.15, accord: 0.16 };
+  /* (31/10, « infiniment un petit peu plus fort » : +3 dB partout ; niveaux
+     de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
+     plus fort de la descente, notes ≈ −12 dB en crête) */
+  const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.17, bouffee: 0.17,
+                note: 0.36, air: 0.33, pas: 0.21, accord: 0.22 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
   let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false, retrait = 0;
@@ -6020,7 +6045,7 @@ var son = (function sonDuSite() {
     for (let k = 0; k < 2; k++) {
       const a = new Audio();
       a.preload = k ? 'none' : 'auto';
-      a.src = DOSSIER + 'musique.m4a';
+      a.src = DOSSIER + 'jazz-saxophone.m4a';
       const p = { a, g: null, pas: 0 };
       if (!LOCAL) {
         const src = ctx.createMediaElementSource(a);
@@ -6287,6 +6312,16 @@ var son = (function sonDuSite() {
     if (ctx && ctx.state === 'running') GESTES.forEach(t => removeEventListener(t, premierGeste, true));
   };
   if (!coupe) GESTES.forEach(t => addEventListener(t, premierGeste, true));
+  /* (31/10) le tout début : certains navigateurs laissent jouer sans geste
+     (Safari réglé sur « Autoriser toute lecture automatique » pour le site,
+     Chrome pour un site qu'on écoute souvent). On le demande, discrètement,
+     à un lecteur presque muet : s'il part, le son naît dès l'arrivée. */
+  if (!coupe) {
+    const essai = new Audio(DOSSIER + 'vent.m4a');
+    essai.volume = 0.001;
+    const l = essai.play();
+    if (l) l.then(() => { essai.pause(); if (!actif) allumer(); }).catch(() => {});
+  }
 
   /* la signature du pied : un accord de sol mineur, égrené */
   function accord() {
