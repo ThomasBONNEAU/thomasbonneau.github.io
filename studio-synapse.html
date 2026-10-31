@@ -4129,7 +4129,6 @@ function frameApply(i) {
   }
   const c = frameCards[i];
   if (!c) return;
-  if (son) son.jouer('pas', i);                                 // (30/10) sa note
   const cat  = (c.dataset.cat || '').split('·')[0].trim();      // 1er segment seulement
   const year = c.dataset.year || '';                            // affiché s'il existe
   frameSwap(frameL, c.dataset.title || '');                     // le NOM seul, sans numéro
@@ -5971,13 +5970,13 @@ function buildWorksPanel() {
    se multiplient (quatre voix qui entrent l'une après l'autre, et des
    bouffées de plus en plus rapprochées), qui se dissout quand la photo est
    posée.
-   À PARTIR DES PROJETS (et dans l'Index, et dans un projet ouvert) : la
-   musique, un jazz au saxophone, TOUJOURS BAS — compressée, adoucie dans
-   l'aigu, très en dessous des notes : même le volume poussé, elle reste un
-   fond. Elle se retire quand on remonte au hero.
-   Aux moments de passage, une note de piano en sol mineur (ré pour ouvrir,
-   sol pour revenir, fa et si bémol pour suivant et précédent) ; chaque
-   projet et chaque chapitre a la sienne ; la signature du pied, un accord.
+   À PARTIR DES PROJETS — et dans l'Index, et dans un projet ouvert, PAS
+   au hero (31/10, sa demande) : la musique, un jazz au saxophone, TOUJOURS
+   BAS — compressée, adoucie dans l'aigu : même le volume poussé, elle
+   reste un fond. Elle se retire quand on remonte au hero.
+   Aux moments de passage (ouvrir, revenir, suivant, précédent, l'Index,
+   TB), un simple mouvement : un souffle d'air, chacun à sa hauteur. PLUS
+   AUCUNE NOTE DE PIANO (31/10 : « je veux pas de touches de piano »).
    AUCUN mot à l'écran : aucun navigateur ne laisse une page jouer avant le
    premier geste du visiteur, le son naît donc à son premier clic (ou
    touche). La touche M le coupe et le rend. Un seul contexte, un seul gain
@@ -5995,21 +5994,19 @@ var son = (function sonDuSite() {
      contexte audio (le navigateur les rendrait muets) : la musique y règle
      alors le volume de l'élément lui-même */
   const LOCAL = location.protocol === 'file:';
-  const SONS = { ouvre: 'note-D5', ferme: 'note-G4', suivant: 'note-F5', precedent: 'note-As4', qui: 'note-G5', index: 'air' };
-  /* CHAQUE PROJET A SA NOTE : quand il arrive en défilant, ou quand son
-     dossier se redresse dans l'Index, sa note sonne, très doucement —
-     l'arpège de sol mineur monte d'un projet à l'autre, puis redescend */
-  const PAS = ['note-G4', 'note-As4', 'note-D5', 'note-F5', 'note-G5', 'note-F5', 'note-D5', 'note-As4'];
+  /* les passages : le même souffle d'air, à des hauteurs différentes */
+  const SONS = { ouvre: 0.78, ferme: 1.16, suivant: 1.06, precedent: 0.9, qui: 0.84, index: 1 };
   /* la musique (fichier ramené à −18 dB) reste très en dessous des notes */
   /* (31/10, « infiniment un petit peu plus fort » : +3 dB partout ; niveaux
      de sortie visés : musique ≈ −39 dB, vent ≈ −34 dB, vapeur ≈ −28 dB au
      plus fort de la descente, notes ≈ −12 dB en crête) */
   const VOL = { musique: 0.085, projet: 0.6, vent: 0.14, ventGeste: 0.11, vapeur: 0.17, bouffee: 0.17,
-                note: 0.36, air: 0.33, pas: 0.21, accord: 0.22 };
+                air: 0.33 };
   const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
   let ctx = null, maitre = null, gMusique = null, actif = false;
-  let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false, retrait = 0;
-  const tampons = {}, dernier = {}, voix = [];
+  let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false;
+  const tampons = {}, voix = [];
+  let dernier = 0;
   let vent = null, vapeurs = [];
 
   /* un gain qui glisse vers sa cible, sans claquement */
@@ -6073,13 +6070,14 @@ var son = (function sonDuSite() {
     setTimeout(() => { avant.a.pause(); enchaine = false; }, ENCHAINE * 1000);
   }
 
-  /* OÙ EST-ON ? La musique appartient aux projets, à l'Index, aux volets ;
-     le vent et la vapeur, au hero. pHero : la progression de la transition
-     du hero (donnée par la réfraction) */
+  /* OÙ EST-ON ? La musique appartient aux projets (et à ce qui suit), à
+     l'Index, aux volets ; le vent et la vapeur, au hero. pHero : la
+     progression de la transition du hero (donnée par la réfraction) */
   let pHero = -1, pVap = 0;                // la cible (instantanée) ; la progression lissée, celle qu'on voit
   const indexOuvertSon = () => document.body.classList.contains('index-ouvert');
   const voletOuvertSon = () => { const v = document.getElementById('projPanel'); return !!v && v.classList.contains('open'); };
   const auHero = () => !indexOuvertSon() && !voletOuvertSon() && (pHero >= 0 ? pHero < 0.85 : scrollY < innerHeight * 1.2);
+  let retrait = 0;
   function ambiance() {
     if (!actif || !ctx) return;
     const la = !auHero();
@@ -6211,31 +6209,27 @@ var son = (function sonDuSite() {
     }, 140);
   }, { passive: true });
 
-  /* une note ; jamais deux fois la même en 0,12 s, jamais plus de trois à la
-     fois. « pas » : la note d'un projet (rang), plus douce, et jamais plus
-     d'une par quart de seconde — un défilé rapide ne mitraille pas */
-  let dernierPas = 0;
-  function jouer(nom, rang) {
+  /* un passage : le souffle d'air à sa hauteur ; jamais deux en 0,12 s,
+     jamais plus de trois à la fois */
+  function jouer(nom) {
     if (nom === 'ouvre' || nom === 'ferme') projet(nom === 'ouvre');
     if (!actif || !ctx || ctx.state !== 'running') return;
-    const pas = nom === 'pas';
-    const f = pas ? PAS[((rang || 0) % PAS.length + PAS.length) % PAS.length] : SONS[nom], b = f && tampons[f];
-    if (!b) return;
+    const rate = SONS[nom], b = tampons.air;
+    if (!rate || !b) return;
     const t = ctx.currentTime;
-    if (pas) { if (t - dernierPas < 0.25) return; dernierPas = t; }
-    else if (dernier[f] && t - dernier[f] < 0.12) return;
-    dernier[f] = t;
-    const vol = (pas ? VOL.pas : f === 'air' ? VOL.air : VOL.note) * (0.9 + Math.random() * 0.18);
-    if (b === 'element') { const a = new Audio(DOSSIER + f + '.m4a'); a.volume = vol; lire(a); return; }
+    if (t - dernier < 0.12) return;
+    dernier = t;
+    const vol = VOL.air * (0.9 + Math.random() * 0.18);
+    if (b === 'element') { const a = new Audio(DOSSIER + 'air.m4a'); a.volume = vol; lire(a); return; }
     if (voix.length >= 3) { const v = voix.shift(); v.g.gain.setTargetAtTime(0, t, 0.06); v.s.stop(t + 0.4); }
-    /* la musique s'efface un instant sous une note de passage, puis revient */
-    if (gMusique && !pas && presente) {
+    /* la musique s'efface un instant sous le passage, puis revient */
+    if (gMusique && presente) {
       const m = gMusique.gain;
       m.cancelScheduledValues(t); m.setValueAtTime(m.value, t);
       m.linearRampToValueAtTime(niveauMusique() * 0.6, t + 0.12);
       m.setTargetAtTime(niveauMusique(), t + 0.9, 0.5);
     }
-    const s = ctx.createBufferSource(); s.buffer = b;
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = rate;
     const g = ctx.createGain(); g.gain.value = vol;
     s.connect(g); g.connect(maitre); s.start(t);
     const v = { s, g }; voix.push(v);
@@ -6261,14 +6255,14 @@ var son = (function sonDuSite() {
       gMusique = ctx.createGain(); gMusique.gain.value = 0;
       if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      Promise.all(['vent', 'vapeur'].concat(Object.values(SONS)).map(charger)).then(lancerHero);
+      Promise.all(['vent', 'vapeur', 'air'].map(charger)).then(lancerHero);
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
     /* les deux lecteurs se débloquent pendant le geste (Safari ne les
        laisserait pas partir plus tard tout seuls), muets, aussitôt arrêtés :
        la musique ne part que lorsqu'on arrive aux projets */
-    pistes.forEach(p => { if (p.a.paused) { const l = p.a.play(); if (l) l.then(() => { if (!presente) p.a.pause(); }).catch(() => {}); } });
+    pistes.forEach(p => { if (p.a.paused) { const l = p.a.play(); if (l) l.then(() => { if (!presente || p !== pistes[courante]) p.a.pause(); }).catch(() => {}); } });
     ambiance();
   }
   function eteindre() {
@@ -6326,37 +6320,7 @@ var son = (function sonDuSite() {
     if (l) l.then(() => { essai.pause(); if (!actif) allumer(); }).catch(() => {});
   }
 
-  /* la signature du pied : un accord de sol mineur, égrené */
-  function accord() {
-    if (!actif || !ctx || ctx.state !== 'running') return;
-    ['note-G4', 'note-D5', 'note-G5'].forEach((f, k) => {
-      const b = tampons[f];
-      if (!b || b === 'element') return;
-      const t = ctx.currentTime + k * 0.07;
-      const s = ctx.createBufferSource(); s.buffer = b;
-      const g = ctx.createGain(); g.gain.value = VOL.accord;
-      s.connect(g); g.connect(maitre); s.start(t);
-      s.onended = () => g.disconnect();
-    });
-  }
-
-  /* LES CHAPITRES DE L'À PROPOS : chacun a sa note quand il arrive (il
-     passe le milieu de l'écran) — l'arpège redescend, vers la personne */
-  if ('IntersectionObserver' in window) {
-    const chapitres = [...document.querySelectorAll('.about-story [data-chapter]')];
-    const vus = new Set();
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      const k = chapitres.indexOf(e.target);
-      /* (« Qui je suis », le premier, est déjà là sous la dernière carte :
-         sa note sonne quand le crème arrive — voir zoneWash) */
-      if (k < 1) return;
-      if (e.isIntersecting && !vus.has(k)) { vus.add(k); jouer('pas', 4 + k); }
-      else if (!e.isIntersecting && e.boundingClientRect.top > 0) vus.delete(k);   // repassé sous l'écran : il pourra resonner
-    }), { rootMargin: '0px 0px -50% 0px' });
-    chapitres.forEach(c => io.observe(c));
-  }
-
-  return { jouer, vapeur, accord, actif: () => actif };
+  return { jouer, vapeur, actif: () => actif };
 })();
 
 function openWorksPanel() {
@@ -6448,7 +6412,6 @@ function ibFonction(card) {
   return domaines.find(t => t.toLowerCase() !== titre) || domaines[0] || '';
 }
 function ibChoisir(k) {
-  if (ibActif >= 0 && k !== ibActif) son.jouer('pas', k);      // (30/10) sa note, à chaque dossier redressé
   ibActif = k;
   ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
   if (typeof cursor !== 'undefined' && cursor && ibSurvol) cursor.classList.toggle('sur-ib', ibSurvol.classList.contains('est-actif'));
@@ -7409,7 +7372,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     if (index) closeWorksPanel();                  // l'Index s'efface : la page saute dessous
     const y = cible();
     if (index || reduced || !voile) { scrollTo({ top: y, behavior: 'instant' }); return; }
-    son.jouer('qui');                              // (30/10) une note avec le saut
+    son.jouer('qui');                              // (30/10) un souffle avec le saut
     if (Math.abs(scrollY - y) < innerHeight * 1.5) { scrollTo({ top: y, behavior: 'smooth' }); return; }
     voile.classList.add('est-la');
     clearTimeout(saut);
@@ -7493,7 +7456,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { retourProj
     /* la zone change : le temps du fondu, le cadre et la flèche prennent la
        même durée que le fond (--zone-duree) au lieu de leur bascule rapide */
     if (bg !== zone) {
-      if (bg === OCRE && son) son.jouer('pas', 4);   // (30/10) « Qui je suis » se découvre : sa note
       zone = bg;
       document.body.classList.add('zone-fondu');
       clearTimeout(fondu);
@@ -7945,7 +7907,6 @@ function figerLettres(nom) {
         nom.classList.remove('nom-entre');
         void nom.offsetWidth;                     // relance l'animation
         nom.classList.add('nom-entre');
-        if (son && son.accord) son.accord();      // (30/10) un accord avec la signature
         nom.classList.remove('nom-attente');
       } else if (!en.isIntersecting && dedans) {
         dedans = false;
