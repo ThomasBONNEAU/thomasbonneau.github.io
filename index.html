@@ -5955,17 +5955,23 @@ function buildWorksPanel() {
   if (indexBureau.matches) buildIndexBureau(cards);
 }
 
-/* ══ LE SON (30/10, sa demande) ═══════════════════════════════════════════
-   Une musique de fond jazz (piano, contrebasse, trompette en sourdine),
-   très bas, en boucle par fondu enchaîné ; au hero, UN souffle continu que
-   la vitesse du curseur ouvre et referme (jamais relancé à chaque geste) ;
-   aux moments de passage, une note de piano accordée sur la musique (sol
-   mineur : ré pour ouvrir, sol pour revenir, fa et si bémol pour suivant et
-   précédent). AUCUN mot à l'écran (sa demande) : aucun navigateur ne laisse
-   une page jouer avant le premier geste du visiteur, le son monte donc en
-   fondu à son premier clic (ou toucher, ou touche). La touche M le coupe et
-   le rend, le temps de la visite. Un seul contexte, un seul gain maître,
-   toujours en fondu ; rien ne tourne pendant le défilement. */
+/* ══ LE SON (30-31/10, sa demande) ════════════════════════════════════════
+   AU HERO : un petit vent, derrière, que la vitesse de la souris ouvre à
+   peine ; en descendant vers le premier projet, une vapeur dont les couches
+   se multiplient (quatre voix qui entrent l'une après l'autre, et des
+   bouffées de plus en plus rapprochées), qui se dissout quand la photo est
+   posée.
+   À PARTIR DES PROJETS (et dans l'Index, et dans un projet ouvert) : la
+   musique, un jazz au saxophone, TOUJOURS BAS — compressée, adoucie dans
+   l'aigu, très en dessous des notes : même le volume poussé, elle reste un
+   fond. Elle se retire quand on remonte au hero.
+   Aux moments de passage, une note de piano en sol mineur (ré pour ouvrir,
+   sol pour revenir, fa et si bémol pour suivant et précédent) ; chaque
+   projet et chaque chapitre a la sienne ; la signature du pied, un accord.
+   AUCUN mot à l'écran : aucun navigateur ne laisse une page jouer avant le
+   premier geste du visiteur, le son naît donc à son premier clic (ou
+   touche). La touche M le coupe et le rend. Un seul contexte, un seul gain
+   maître, toujours en fondu ; à la souris seulement. */
 /* (var, et non const : le cadre peut l'appeler avant que le script n'arrive
    ici — il vaut alors undefined, sans erreur) */
 var son = (function sonDuSite() {
@@ -5980,18 +5986,20 @@ var son = (function sonDuSite() {
      alors le volume de l'élément lui-même */
   const LOCAL = location.protocol === 'file:';
   const SONS = { ouvre: 'note-D5', ferme: 'note-G4', suivant: 'note-F5', precedent: 'note-As4', qui: 'note-G5', index: 'air' };
-  /* (30/10, « un peu plus de synergie ») CHAQUE PROJET A SA NOTE : quand il
-     arrive en défilant, ou quand son dossier se redresse dans l'Index, sa
-     note sonne, très doucement — l'arpège de sol mineur monte d'un projet à
-     l'autre, puis redescend */
+  /* CHAQUE PROJET A SA NOTE : quand il arrive en défilant, ou quand son
+     dossier se redresse dans l'Index, sa note sonne, très doucement —
+     l'arpège de sol mineur monte d'un projet à l'autre, puis redescend */
   const PAS = ['note-G4', 'note-As4', 'note-D5', 'note-F5', 'note-G5', 'note-F5', 'note-D5', 'note-As4'];
-  /* (30/10) la musique reste DESSOUS : on doit entendre les notes des passages */
-  const VOL = { musique: 0.11, projet: 0.6, souffle: 0.3, note: 0.26, air: 0.24, pas: 0.15, vapeur: 0.34, accord: 0.16 };
-  const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7;      // secondes
-  let ctx = null, maitre = null, gMusique = null, actif = false, pret = null;
-  let pistes = [], courante = 0, enchaine = false, dansProjet = false;
+  /* la musique (fichier ramené à −18 dB) reste très en dessous des notes */
+  /* (niveaux de sortie visés : musique ≈ −42 dB, vent ≈ −37 dB, vapeur
+     ≈ −31 dB au plus fort de la descente, notes ≈ −15 dB en crête) */
+  const VOL = { musique: 0.06, projet: 0.6, vent: 0.1, ventGeste: 0.08, vapeur: 0.12, bouffee: 0.12,
+                note: 0.26, air: 0.24, pas: 0.15, accord: 0.16 };
+  const MONTEE = 2.5, DESCENTE = 1.5, ENCHAINE = 7, ARRIVEE = 3, RETRAIT = 2;      // secondes
+  let ctx = null, maitre = null, gMusique = null, actif = false;
+  let pistes = [], courante = 0, enchaine = false, dansProjet = false, presente = false, retrait = 0;
   const tampons = {}, dernier = {}, voix = [];
-  let souffle = null;
+  let vent = null, vapeurs = [];
 
   /* un gain qui glisse vers sa cible, sans claquement */
   function glisse(param, cible, duree) {
@@ -6010,11 +6018,22 @@ var son = (function sonDuSite() {
       if (k >= 1) clearInterval(p.pas);
     }, 50);
   }
-  const niveauMusique = () => VOL.musique * (dansProjet ? VOL.projet : 1);
+  const niveauMusique = () => presente ? VOL.musique * (dansProjet ? VOL.projet : 1) : 0;
+  const lire = a => { const l = a.play(); if (l) l.catch(() => {}); };
 
   /* LA MUSIQUE : deux lecteurs du même fichier ; quand l'un approche de sa
-     fin, l'autre reprend au début et monte pendant que le premier s'éteint */
+     fin, l'autre reprend au début et monte pendant que le premier s'éteint.
+     Puis un compresseur (aucun pic ne dépasse) et l'aigu adouci. */
   function preparerMusique() {
+    let entree = null;
+    if (!LOCAL) {
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -26; comp.knee.value = 10; comp.ratio.value = 5;
+      comp.attack.value = 0.02; comp.release.value = 0.35;
+      const doux = ctx.createBiquadFilter(); doux.type = 'highshelf'; doux.frequency.value = 4200; doux.gain.value = -5;
+      comp.connect(gMusique); gMusique.connect(doux); doux.connect(maitre);
+      entree = comp;
+    }
     for (let k = 0; k < 2; k++) {
       const a = new Audio();
       a.preload = k ? 'none' : 'auto';
@@ -6023,7 +6042,7 @@ var son = (function sonDuSite() {
       if (!LOCAL) {
         const src = ctx.createMediaElementSource(a);
         p.g = ctx.createGain(); p.g.gain.value = k ? 0 : 1;
-        src.connect(p.g); p.g.connect(gMusique);
+        src.connect(p.g); p.g.connect(entree);
       } else a.volume = 0;
       a.addEventListener('timeupdate', () => {
         if (!actif || pistes[courante] !== p || enchaine || !a.duration) return;
@@ -6037,13 +6056,40 @@ var son = (function sonDuSite() {
     const avant = pistes[courante], apres = pistes[1 - courante];
     courante = 1 - courante;
     apres.a.currentTime = 0;
-    const lecture = apres.a.play(); if (lecture) lecture.catch(() => {});
+    lire(apres.a);
     if (LOCAL) { glisseVolume(apres, niveauMusique(), 4); glisseVolume(avant, 0, ENCHAINE - 0.5); }
     else { glisse(apres.g.gain, 1, 4); glisse(avant.g.gain, 0, ENCHAINE - 0.5); }
     setTimeout(() => { avant.a.pause(); enchaine = false; }, ENCHAINE * 1000);
   }
 
-  /* LES SONS COURTS ET LE SOUFFLE : décodés une fois, rejoués à volonté */
+  /* OÙ EST-ON ? La musique appartient aux projets, à l'Index, aux volets ;
+     le vent et la vapeur, au hero. pHero : la progression de la transition
+     du hero (donnée par la réfraction) */
+  let pHero = -1, pVap = 0;                // la cible (instantanée) ; la progression lissée, celle qu'on voit
+  const indexOuvertSon = () => document.body.classList.contains('index-ouvert');
+  const voletOuvertSon = () => { const v = document.getElementById('projPanel'); return !!v && v.classList.contains('open'); };
+  const auHero = () => !indexOuvertSon() && !voletOuvertSon() && (pHero >= 0 ? pHero < 0.85 : scrollY < innerHeight * 1.2);
+  function ambiance() {
+    if (!actif || !ctx) return;
+    const la = !auHero();
+    if (la !== presente) {
+      presente = la;
+      const p = pistes[courante];
+      clearTimeout(retrait);
+      if (la) {
+        if (p.a.paused) lire(p.a);
+        if (LOCAL) glisseVolume(p, niveauMusique(), ARRIVEE); else glisse(gMusique.gain, niveauMusique(), ARRIVEE);
+      } else {
+        if (LOCAL) glisseVolume(p, 0, RETRAIT); else glisse(gMusique.gain, 0, RETRAIT);
+        retrait = setTimeout(() => { if (!presente) pistes.forEach(q => q.a.pause()); }, RETRAIT * 1000 + 100);
+      }
+    }
+    heros();
+  }
+  onMotionScroll(ambiance);                                  // scroll CENTRAL
+  new MutationObserver(ambiance).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  /* LES SONS COURTS, LE VENT, LA VAPEUR : décodés une fois, rejoués à volonté */
   function charger(nom) {
     return fetch(DOSSIER + nom + '.m4a')
       .then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
@@ -6051,36 +6097,89 @@ var son = (function sonDuSite() {
       .then(b => { tampons[nom] = b; })
       .catch(() => { tampons[nom] = 'element'; });   // en fichier, pas de fetch : un simple lecteur
   }
-
-  function lancerSouffle() {
-    const b = tampons.souffle;
-    if (souffle || !b || b === 'element') return;
+  /* une boucle tirée d'un fichier qui boucle sur lui-même entre ses deux marges */
+  function boucle(b, rate) {
     const s = ctx.createBufferSource();
-    s.buffer = b; s.loop = true;
-    s.loopStart = 0.25; s.loopEnd = b.duration - 0.25;     // le fichier boucle sur lui-même entre ses deux marges
-    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 420; f.Q.value = 0.5;
-    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-    const g = ctx.createGain(); g.gain.value = 0;
-    s.connect(f);
-    if (pan) { f.connect(pan); pan.connect(g); } else f.connect(g);
-    g.connect(maitre);
-    s.start(0, 0.25);
-    /* (30/10, « un peu plus de synergie ») la même matière, sur une seconde
-       voie : la vapeur du défilement — elle enfle pendant que la vapeur
-       révèle Arch'ocktail, et s'éteint quand la photo est posée */
-    const fv = ctx.createBiquadFilter(); fv.type = 'lowpass'; fv.frequency.value = 700; fv.Q.value = 0.4;
-    const gv = ctx.createGain(); gv.gain.value = 0;
-    s.connect(fv); fv.connect(gv); gv.connect(maitre);
-    souffle = { s, f, pan, g, fv, gv };
+    s.buffer = b; s.loop = true; s.playbackRate.value = rate || 1;
+    s.loopStart = 0.25; s.loopEnd = b.duration - 0.25;
+    s.start(0, 0.25 + Math.random() * (b.duration - 1));
+    return s;
   }
-  /* le souffle n'existe qu'au hero, et seulement quand la souris BOUGE :
-     la vitesse l'ouvre (plus fort, plus clair), l'arrêt le laisse retomber */
+  function lancerHero() {
+    const bv = tampons.vent, bp = tampons.vapeur;
+    if (!vent && bv && bv !== 'element') {
+      const s = boucle(bv);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 900; f.Q.value = 0.5;
+      const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+      const base = ctx.createGain(); base.gain.value = 0;      // le vent de fond
+      const geste = ctx.createGain(); geste.gain.value = 0;    // ce que la souris y ajoute
+      s.connect(f);
+      const sortie = pan ? (f.connect(pan), pan) : f;
+      sortie.connect(base); sortie.connect(geste);
+      base.connect(maitre); geste.connect(maitre);
+      vent = { s, f, pan, base, geste };
+    }
+    /* la vapeur : quatre voix de la même matière, à quatre hauteurs, posées
+       de part et d'autre — elles entreront l'une après l'autre */
+    if (!vapeurs.length && bp && bp !== 'element') {
+      [[0.72, -0.55], [0.86, 0.4], [1.0, -0.15], [1.18, 0.62]].forEach(([r, x]) => {
+        const s = boucle(bp, r);
+        const g = ctx.createGain(); g.gain.value = 0;
+        const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+        s.connect(g);
+        if (pan) { pan.pan.value = x; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
+        vapeurs.push({ s, g });
+      });
+    }
+    heros();
+  }
+  const lisse = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  /* le vent et la vapeur d'après la progression de la transition */
+  /* (un gain n'est reprogrammé que s'il change vraiment : rien ne
+     s'accumule pendant le défilement) */
+  let enMouvement = false, calmeHero = 0;
+  const vises = [];
+  const viser = (k, param, v, tau) => { if (Math.abs((vises[k] ?? -1) - v) < 0.002) return; vises[k] = v; param.setTargetAtTime(v, ctx.currentTime, tau); };
+  function heros() {
+    if (!actif || !ctx) return;
+    const ici = auHero() ? 1 : 0, p = pVap;
+    if (vent) viser(0, vent.base.gain, VOL.vent * ici * (1 - lisse(0.3, 0.85, p)), 0.25);
+    const fin = 1 - lisse(0.8, 0.94, p), vit = enMouvement ? 1 : 0.35;
+    vapeurs.forEach((v, k) => {
+      const entre = lisse(0.06 + 0.17 * k, 0.2 + 0.17 * k, p);
+      viser(1 + k, v.g.gain, VOL.vapeur * entre * fin * vit * ici, enMouvement ? 0.12 : 0.6);
+    });
+  }
+  /* LES BOUFFÉES : en descendant, à chaque seuil franchi, une bouffée d'air
+     — les seuils se resserrent : la vapeur se multiplie vers le projet */
+  const SEUILS = [0.1, 0.2, 0.29, 0.37, 0.44, 0.5, 0.55, 0.6, 0.64, 0.68, 0.72, 0.75, 0.78, 0.81];
+  function bouffee(force) {
+    const b = tampons.air;
+    if (!b || b === 'element') return;
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = 0.7 + Math.random() * 0.6;
+    const g = ctx.createGain(); g.gain.value = VOL.bouffee * force;
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    s.connect(g);
+    if (pan) { pan.pan.value = Math.random() * 1.4 - 0.7; g.connect(pan); pan.connect(maitre); } else g.connect(maitre);
+    s.start();
+    s.onended = () => g.disconnect();
+  }
+  /* appelé par la réfraction, image par image, pendant la transition */
+  function vapeur(p, cible) {
+    const avant = pVap;
+    pVap = p; pHero = cible == null ? p : cible;
+    if (!actif || !ctx || Math.abs(p - avant) < 0.002) { if (actif && ctx) ambiance(); return; }
+    if (p > avant) SEUILS.forEach(s => { if (avant < s && p >= s) bouffee(0.55 + 0.6 * s); });
+    enMouvement = true;
+    clearTimeout(calmeHero);
+    calmeHero = setTimeout(() => { enMouvement = false; heros(); }, 400);   // arrêtée, la vapeur se retire à moitié
+    ambiance();
+  }
+
+  /* le vent suit la souris au hero : la vitesse l'ouvre, l'arrêt le laisse retomber */
   let px = 0, py = 0, pt = 0, ouvert = 0, calme = 0;
-  const auHero = () => scrollY < innerHeight * 0.8
-    && !document.body.classList.contains('index-ouvert')
-    && !document.getElementById('projPanel')?.classList.contains('open');
   addEventListener('pointermove', e => {
-    if (!actif || !souffle || e.pointerType !== 'mouse') return;
+    if (!actif || !vent || e.pointerType !== 'mouse') return;
     const t = performance.now(), dt = t - pt;
     if (dt < 40) return;                                    // 25 fois par seconde suffisent
     const v = Math.hypot(e.clientX - px, e.clientY - py) / dt;
@@ -6088,12 +6187,17 @@ var son = (function sonDuSite() {
     if (dt > 250) return;                                   // reprise après un arrêt : pas de saut
     const k = auHero() ? Math.min(1, v / 2.4) : 0;
     const c = ctx.currentTime;
-    souffle.g.gain.setTargetAtTime(VOL.souffle * Math.pow(k, 0.85), c, k > ouvert ? 0.09 : 0.35);
-    souffle.f.frequency.setTargetAtTime(420 + 3200 * k * k, c, 0.15);
-    if (souffle.pan) souffle.pan.pan.setTargetAtTime((e.clientX / innerWidth - 0.5) * 0.7, c, 0.25);
+    vent.geste.gain.setTargetAtTime(VOL.ventGeste * Math.pow(k, 0.85), c, k > ouvert ? 0.09 : 0.35);
+    vent.f.frequency.setTargetAtTime(900 + 2600 * k * k, c, 0.15);
+    if (vent.pan) vent.pan.pan.setTargetAtTime((e.clientX / innerWidth - 0.5) * 0.6, c, 0.3);
     ouvert = k;
     clearTimeout(calme);
-    calme = setTimeout(() => { ouvert = 0; if (souffle) souffle.g.gain.setTargetAtTime(0, ctx.currentTime, 0.4); }, 140);
+    calme = setTimeout(() => {
+      ouvert = 0;
+      if (!vent) return;
+      vent.geste.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
+      vent.f.frequency.setTargetAtTime(900, ctx.currentTime, 0.5);
+    }, 140);
   }, { passive: true });
 
   /* une note ; jamais deux fois la même en 0,12 s, jamais plus de trois à la
@@ -6111,10 +6215,10 @@ var son = (function sonDuSite() {
     else if (dernier[f] && t - dernier[f] < 0.12) return;
     dernier[f] = t;
     const vol = (pas ? VOL.pas : f === 'air' ? VOL.air : VOL.note) * (0.9 + Math.random() * 0.18);
-    if (b === 'element') { const a = new Audio(DOSSIER + f + '.m4a'); a.volume = vol; const l = a.play(); if (l) l.catch(() => {}); return; }
+    if (b === 'element') { const a = new Audio(DOSSIER + f + '.m4a'); a.volume = vol; lire(a); return; }
     if (voix.length >= 3) { const v = voix.shift(); v.g.gain.setTargetAtTime(0, t, 0.06); v.s.stop(t + 0.4); }
     /* la musique s'efface un instant sous une note de passage, puis revient */
-    if (gMusique && !pas) {
+    if (gMusique && !pas && presente) {
       const m = gMusique.gain;
       m.cancelScheduledValues(t); m.setValueAtTime(m.value, t);
       m.linearRampToValueAtTime(niveauMusique() * 0.6, t + 0.12);
@@ -6130,7 +6234,7 @@ var son = (function sonDuSite() {
   function projet(dedans) {
     if (dansProjet === dedans) return;
     dansProjet = dedans;
-    if (!actif || !ctx) return;
+    if (!actif || !ctx || !presente) return;
     if (LOCAL) glisseVolume(pistes[courante], niveauMusique(), 1.2);
     else glisse(gMusique.gain, niveauMusique(), 1.2);
   }
@@ -6138,23 +6242,23 @@ var son = (function sonDuSite() {
   function allumer() {
     if (actif) return;
     actif = true;
+    presente = false;
     try { sessionStorage.removeItem('son-coupe'); } catch (e) {}
     if (!ctx) {
       ctx = new AC();
       maitre = ctx.createGain(); maitre.gain.value = 0; maitre.connect(ctx.destination);
-      gMusique = ctx.createGain(); gMusique.gain.value = niveauMusique(); gMusique.connect(maitre);
+      gMusique = ctx.createGain(); gMusique.gain.value = 0;
+      if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      pret = Promise.all(['souffle'].concat(Object.values(SONS)).map(charger)).then(lancerSouffle);
+      Promise.all(['vent', 'vapeur'].concat(Object.values(SONS)).map(charger)).then(lancerHero);
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
-    const p = pistes[courante];
-    if (LOCAL) glisseVolume(p, niveauMusique(), MONTEE);
-    const l = p.a.play(); if (l) l.catch(() => {});
-    /* l'autre lecteur se débloque pendant le clic (Safari ne le laisserait
-       pas partir plus tard tout seul), muet, aussitôt arrêté */
-    const autre = pistes[1 - courante];
-    if (autre.a.paused) { const l2 = autre.a.play(); if (l2) l2.then(() => { if (pistes[courante] !== autre) autre.a.pause(); }).catch(() => {}); }
+    /* les deux lecteurs se débloquent pendant le geste (Safari ne les
+       laisserait pas partir plus tard tout seuls), muets, aussitôt arrêtés :
+       la musique ne part que lorsqu'on arrive aux projets */
+    pistes.forEach(p => { if (p.a.paused) { const l = p.a.play(); if (l) l.then(() => { if (!presente) p.a.pause(); }).catch(() => {}); } });
+    ambiance();
   }
   function eteindre() {
     if (!actif) return;
@@ -6167,6 +6271,8 @@ var son = (function sonDuSite() {
     setTimeout(() => {
       if (actif) return;
       pistes.forEach(p => p.a.pause());
+      presente = false;
+      if (!LOCAL) gMusique.gain.value = 0;
       ctx.suspend();
     }, DESCENTE * 1000 + 80);
   }
@@ -6181,11 +6287,11 @@ var son = (function sonDuSite() {
   document.addEventListener('visibilitychange', () => {
     if (!actif || !ctx) return;
     if (document.hidden) { pistes.forEach(p => p.a.pause()); ctx.suspend(); }
-    else { ctx.resume(); const l = pistes[courante].a.play(); if (l) l.catch(() => {}); }
+    else { ctx.resume(); if (presente) lire(pistes[courante].a); }
   });
 
-  /* LE PREMIER GESTE : le son monte. On écoute jusqu'à ce que le contexte
-     tourne vraiment (un défilement au doigt n'est pas un geste qui compte) */
+  /* LE PREMIER GESTE : le son naît. On écoute jusqu'à ce que le contexte
+     tourne vraiment (un défilement n'est pas un geste qui compte) */
   let coupe = false;
   try { coupe = sessionStorage.getItem('son-coupe') === '1'; } catch (e) {}
   const GESTES = ['pointerdown', 'click', 'touchend', 'keydown'];
@@ -6195,25 +6301,10 @@ var son = (function sonDuSite() {
     if (navigator.userActivation && !navigator.userActivation.isActive) return;
     if (!actif) allumer();
     else if (ctx && ctx.state !== 'running') ctx.resume();
-    const l = pistes[courante] && pistes[courante].a.paused && pistes[courante].a.play(); if (l) l.catch(() => {});
-    if (ctx && ctx.state === 'running' && pistes[courante] && !pistes[courante].a.paused) GESTES.forEach(t => removeEventListener(t, premierGeste, true));
+    if (ctx && ctx.state === 'running') GESTES.forEach(t => removeEventListener(t, premierGeste, true));
   };
   if (!coupe) GESTES.forEach(t => addEventListener(t, premierGeste, true));
 
-  /* la vapeur du hero (p : la progression de la transition, 0 → 1) */
-  let pVapeur = -1, vapeurCalme = 0;
-  function vapeur(p) {
-    if (!actif || !souffle || Math.abs(p - pVapeur) < 0.003) return;
-    pVapeur = p;
-    const k = p <= 0 || p >= 0.92 ? 0 : Math.sin(Math.PI * p / 0.92);
-    const c = ctx.currentTime;
-    souffle.gv.gain.setTargetAtTime(VOL.vapeur * k * k, c, 0.08);
-    souffle.fv.frequency.setTargetAtTime(700 + 2400 * k, c, 0.1);
-    /* page arrêtée au milieu de la transition : le souffle retombe — il ne
-       vit que du mouvement */
-    clearTimeout(vapeurCalme);
-    vapeurCalme = setTimeout(() => { if (souffle) souffle.gv.gain.setTargetAtTime(0, ctx.currentTime, 0.5); }, 350);
-  }
   /* la signature du pied : un accord de sol mineur, égrené */
   function accord() {
     if (!actif || !ctx || ctx.state !== 'running') return;
@@ -8943,7 +9034,7 @@ void main() {
     updateTargetProgress();
     const chasing = advanceProgress(dt60);
     const p = smoothProgress;                 // c'est la progression LISSÉE qui est rendue
-    if (son && son.vapeur) son.vapeur(p);     // (30/10) le souffle suit la vapeur
+    if (son && son.vapeur) son.vapeur(p, targetProgress);   // (30/10) le vent et la vapeur suivent la transition
     const amorti = Math.pow(0.88, dt60);
     velTarget *= amorti;
     smoothedVelocity += (velTarget - smoothedVelocity) * (1 - amorti);
