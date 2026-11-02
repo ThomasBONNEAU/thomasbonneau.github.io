@@ -857,21 +857,21 @@ body.light {
      page met du temps à se lire, le monogramme est déjà là pour la couvrir */
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
              intro-vague 3s linear infinite,
-             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards;
+             intro-brun 3600ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards;
 }
 .intro.is-fin .intro__signe {
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
              intro-vague 3s linear infinite,
-             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
-             intro-nuit 1600ms cubic-bezier(0.45, 0, 0.35, 1) forwards;    /* lent, gracieux */
+             intro-brun 3600ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
+             intro-nuit 500ms cubic-bezier(0.45, 0, 0.35, 1) forwards;     /* (02/11) plein, à peine : la montée compte, pas la suite */
 }
 /* LE RETRAIT — par où il est venu : il retourne à rien */
 .intro.is-retrait .intro__signe {
   animation: intro-nait 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards,
              intro-vague 3s linear infinite,
-             intro-brun 2400ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
-             intro-nuit 1600ms cubic-bezier(0.45, 0, 0.35, 1) forwards,
-             intro-part 1000ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+             intro-brun 3600ms cubic-bezier(0.37, 0, 0.3, 1) 450ms forwards,
+             intro-nuit 500ms cubic-bezier(0.45, 0, 0.35, 1) forwards,
+             intro-part 650ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 @keyframes intro-nait  { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes intro-part  { from { transform: scale(1); opacity: 1; } 70% { opacity: 1; } to { transform: scale(0); opacity: 0; } }
@@ -8225,7 +8225,8 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 1600, RETRAIT = 1000, PHRASE_APRES = 450, PRESENCE = 1300,
+  /* (02/11) la montée plus longue (3,6 s), le plein et le retrait plus courts */
+  const FIN = 500, RETRAIT = 650, PHRASE_APRES = 450, PRESENCE = 2200,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
