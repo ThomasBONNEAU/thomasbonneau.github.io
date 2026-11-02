@@ -845,7 +845,7 @@ body.light {
   -webkit-mask-size: 92.6% auto; mask-size: 92.6% auto;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center; mask-position: center;
-  background-color: #f2f2f3;                /* le gris, à 5 % */
+  background-color: #fff;                   /* (02/11) BLANC : c'est le noir qui construit TB */
   background-image:
     linear-gradient(rgba(0, 0, 0, var(--nuit)), rgba(0, 0, 0, var(--nuit))),   /* le noir */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M-50 100 Q-37.5 86 -25 100 T0 100 T25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 T225 100 T250 100 V360 H-50 Z'/%3E%3C/svg%3E");    /* (02/11) le NOIR seul, une vraie vague au bord net — plus d'ocre, plus de flou */
@@ -1012,17 +1012,17 @@ body.refraction-on .hero { position: sticky; top: 0; }
   .titre-projet.sur-sombre { color: #fff; }
   /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
      dessus de la vapeur (voir titresDansLesImages) */
-  .titre-vapeur { position: fixed; left: 50%; top: 0; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
+  .titre-vapeur { position: fixed; left: 0; top: 0; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
   .titre-vapeur.est-la { visibility: visible; }
   .tp-fct {
     margin: 0 0 0.5em;
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
-    font-size: clamp(12px, 1vw, 16px); letter-spacing: 0.02em; line-height: 1.2;
+    font-size: clamp(13px, 1.05vw, 17px); letter-spacing: 0.02em; line-height: 1.2;
   }
   .tp-nom {
     margin: 0;
     font-family: 'Castillon', Georgia, serif; font-weight: 150;      /* (02/11) un peu moins gras */
-    font-size: clamp(1.6rem, 2.5vw, 3.4rem); line-height: 1.02; letter-spacing: -0.01em;   /* (02/11) encore plus petit */
+    font-size: clamp(1.75rem, 2.8vw, 3.7rem); line-height: 1.02; letter-spacing: -0.01em;   /* (02/11) un tout petit peu plus grand */
   }
 }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
@@ -7253,13 +7253,14 @@ var titresProjets = (function titresDansLesImages() {
   double.classList.add('titre-vapeur');
   document.body.appendChild(double);
   let doubleClair = true;
-  let marge = 0;
+  let marge = 0, gauche = 0;
   const mesurer = () => {
     titres.forEach(t => {
       t.l = t.el.offsetWidth || 300; t.h = t.el.offsetHeight || 90;
       t.el.style.setProperty('--tp-h', t.h + 'px');
     });
     marge = parseFloat(getComputedStyle(titres[0].el).marginTop) || innerHeight * 0.05;
+    gauche = titres[0].el.getBoundingClientRect().left;       // le double se pose au même bord que le vrai
   };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(mesurer);
   /* L'ENCRE — vingt points sur toute la surface du texte. Pour chaque
@@ -7306,9 +7307,9 @@ var titresProjets = (function titresDansLesImages() {
     const montrer = vapeur && r0.top < vh;
     /* sous la vapeur : clair tant que le brouillard domine, sombre une fois
        la photo d'Arch'ocktail montée aux deux tiers */
-    const lDouble = montrer && lire ? encreBlanche({ left: innerWidth / 2 - t0.l / 2, top: yDouble, width: t0.l, height: t0.h }, r0.top < vh * 0.4 ? 0 : 1) : null;
+    const lDouble = montrer && lire ? encreBlanche({ left: gauche, top: yDouble, width: t0.l, height: t0.h }, r0.top < vh * 0.4 ? 0 : 1) : null;
     double.classList.toggle('est-la', montrer);
-    if (montrer) double.style.transform = 'translate3d(-50%,' + yDouble.toFixed(1) + 'px,0)';
+    if (montrer) double.style.transform = 'translate3d(' + gauche.toFixed(1) + 'px,' + yDouble.toFixed(1) + 'px,0)';
     if (lDouble !== null) { doubleClair = !lDouble; double.classList.toggle('sur-sombre', lDouble); }
     plan.forEach(({ t, l }) => {
       if (l !== null) { t.clair = !l; t.el.classList.toggle('sur-sombre', l); }
