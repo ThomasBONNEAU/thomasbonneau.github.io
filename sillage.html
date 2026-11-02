@@ -1002,15 +1002,18 @@ body.refraction-on .hero { position: sticky; top: 0; }
 @media (hover: hover) and (pointer: fine) {
   .projects-stack .stack-card { overflow: clip; }
   .tp-piste { position: absolute; inset: var(--project-gap) 0 0 0; z-index: 3; pointer-events: none; }
-  /* (02/11) sur le côté DROIT, aligné à droite : la photo se lit, le nom
-     aussi (« ça gâche un peu la compréhension de la photo ») */
+  /* (02/11) sur le côté GAUCHE (le miroir de la version de droite) : la
+     photo se lit, le nom aussi ; la fonction et le nom centrés l'un sur
+     l'autre. Un halo très doux, de la couleur du fond, garde le nom lisible
+     sur une photo chargée. */
   .titre-projet {
     position: sticky; top: calc(50vh - var(--tp-h, 90px) / 2);
-    margin: 5vh calc(var(--ui-x, 26px) + 3.2vw) 0 auto; width: max-content;
-    text-align: right; white-space: nowrap;
-    color: #101014; transition: color 0.35s ease;
+    margin: 5vh auto 0 calc(var(--ui-x, 26px) + 3.2vw); width: max-content;
+    text-align: center; white-space: nowrap;
+    color: #101014; transition: color 0.35s ease, text-shadow 0.35s ease;
+    text-shadow: 0 0 22px rgba(255, 255, 255, 0.55), 0 0 6px rgba(255, 255, 255, 0.35);
   }
-  .titre-projet.sur-sombre { color: #fff; }
+  .titre-projet.sur-sombre { color: #fff; text-shadow: 0 0 22px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.3); }
   .tp-fct {
     margin: 0 0 0.5em;
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
@@ -3300,16 +3303,17 @@ body.zone-foot .about-story {
   /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
   .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
   /* (02/11) L'IMAGE EN GRAND, LE NOM AU-DESSUS — l'image va d'un peu sous
-     TB et la croix à un peu au-dessus des deux mentions du bas, beaucoup
-     plus longue (2,1 fois sa hauteur), décalée vers le bas (--ib-dy) ; au-
-     dessus d'elle, centrés, la fonction en italique puis le nom. */
+     TB et la croix à un peu au-dessus des deux mentions du bas, en 3/2 (« le
+     format d'avant, c'était bien »), décalée vers le bas (--ib-dy) ; au-
+     dessus d'elle, centrés et bien détachés d'elle, la fonction en
+     italique puis le nom. */
   @media (hover: hover) and (pointer: fine) {
     .index-bureau {
-      --ib-h: clamp(320px, calc(100vh - 250px), 980px);
-      --ib-l: min(calc(var(--ib-h) * 2.1), calc(100vw - 2 * var(--ib-x) - 80px));
-      --ib-dy: 48px;
-      --ib-fs: clamp(1.9rem, 2.9vw, 3.8rem);
-      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 14px);   /* le pied du nom : 14 px au-dessus de l'image */
+      --ib-h: clamp(320px, calc(100vh - 248px), 980px);
+      --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
+      --ib-dy: 50px;
+      --ib-fs: clamp(2.1rem, 3.3vw, 4.3rem);
+      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 30px);   /* le pied du nom : 30 px au-dessus de l'image */
     }
     .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
     .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; }
@@ -3317,7 +3321,7 @@ body.zone-foot .about-story {
     /* la fonction juste au-dessus du nom (sa ligne a le corps du nom : on la
        remonte d'une hauteur de nom, moins son jambage) */
     .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; }
-    .ib-fct > span { font-size: clamp(16px, 1.4vw, 23px); }
+    .ib-fct > span { font-size: clamp(13px, 1.05vw, 17px); }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -7251,17 +7255,21 @@ var titresProjets = (function titresDansLesImages() {
     t.el.style.setProperty('--tp-h', t.h + 'px');
   });
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(mesurer);
-  /* l'encre : ce que le nom recouvre EN MAJORITÉ — six points sur sa
-     largeur, et leur médiane ; relue au plus tous les 120 ms */
+  /* l'encre : ce que le texte recouvre — vingt points sur TOUTE sa surface
+     (cinq colonnes, quatre lignes : la fonction et le nom) ; on compte la
+     PART de sombre. Dès qu'un bon tiers du fond est sombre, le blanc (et
+     son halo) se lit mieux que le noir : sur une photo contrastée
+     (Grapillon : le bois et la feuille), la moyenne disait « clair » et le
+     noir se perdait. Relue au plus tous les 120 ms. */
   const sombreParDefaut = () => (document.body.classList.contains('on-projects') ? 0 : 1);
-  function lumAuNom(t, yy, cx) {
-    const ls = [];
-    [-0.4, -0.24, -0.08, 0.08, 0.24, 0.4].forEach(fx => {
-      const v = lumSous(cx + fx * t.l, yy, true);
-      ls.push(v === null ? sombreParDefaut() : v);
-    });
-    ls.sort((a, b) => a - b);
-    return ls[ls.length >> 1];
+  function partDeSombre(tr) {
+    let sombres = 0, n = 0;
+    [0.1, 0.3, 0.5, 0.7, 0.9].forEach(fx => [0.18, 0.45, 0.68, 0.88].forEach(fy => {
+      const v = lumSous(tr.left + fx * tr.width, tr.top + fy * tr.height, true);
+      if ((v === null ? sombreParDefaut() : v) < 0.45) sombres++;
+      n++;
+    }));
+    return sombres / n;
   }
   let dernierY = null, derniereLecture = 0;
   function poser() {
@@ -7276,16 +7284,20 @@ var titresProjets = (function titresDansLesImages() {
     const plan = stackCards.map((c, i) => {
       const t = titres[i], r = c.getBoundingClientRect();
       const e = 1 - r.top / vh;
-      const doit = (t.vu ? e > 0.05 : e > 0.18) && r.bottom > 0 && (i > 0 || !vapeur);
+      /* il naît quand sa carte a monté de 40 % : plus bas, il croiserait la
+         mention du coin bas gauche */
+      const doit = (t.vu ? e > 0.3 : e > 0.4) && r.bottom > 0 && (i > 0 || !vapeur);
       let l = null;
-      if (doit && (lire || !t.vu)) { const tr = t.el.getBoundingClientRect(); l = lumAuNom(t, tr.top + tr.height * 0.6, tr.left + tr.width / 2); }
+      if (doit && (lire || !t.vu)) l = partDeSombre(t.el.getBoundingClientRect());
       return { t, doit, l };
     });
     plan.forEach(({ t, doit, l }) => {
       if (doit !== t.vu) { t.vu = doit; t.el.classList.toggle('lettres-in', doit); }
       if (l !== null) {
-        if (t.clair && l < LUM_SOMBRE) t.clair = false;
-        else if (!t.clair && l > LUM_CLAIR) t.clair = true;
+        /* blanc dès 35 % de sombre ; noir sous 25 % (la marge évite le
+           battement) */
+        if (t.clair && l >= 0.35) t.clair = false;
+        else if (!t.clair && l < 0.25) t.clair = true;
         t.el.classList.toggle('sur-sombre', !t.clair);
       }
     });
@@ -7293,6 +7305,9 @@ var titresProjets = (function titresDansLesImages() {
   if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
   onMotionScroll(poser);
   addEventListener('resize', () => { mesurer(); dernierY = null; poser(); }, { passive: true });
+  /* les photos se mesurent plus finement une fois la page au repos : on
+     relit l'encre à ce moment-là */
+  addEventListener('load', () => setTimeout(() => { dernierY = null; derniereLecture = 0; poser(); }, 1500));
   requestAnimationFrame(() => requestAnimationFrame(poser));   // une fois le script entier posé
   return { poser };
 })();
