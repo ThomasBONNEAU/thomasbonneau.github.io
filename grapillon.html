@@ -3297,10 +3297,23 @@ body.zone-foot .about-story {
   }
   /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
   .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
-  /* (31/10) TOUS les dossiers un rien plus larges (6 %), tout le temps — et
-     non plus seulement le regardé, qui passait du carré au rectangle */
+  /* (02/11) L'IMAGE EN GRAND, LES TEXTES RELIÉS À ELLE — l'image va d'un peu
+     sous TB et la croix à un peu au-dessus des deux mentions du bas, plus
+     longue (3/2), décalée vers le bas (--ib-dy) ; le nom et la fonction
+     se posent au-dessus d'elle, le nom sur son bord gauche, la fonction sur
+     son bord droit, sur la même ligne de base. */
   @media (hover: hover) and (pointer: fine) {
-    .index-bureau { --ib-l: calc(var(--ib-h) * 4 / 3 * 1.06); }
+    .index-bureau {
+      --ib-h: clamp(320px, calc(100vh - 236px), 980px);
+      --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
+      --ib-dy: 38px;
+      --ib-fs: clamp(1.7rem, 2.5vw, 3.3rem);
+    }
+    .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
+    .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; }
+    .ib-titre, .ib-fct { top: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 16px); }
+    .ib-titre { left: 0; text-align: left; white-space: nowrap; }
+    .ib-fct { left: auto; right: 0; text-align: right; }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -6551,7 +6564,10 @@ function ibPose(d, n, H, leve) {
   const A = IB_ANGLE * 180 / Math.PI;
   /* (29/10) un peu plus d'air entre les dossiers */
   const devant   = e => ({ T: H / 2 + 20 + (e - 1) * H * 0.12, z: 40 + (e - 1) * 60, rx: A });
-  const derriere = e => ({ T: -H / 2 - 58 - (e - 1) * H * 0.1, z: -60 - (e - 1) * 60, rx: A });
+  /* (02/11) un dossier passé ne se couche plus en haut : il RECULE derrière
+     l'image, debout, comme une pile qui s'enfonce — le haut reste libre
+     pour le nom et la fonction */
+  const derriere = e => ({ T: -H / 2 + 8 * e, z: -110 * e, rx: 0 });
   let p;
   if (d >= 1) p = devant(d);
   else if (d <= -1) p = derriere(-d);
@@ -6565,35 +6581,9 @@ function ibPose(d, n, H, leve) {
   const o = { T: u * H * 0.12 - H * 0.2, z: u * 50, rx: A };
   return { T: o.T + (p.T - o.T) * leve, z: o.z + (p.z - o.z) * leve, rx: o.rx + (p.rx - o.rx) * leve };
 }
-/* (31/10, d'après SA vidéo) LE RELIEF DE L'INDEX — le dossier sélectionné
-   suit la souris, en relief, avec inertie : la souris donne une cible, le
-   relief la rejoint lentement (il glisse, il ne saute pas). À la souris
-   seulement. */
-const ibRelief = { x: 0, y: 0, cx: 0, cy: 0, raf: 0, prec: 0 };
-function ibReliefBoucle(ts) {
-  ibRelief.raf = 0;
-  const dt60 = ibRelief.prec && ts ? Math.min(3, Math.max(0.25, (ts - ibRelief.prec) / (1000 / 60))) : 1;
-  ibRelief.prec = ts || 0;
-  const k = 1 - Math.pow(0.91, dt60);
-  ibRelief.x += (ibRelief.cx - ibRelief.x) * k;
-  ibRelief.y += (ibRelief.cy - ibRelief.y) * k;
-  const fini = Math.abs(ibRelief.cx - ibRelief.x) < 0.0008 && Math.abs(ibRelief.cy - ibRelief.y) < 0.0008;
-  if (fini) { ibRelief.x = ibRelief.cx; ibRelief.y = ibRelief.cy; }
-  if (ibCartes.length) ibDessiner();
-  if (!fini) ibRelief.raf = requestAnimationFrame(ibReliefBoucle);
-  else ibRelief.prec = 0;
-}
-function ibReliefViser(cx, cy) {
-  ibRelief.cx = cx; ibRelief.cy = cy;
-  if (!ibRelief.raf) ibRelief.raf = requestAnimationFrame(ibReliefBoucle);
-}
-if (matchMedia('(hover: hover) and (pointer: fine)').matches && !motionState.reducedMotion) {
-  worksPanel.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse' || !indexBureau.matches || ibEtat.envol > 0) return;
-    ibReliefViser(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1);
-  }, { passive: true });
-  worksPanel.addEventListener('pointerleave', () => ibReliefViser(0, 0));
-}
+/* (02/11) au bureau, à la souris : le nom et la fonction posés au-dessus
+   de l'image (voir le CSS « L'IMAGE EN GRAND ») */
+const ibTextesRelies = matchMedia('(hover: hover) and (pointer: fine)').matches;
 function ibDessiner() {
   const n = ibCartes.length, H = ibEtat.H, vh = innerHeight;
   ibCartes.forEach((c, i) => {
@@ -6615,19 +6605,12 @@ function ibDessiner() {
     const e = -d;
     const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
     const op = 1 - ibEtat.leve * (1 - voile);
-    /* (31/10) le relief : SEUL le dossier sélectionné (debout) tourne et
-       s'incline vers la souris ; la pile et les textes ne bougent pas
-       (sa demande : « que sur la carte qui est sélectionnée ») */
-    /* (31/10, « l'attraction encore plus forte ») il pivote vers le curseur
-       (jusqu'à 10° de côté, 6° en hauteur) et se laisse tirer vers lui */
-    const ry = ibRelief.x * 10 * debout, rxr = -ibRelief.y * 6 * debout;
-    const ax = ibRelief.x * 22 * debout, ay = ibRelief.y * 14 * debout;
-    c.b.style.transform = 'translate3d(' + ax.toFixed(1) + 'px,' + (y + ay).toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + (p.rx + rxr).toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
+    c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
     c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
-    const tT = 'translate(-50%, -50%) translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
+    const tT = (ibTextesRelies ? 'translate(0, -100%)' : 'translate(-50%, -50%)') + ' translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
     [c.t, c.f].forEach(el => {
       el.style.transform = tT;
       el.style.opacity = opT.toFixed(3);
