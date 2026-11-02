@@ -1006,16 +1006,20 @@ body.refraction-on .hero { position: sticky; top: 0; }
      le nom est là, avec sa carte. */
   /* (02/11) SUR LE CÔTÉ GAUCHE, sans ombre ni voile (« l'ombre portée, ça
      va pas du tout ») ; la fonction et le nom centrés l'un sur l'autre */
+  /* (02/11, d'après SA vidéo) le nom bouge AVEC la photo, en même temps
+     que le fond : posé dans la carte, à mi-hauteur, et emporté par le même
+     glissement qu'elle (voir photosQuiGlissent) — il ne colle plus au
+     milieu de l'écran pendant que l'image continue */
   .titre-projet {
-    position: sticky; top: calc(50vh - var(--tp-h, 90px) / 2);
-    margin: 5vh auto 0 calc(var(--ui-x, 26px) + 3.2vw); width: max-content;
+    position: absolute; top: 50%; left: calc(var(--ui-x, 26px) + 13vw);   /* (il monte avec la carte : plus près du bord, il croisait « Design graphique ») */
+    translate: 0 -50%; width: max-content;
     text-align: center; white-space: nowrap;
     color: #101014; transition: color 0.35s ease;
   }
   .titre-projet.sur-sombre { color: #fff; }
   /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
      dessus de la vapeur (voir titresDansLesImages) */
-  .titre-vapeur { position: fixed; left: 0; top: 0; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
+  .titre-vapeur { position: fixed; left: 0; top: 0; translate: none; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
   .titre-vapeur.est-la { visibility: visible; }
   .tp-fct {
     margin: 0 0 0.5em;
@@ -7195,6 +7199,7 @@ function stackFrame(ts) {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches || motionState.reducedMotion) return;
   const ENTREE = 0.24, SORTIE = 0.32;                 // (31/10) « encore un tout petit peu plus fort »
   const photos = stackCards.map(c => c.querySelector('.proj-photo'));
+  const pistes = [];                                   // (02/11) le nom de chaque carte suit sa photo
   let dernierY = null;
   function poser() {
     const y = window.scrollY;
@@ -7214,6 +7219,8 @@ function stackFrame(ts) {
       if (ph._glisse === ty) return;
       ph._glisse = ty;
       ph.style.transform = ty ? 'translate3d(0,' + ty.toFixed(1) + 'px,0)' : '';
+      if (pistes[i] === undefined) pistes[i] = stackCards[i].querySelector('.tp-piste');
+      if (pistes[i]) pistes[i].style.transform = ph.style.transform;
     });
   }
   if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
@@ -7304,15 +7311,15 @@ var titresProjets = (function titresDansLesImages() {
       const l = visible && lire ? encreBlanche(t.el.getBoundingClientRect(), document.body.classList.contains('on-projects') ? 0 : 1) : null;
       return { t, l, r };
     });
-    /* le double d'Arch'ocktail : la place collante qu'aurait son nom */
+    /* le double d'Arch'ocktail : exactement là où est le vrai, sous la vapeur */
     const r0 = plan[0].r, t0 = titres[0];
-    const yDouble = Math.max(r0.top + 1 + marge, vh / 2 - t0.h / 2);
+    const rv = t0.el.getBoundingClientRect();
     const montrer = vapeur && r0.top < vh;
     /* sous la vapeur : clair tant que le brouillard domine, sombre une fois
        la photo d'Arch'ocktail montée aux deux tiers */
-    const lDouble = montrer && lire ? encreBlanche({ left: gauche, top: yDouble, width: t0.l, height: t0.h }, r0.top < vh * 0.4 ? 0 : 1) : null;
+    const lDouble = montrer && lire ? encreBlanche(rv, r0.top < vh * 0.4 ? 0 : 1) : null;
     double.classList.toggle('est-la', montrer);
-    if (montrer) double.style.transform = 'translate3d(' + gauche.toFixed(1) + 'px,' + yDouble.toFixed(1) + 'px,0)';
+    if (montrer) double.style.transform = 'translate3d(' + rv.left.toFixed(1) + 'px,' + rv.top.toFixed(1) + 'px,0)';
     if (lDouble !== null) { doubleClair = !lDouble; double.classList.toggle('sur-sombre', lDouble); }
     plan.forEach(({ t, l }) => {
       if (l !== null) { t.clair = !l; t.el.classList.toggle('sur-sombre', l); }
