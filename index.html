@@ -1013,18 +1013,31 @@ body.refraction-on .hero { position: sticky; top: 0; }
 @media (hover: hover) and (pointer: fine) {
   .projects-stack .stack-card { overflow: clip; }
   .tp-piste { position: absolute; inset: var(--project-gap) 0 0 0; z-index: 3; pointer-events: none; }
-  /* (02/11) sur le côté GAUCHE (le miroir de la version de droite) : la
-     photo se lit, le nom aussi ; la fonction et le nom centrés l'un sur
-     l'autre. Un halo très doux, de la couleur du fond, garde le nom lisible
-     sur une photo chargée. */
+  /* (02/11) AU CENTRE (« c'est mieux centré »), et LISIBLE : derrière le
+     texte, un voile très doux de la couleur du fond — sombre derrière un nom
+     blanc, clair derrière un nom noir —, qui s'efface en ovale vers la
+     photo, plus un halo léger sur les lettres. Aucun effet d'apparition :
+     le nom est là, avec sa carte. */
   .titre-projet {
     position: sticky; top: calc(50vh - var(--tp-h, 90px) / 2);
-    margin: 5vh auto 0 calc(var(--ui-x, 26px) + 3.2vw); width: max-content;
+    margin: 5vh auto 0; width: max-content;
     text-align: center; white-space: nowrap;
     color: #101014; transition: color 0.35s ease, text-shadow 0.35s ease;
-    text-shadow: 0 0 22px rgba(255, 255, 255, 0.55), 0 0 6px rgba(255, 255, 255, 0.35);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
   }
-  .titre-projet.sur-sombre { color: #fff; text-shadow: 0 0 22px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.3); }
+  .titre-projet.sur-sombre { color: #fff; text-shadow: 0 0 20px rgba(0, 0, 0, 0.42); }
+  .titre-projet::before, .titre-projet::after {
+    content: ""; position: absolute; inset: -60% -26%; z-index: -1; pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .titre-projet::before { background: radial-gradient(closest-side, rgba(252, 250, 244, 0.62), rgba(252, 250, 244, 0.3) 45%, rgba(252, 250, 244, 0)); }
+  .titre-projet::after  { background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.22) 45%, rgba(0, 0, 0, 0)); opacity: 0; }
+  .titre-projet.sur-sombre::before { opacity: 0; }
+  .titre-projet.sur-sombre::after  { opacity: 1; }
+  /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
+     dessus de la vapeur (voir titresDansLesImages) */
+  .titre-vapeur { position: fixed; left: 50%; top: 0; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
+  .titre-vapeur.est-la { visibility: visible; }
   .tp-fct {
     margin: 0 0 0.5em;
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
@@ -1032,13 +1045,9 @@ body.refraction-on .hero { position: sticky; top: 0; }
   }
   .tp-nom {
     margin: 0;
-    font-family: 'Castillon', Georgia, serif; font-weight: 200;
-    font-size: clamp(2.2rem, 3.6vw, 4.8rem); line-height: 1.02; letter-spacing: -0.01em;
+    font-family: 'Castillon', Georgia, serif; font-weight: 150;      /* (02/11) un peu moins gras */
+    font-size: clamp(2rem, 3.2vw, 4.3rem); line-height: 1.02; letter-spacing: -0.01em;   /* un peu moins gros */
   }
-  /* l'apparition : vite, lettre par lettre, un simple fondu — ni rouge ni
-     bleu, ni lettres qui se recentrent */
-  .titre-projet .lettre { opacity: 0; transform: none; filter: none; text-shadow: none; transition: opacity 0.12s ease; }
-  .titre-projet.lettres-in .lettre { opacity: 1; transform: none; filter: none; text-shadow: none; transition: opacity 0.22s ease; transition-delay: var(--d, 0s); }
 }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
    sa photo très large y était rognée jusqu'à un énorme zoom) ; le <picture>
@@ -3322,17 +3331,18 @@ body.zone-foot .about-story {
     .index-bureau {
       --ib-h: clamp(320px, calc(100vh - 248px), 980px);
       --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
-      --ib-dy: 50px;
-      --ib-fs: clamp(2.1rem, 3.3vw, 4.3rem);
-      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 30px);   /* le pied du nom : 30 px au-dessus de l'image */
+      --ib-dy: 30px;                              /* (02/11) remonté : « on remonte un peu plus les projets » */
+      --ib-fs: clamp(2.3rem, 3.8vw, 4.9rem);
+      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 26px);   /* le pied du nom : 26 px au-dessus de l'image */
     }
     .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
     .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; }
     .ib-titre { top: var(--ib-haut); left: 50%; text-align: center; white-space: nowrap; }
     /* la fonction juste au-dessus du nom (sa ligne a le corps du nom : on la
        remonte d'une hauteur de nom, moins son jambage) */
-    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; }
-    .ib-fct > span { font-size: clamp(13px, 1.05vw, 17px); }
+    /* la fonction, plus haut : un vrai blanc entre elle et le nom */
+    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9 - 14px); left: 50%; text-align: center; }
+    .ib-fct > span { font-size: clamp(16px, 1.35vw, 22px); }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -7256,31 +7266,46 @@ var titresProjets = (function titresDansLesImages() {
     el.append(fct, nom);
     piste.appendChild(el);
     card.appendChild(piste);
-    lettres([fct, nom]);
-    /* très vite : 16 ms d'une lettre à l'autre */
-    el.querySelectorAll('.lettre').forEach((l, k) => l.style.setProperty('--d', (k * 0.016).toFixed(3) + 's'));
-    return { el, vu: false, clair: true, l: 300, h: 90 };
+    return { el, vu: true, clair: true, l: 300, h: 90 };
   });
-  const mesurer = () => titres.forEach(t => {
-    t.l = t.el.offsetWidth || 300; t.h = t.el.offsetHeight || 90;
-    t.el.style.setProperty('--tp-h', t.h + 'px');
-  });
+  /* ARCH'OCKTAIL DANS LA VAPEUR : sa carte est sous la réfraction tant
+     qu'elle dure ; un double de son nom, au-dessus, suit exactement la
+     place qu'aurait le nom dans la carte (il monte avec elle, puis se pose
+     au milieu) — au relais, le vrai nom prend sa place, au pixel */
+  const double = titres[0].el.cloneNode(true);
+  double.classList.add('titre-vapeur');
+  document.body.appendChild(double);
+  let doubleClair = true;
+  let marge = 0;
+  const mesurer = () => {
+    titres.forEach(t => {
+      t.l = t.el.offsetWidth || 300; t.h = t.el.offsetHeight || 90;
+      t.el.style.setProperty('--tp-h', t.h + 'px');
+    });
+    marge = parseFloat(getComputedStyle(titres[0].el).marginTop) || innerHeight * 0.05;
+  };
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(mesurer);
-  /* l'encre : ce que le texte recouvre — vingt points sur TOUTE sa surface
-     (cinq colonnes, quatre lignes : la fonction et le nom) ; on compte la
-     PART de sombre. Dès qu'un bon tiers du fond est sombre, le blanc (et
-     son halo) se lit mieux que le noir : sur une photo contrastée
-     (Grapillon : le bois et la feuille), la moyenne disait « clair » et le
-     noir se perdait. Relue au plus tous les 120 ms. */
-  const sombreParDefaut = () => (document.body.classList.contains('on-projects') ? 0 : 1);
-  function partDeSombre(tr) {
-    let sombres = 0, n = 0;
+  /* L'ENCRE — vingt points sur toute la surface du texte. Pour chaque
+     encre possible, on calcule le CONTRASTE RÉEL sur chacun d'eux, voile
+     compris (le clair sous le noir, le sombre sous le blanc), et l'on
+     garde l'encre dont les PIRES endroits (le cinquième le moins lisible)
+     se lisent le mieux. Un nom centré tombe sur le produit : la tache rouge
+     du paquet de Malbec faisait choisir le blanc, illisible sur le blanc du
+     paquet. Dans la vapeur du hero (qui ne se lit pas), le brouillard est
+     clair au début, puis c'est la photo sombre d'Arch'ocktail. */
+  const VOILE_CLAIR = 0.6, VOILE_SOMBRE = 0.48;
+  const lineaire = v => Math.pow(Math.min(1, Math.max(0, v)), 2.2);
+  function encreBlanche(tr, fondInconnu) {
+    const cB = [], cN = [];
     [0.1, 0.3, 0.5, 0.7, 0.9].forEach(fx => [0.18, 0.45, 0.68, 0.88].forEach(fy => {
       const v = lumSous(tr.left + fx * tr.width, tr.top + fy * tr.height, true);
-      if ((v === null ? sombreParDefaut() : v) < 0.45) sombres++;
-      n++;
+      const L = lineaire(v === null ? fondInconnu : v);
+      const sousBlanc = L * (1 - VOILE_SOMBRE), sousNoir = VOILE_CLAIR * 0.95 + (1 - VOILE_CLAIR) * L;
+      cB.push(1.05 / (sousBlanc + 0.05));
+      cN.push((sousNoir + 0.05) / 0.05);
     }));
-    return sombres / n;
+    cB.sort((x, y) => x - y); cN.sort((x, y) => x - y);
+    return cB[3] > cN[3];
   }
   let dernierY = null, derniereLecture = 0;
   function poser() {
@@ -7294,23 +7319,22 @@ var titresProjets = (function titresDansLesImages() {
     /* les lectures d'abord, les écritures ensuite */
     const plan = stackCards.map((c, i) => {
       const t = titres[i], r = c.getBoundingClientRect();
-      const e = 1 - r.top / vh;
-      /* il naît quand sa carte a monté de 40 % : plus bas, il croiserait la
-         mention du coin bas gauche */
-      const doit = (t.vu ? e > 0.3 : e > 0.4) && r.bottom > 0 && (i > 0 || !vapeur);
-      let l = null;
-      if (doit && (lire || !t.vu)) l = partDeSombre(t.el.getBoundingClientRect());
-      return { t, doit, l };
+      const visible = r.top < vh && r.bottom > 0;
+      const l = visible && lire ? encreBlanche(t.el.getBoundingClientRect(), document.body.classList.contains('on-projects') ? 0 : 1) : null;
+      return { t, l, r };
     });
-    plan.forEach(({ t, doit, l }) => {
-      if (doit !== t.vu) { t.vu = doit; t.el.classList.toggle('lettres-in', doit); }
-      if (l !== null) {
-        /* blanc dès 35 % de sombre ; noir sous 25 % (la marge évite le
-           battement) */
-        if (t.clair && l >= 0.35) t.clair = false;
-        else if (!t.clair && l < 0.25) t.clair = true;
-        t.el.classList.toggle('sur-sombre', !t.clair);
-      }
+    /* le double d'Arch'ocktail : la place collante qu'aurait son nom */
+    const r0 = plan[0].r, t0 = titres[0];
+    const yDouble = Math.max(r0.top + 1 + marge, vh / 2 - t0.h / 2);
+    const montrer = vapeur && r0.top < vh;
+    /* sous la vapeur : clair tant que le brouillard domine, sombre une fois
+       la photo d'Arch'ocktail montée aux deux tiers */
+    const lDouble = montrer && lire ? encreBlanche({ left: innerWidth / 2 - t0.l / 2, top: yDouble, width: t0.l, height: t0.h }, r0.top < vh * 0.4 ? 0 : 1) : null;
+    double.classList.toggle('est-la', montrer);
+    if (montrer) double.style.transform = 'translate3d(-50%,' + yDouble.toFixed(1) + 'px,0)';
+    if (lDouble !== null) { doubleClair = !lDouble; double.classList.toggle('sur-sombre', lDouble); }
+    plan.forEach(({ t, l }) => {
+      if (l !== null) { t.clair = !l; t.el.classList.toggle('sur-sombre', l); }
     });
   }
   if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
