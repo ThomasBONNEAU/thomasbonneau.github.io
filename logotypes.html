@@ -996,22 +996,24 @@ body.refraction-on .hero { position: sticky; top: 0; }
 @media (hover: hover) and (pointer: fine) {
   .projects-stack .stack-card { overflow: clip; }
   .tp-piste { position: absolute; inset: var(--project-gap) 0 0 0; z-index: 3; pointer-events: none; }
+  /* (02/11) sur le côté DROIT, aligné à droite : la photo se lit, le nom
+     aussi (« ça gâche un peu la compréhension de la photo ») */
   .titre-projet {
     position: sticky; top: calc(50vh - var(--tp-h, 90px) / 2);
-    margin-top: 5vh;
-    text-align: center; white-space: nowrap;
+    margin: 5vh calc(var(--ui-x, 26px) + 3.2vw) 0 auto; width: max-content;
+    text-align: right; white-space: nowrap;
     color: #101014; transition: color 0.35s ease;
   }
   .titre-projet.sur-sombre { color: #fff; }
   .tp-fct {
     margin: 0 0 0.5em;
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
-    font-size: clamp(14px, 1.2vw, 19px); letter-spacing: 0.02em; line-height: 1.2;
+    font-size: clamp(15px, 1.3vw, 21px); letter-spacing: 0.02em; line-height: 1.2;
   }
   .tp-nom {
     margin: 0;
-    font-family: 'Castillon', Georgia, serif; font-weight: 160;
-    font-size: clamp(2.2rem, 3.8vw, 5rem); line-height: 1.02; letter-spacing: -0.01em;
+    font-family: 'Castillon', Georgia, serif; font-weight: 200;
+    font-size: clamp(2.2rem, 3.6vw, 4.8rem); line-height: 1.02; letter-spacing: -0.01em;
   }
   /* l'apparition : vite, lettre par lettre, un simple fondu — ni rouge ni
      bleu, ni lettres qui se recentrent */
@@ -3291,23 +3293,25 @@ body.zone-foot .about-story {
   }
   /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
   .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
-  /* (02/11) L'IMAGE EN GRAND, LES TEXTES RELIÉS À ELLE — l'image va d'un peu
-     sous TB et la croix à un peu au-dessus des deux mentions du bas, plus
-     longue (3/2), décalée vers le bas (--ib-dy) ; le nom et la fonction
-     se posent au-dessus d'elle, le nom sur son bord gauche, la fonction sur
-     son bord droit, sur la même ligne de base. */
+  /* (02/11) L'IMAGE EN GRAND, LE NOM AU-DESSUS — l'image va d'un peu sous
+     TB et la croix à un peu au-dessus des deux mentions du bas, beaucoup
+     plus longue (2,1 fois sa hauteur), décalée vers le bas (--ib-dy) ; au-
+     dessus d'elle, centrés, la fonction en italique puis le nom. */
   @media (hover: hover) and (pointer: fine) {
     .index-bureau {
-      --ib-h: clamp(320px, calc(100vh - 236px), 980px);
-      --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
-      --ib-dy: 38px;
-      --ib-fs: clamp(1.7rem, 2.5vw, 3.3rem);
+      --ib-h: clamp(320px, calc(100vh - 250px), 980px);
+      --ib-l: min(calc(var(--ib-h) * 2.1), calc(100vw - 2 * var(--ib-x) - 80px));
+      --ib-dy: 48px;
+      --ib-fs: clamp(1.9rem, 2.9vw, 3.8rem);
+      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 14px);   /* le pied du nom : 14 px au-dessus de l'image */
     }
     .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
     .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; }
-    .ib-titre, .ib-fct { top: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 16px); }
-    .ib-titre { left: 0; text-align: left; white-space: nowrap; }
-    .ib-fct { left: auto; right: 0; text-align: right; }
+    .ib-titre { top: var(--ib-haut); left: 50%; text-align: center; white-space: nowrap; }
+    /* la fonction juste au-dessus du nom (sa ligne a le corps du nom : on la
+       remonte d'une hauteur de nom, moins son jambage) */
+    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; }
+    .ib-fct > span { font-size: clamp(16px, 1.4vw, 23px); }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -6575,8 +6579,8 @@ function ibPose(d, n, H, leve) {
   const o = { T: u * H * 0.12 - H * 0.2, z: u * 50, rx: A };
   return { T: o.T + (p.T - o.T) * leve, z: o.z + (p.z - o.z) * leve, rx: o.rx + (p.rx - o.rx) * leve };
 }
-/* (02/11) au bureau, à la souris : le nom et la fonction posés au-dessus
-   de l'image (voir le CSS « L'IMAGE EN GRAND ») */
+/* (02/11) au bureau, à la souris : la fonction et le nom posés au-dessus
+   de l'image, centrés (voir le CSS « L'IMAGE EN GRAND ») */
 const ibTextesRelies = matchMedia('(hover: hover) and (pointer: fine)').matches;
 function ibDessiner() {
   const n = ibCartes.length, H = ibEtat.H, vh = innerHeight;
@@ -6604,7 +6608,7 @@ function ibDessiner() {
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
-    const tT = (ibTextesRelies ? 'translate(0, -100%)' : 'translate(-50%, -50%)') + ' translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
+    const tT = (ibTextesRelies ? 'translate(-50%, -100%)' : 'translate(-50%, -50%)') + ' translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
     [c.t, c.f].forEach(el => {
       el.style.transform = tT;
       el.style.opacity = opT.toFixed(3);
@@ -7244,8 +7248,8 @@ var titresProjets = (function titresDansLesImages() {
   /* l'encre : ce que le nom recouvre EN MAJORITÉ — six points sur sa
      largeur, et leur médiane ; relue au plus tous les 120 ms */
   const sombreParDefaut = () => (document.body.classList.contains('on-projects') ? 0 : 1);
-  function lumAuNom(t, yy) {
-    const cx = innerWidth / 2, ls = [];
+  function lumAuNom(t, yy, cx) {
+    const ls = [];
     [-0.4, -0.24, -0.08, 0.08, 0.24, 0.4].forEach(fx => {
       const v = lumSous(cx + fx * t.l, yy, true);
       ls.push(v === null ? sombreParDefaut() : v);
@@ -7268,7 +7272,7 @@ var titresProjets = (function titresDansLesImages() {
       const e = 1 - r.top / vh;
       const doit = (t.vu ? e > 0.05 : e > 0.18) && r.bottom > 0 && (i > 0 || !vapeur);
       let l = null;
-      if (doit && (lire || !t.vu)) { const tr = t.el.getBoundingClientRect(); l = lumAuNom(t, tr.top + tr.height * 0.6); }
+      if (doit && (lire || !t.vu)) { const tr = t.el.getBoundingClientRect(); l = lumAuNom(t, tr.top + tr.height * 0.6, tr.left + tr.width / 2); }
       return { t, doit, l };
     });
     plan.forEach(({ t, doit, l }) => {
