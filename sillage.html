@@ -854,7 +854,7 @@ body.light {
   background-color: #f2f2f3;                /* le gris, à 5 % */
   background-image:
     linear-gradient(rgba(0, 0, 0, var(--nuit)), rgba(0, 0, 0, var(--nuit))),   /* le noir */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='f' x='-30%' y='-10%' width='160%' height='130%'%3E%3CfeGaussianBlur stdDeviation='10'/%3E%3C/filter%3E%3C/defs%3E%3Cpath filter='url(%23f)' fill='%23c16700' d='M-50 100 Q-37.5 92 -25 100 T0 100 T25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 T225 100 T250 100 V360 H-50 Z'/%3E%3C/svg%3E");    /* l'ocre, au bord FLOU */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M-50 100 Q-37.5 86 -25 100 T0 100 T25 100 T50 100 T75 100 T100 100 T125 100 T150 100 T175 100 T200 100 T225 100 T250 100 V360 H-50 Z'/%3E%3C/svg%3E");    /* (02/11) le NOIR seul, une vraie vague au bord net — plus d'ocre, plus de flou */
   background-size: 100% 100%, 200% 300%;
   background-repeat: no-repeat, repeat-x;
   background-position: 0 0, var(--vx) var(--brun);
@@ -1007,22 +1007,15 @@ body.refraction-on .hero { position: sticky; top: 0; }
      blanc, clair derrière un nom noir —, qui s'efface en ovale vers la
      photo, plus un halo léger sur les lettres. Aucun effet d'apparition :
      le nom est là, avec sa carte. */
+  /* (02/11) SUR LE CÔTÉ GAUCHE, sans ombre ni voile (« l'ombre portée, ça
+     va pas du tout ») ; la fonction et le nom centrés l'un sur l'autre */
   .titre-projet {
     position: sticky; top: calc(50vh - var(--tp-h, 90px) / 2);
-    margin: 5vh auto 0; width: max-content;
+    margin: 5vh auto 0 calc(var(--ui-x, 26px) + 3.2vw); width: max-content;
     text-align: center; white-space: nowrap;
-    color: #101014; transition: color 0.35s ease, text-shadow 0.35s ease;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    color: #101014; transition: color 0.35s ease;
   }
-  .titre-projet.sur-sombre { color: #fff; text-shadow: 0 0 20px rgba(0, 0, 0, 0.42); }
-  .titre-projet::before, .titre-projet::after {
-    content: ""; position: absolute; inset: -60% -26%; z-index: -1; pointer-events: none;
-    transition: opacity 0.35s ease;
-  }
-  .titre-projet::before { background: radial-gradient(closest-side, rgba(252, 250, 244, 0.62), rgba(252, 250, 244, 0.3) 45%, rgba(252, 250, 244, 0)); }
-  .titre-projet::after  { background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.22) 45%, rgba(0, 0, 0, 0)); opacity: 0; }
-  .titre-projet.sur-sombre::before { opacity: 0; }
-  .titre-projet.sur-sombre::after  { opacity: 1; }
+  .titre-projet.sur-sombre { color: #fff; }
   /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
      dessus de la vapeur (voir titresDansLesImages) */
   .titre-vapeur { position: fixed; left: 50%; top: 0; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
@@ -1030,12 +1023,12 @@ body.refraction-on .hero { position: sticky; top: 0; }
   .tp-fct {
     margin: 0 0 0.5em;
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
-    font-size: clamp(15px, 1.3vw, 21px); letter-spacing: 0.02em; line-height: 1.2;
+    font-size: clamp(12px, 1vw, 16px); letter-spacing: 0.02em; line-height: 1.2;
   }
   .tp-nom {
     margin: 0;
     font-family: 'Castillon', Georgia, serif; font-weight: 150;      /* (02/11) un peu moins gras */
-    font-size: clamp(2rem, 3.2vw, 4.3rem); line-height: 1.02; letter-spacing: -0.01em;   /* un peu moins gros */
+    font-size: clamp(1.6rem, 2.5vw, 3.4rem); line-height: 1.02; letter-spacing: -0.01em;   /* (02/11) encore plus petit */
   }
 }
 /* une carte peut avoir un cadrage À PART pour l'écran en hauteur (Sillage :
@@ -3325,13 +3318,14 @@ body.zone-foot .about-story {
       --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 26px);   /* le pied du nom : 26 px au-dessus de l'image */
     }
     .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
-    .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; }
+    .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; pointer-events: none; }   /* (02/11) ils ne prennent plus le survol ni le clic des dossiers */
     .ib-titre { top: var(--ib-haut); left: 50%; text-align: center; white-space: nowrap; }
     /* la fonction juste au-dessus du nom (sa ligne a le corps du nom : on la
        remonte d'une hauteur de nom, moins son jambage) */
-    /* la fonction, plus haut : un vrai blanc entre elle et le nom */
-    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9 - 14px); left: 50%; text-align: center; }
-    .ib-fct > span { font-size: clamp(16px, 1.35vw, 22px); }
+    /* la fonction, collée au nom, en noir ; elle tourne autour du MÊME axe
+       que lui (le pied du nom) : les deux passent d'un seul bloc */
+    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; transform-origin: 50% calc(100% + var(--ib-fs) * 0.9); }
+    .ib-fct > span { font-size: clamp(13px, 1.1vw, 18px); color: #111114; }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -7282,7 +7276,7 @@ var titresProjets = (function titresDansLesImages() {
      du paquet de Malbec faisait choisir le blanc, illisible sur le blanc du
      paquet. Dans la vapeur du hero (qui ne se lit pas), le brouillard est
      clair au début, puis c'est la photo sombre d'Arch'ocktail. */
-  const VOILE_CLAIR = 0.6, VOILE_SOMBRE = 0.48;
+  const VOILE_CLAIR = 0, VOILE_SOMBRE = 0;                 // (02/11) plus de voile
   const lineaire = v => Math.pow(Math.min(1, Math.max(0, v)), 2.2);
   function encreBlanche(tr, fondInconnu) {
     const cB = [], cN = [];
