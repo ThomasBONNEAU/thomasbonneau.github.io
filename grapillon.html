@@ -1892,17 +1892,6 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 
 /* mise en page « Violaine & Jérémy » : 2 images même hauteur, marges latérales + gouttière centrale égales */
 .proj-panel-gallery-row.duo.vj { padding: 0 1.4rem; gap: 1.4rem; }
-/* (03/11, TEST sur Arch'ocktail, à la souris) LES IMAGES RAPPROCHÉES — « il
-   y a trop de bordures » : 8 px entre les rangées, entre deux images et
-   sur les bords, comme sur sa capture */
-@media (hover: hover) and (pointer: fine) {
-  .proj-panel.volet-serre .proj-panel-gallery { gap: 8px; }    /* (03/11) 8 px partout (18 px entre les rangées : essayé, retiré) */
-  .proj-panel.volet-serre .proj-panel-gallery-row.duo,
-  .proj-panel.volet-serre .proj-panel-gallery-row.duo.vj { padding: 0 8px; gap: 8px; }
-  .proj-panel.volet-serre .proj-panel-gallery-row.solo,
-  .proj-panel.volet-serre .proj-panel-gallery-row.full.inset,
-  .proj-panel.volet-serre .proj-panel-gallery-row.full.media-video { padding-left: 8px; padding-right: 8px; }
-}
 .proj-panel-gallery-row.duo.vj img,
 .proj-panel-gallery-row.duo.vj video { aspect-ratio: 1/1; }
 
@@ -5599,8 +5588,6 @@ function openPanel(card) {
   /* (essai du 30/10) LA FENÊTRE : un projet peut se présenter dans une
      fenêtre centrée sur fond noir (voir .mise-fenetre) — Arch'ocktail */
   panel.classList.toggle('mise-fenetre', card.dataset.mise === 'fenetre');
-  /* (03/11, TEST sur Arch'ocktail) la galerie serrée : 8 px partout */
-  panel.classList.toggle('volet-serre', /^arch/i.test(card.dataset.title || ''));
   const fenBas = panel.querySelector('.fen-bas');
   if (fenBas) {
     fenBas.querySelector('.fen-g').textContent = title || '';
