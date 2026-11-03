@@ -1022,20 +1022,8 @@ body.refraction-on .hero { position: sticky; top: 0; }
   .titre-projet { color: #101014; }
   .titre-projet.sur-sombre { color: #fff; }
   .titre-projet.pres-du-bas { opacity: 0; }
-  /* (03/11) L'ARRIVÉE — une forme blanche, floue, paraît là où sera le nom ;
-     la typographie en sort, floue, puis nette, pendant que la forme se
-     dissout. Rien avant : le nom attend, invisible. */
-  .titre-projet::before {
-    content: ""; position: absolute; inset: -14% -8%; z-index: -1; pointer-events: none;
-    border-radius: 999px; background: rgba(255, 255, 255, 0.92); filter: blur(16px);
-    opacity: 0; transform: scale(0.5);
-  }
-  .titre-projet .tp-fct, .titre-projet .tp-nom { opacity: 0; filter: blur(12px); }
-  .titre-projet.forme::before { animation: tp-forme 1.25s cubic-bezier(0.3, 0, 0.2, 1) forwards; }
-  .titre-projet.forme .tp-fct, .titre-projet.forme .tp-nom { animation: tp-net 1.25s cubic-bezier(0.3, 0, 0.2, 1) forwards; }
-  .titre-projet.forme-fait .tp-fct, .titre-projet.forme-fait .tp-nom { opacity: 1; filter: none; }
-  @keyframes tp-forme { 0% { opacity: 0; transform: scale(0.5); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.12); } }
-  @keyframes tp-net { 0%, 22% { opacity: 0; filter: blur(14px); } 58% { opacity: 1; filter: blur(5px); } 100% { opacity: 1; filter: blur(0); } }
+  /* (03/11) AUCUN effet : ni forme, ni flou — le nom est directement sur la
+     photo (« enlève le flash, le flou ») */
   .titre-projet {
     position: absolute; top: 50%; left: calc(var(--ui-x, 26px) + 2.6vw);
     translate: 0 -50%; width: max-content;
@@ -7298,7 +7286,8 @@ var titresProjets = (function titresDansLesImages() {
     el.append(fct, nom);
     piste.appendChild(el);
     card.appendChild(piste);
-    return { el, vu: false, clair: true, l: 300, h: 90 };
+    /* Grapillon : toujours en blanc (sa demande du 03/11) */
+    return { el, vu: false, clair: true, l: 300, h: 90, blanc: /grapillon/i.test(card.dataset.title || '') };
   });
   /* ARCH'OCKTAIL DANS LA VAPEUR : sa carte est sous la réfraction tant
      qu'elle dure ; un double de son nom, au-dessus, suit exactement la
@@ -7361,7 +7350,7 @@ var titresProjets = (function titresDansLesImages() {
          redescend sous le quart */
       const nait = !t.vu && visible && tr.bottom < vh * 0.72 && r.bottom > 0 && (i > 0 || !vapeur);
       const repart = t.vu && (e < 0.25 || r.bottom <= 0);
-      const l = visible && (lire || nait) ? encreBlanche(tr, document.body.classList.contains('on-projects') ? 0 : 1) : null;
+      const l = !visible ? null : t.blanc ? true : (lire || nait) ? encreBlanche(tr, document.body.classList.contains('on-projects') ? 0 : 1) : null;
       return { t, bas, r, nait, repart, l };
     });
     /* le double d'Arch'ocktail : exactement là où est le vrai, sous la vapeur */
