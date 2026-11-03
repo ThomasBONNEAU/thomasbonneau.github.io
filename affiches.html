@@ -1010,16 +1010,24 @@ body.refraction-on .hero { position: sticky; top: 0; }
      que le fond : posé dans la carte, à mi-hauteur, et emporté par le même
      glissement qu'elle (voir photosQuiGlissent) — il ne colle plus au
      milieu de l'écran pendant que l'image continue */
+  /* (03/11) L'ENCRE TRANCHÉE : le nom, blanc, en mode « différence » —
+     chaque morceau de lettre s'inverse sur ce qu'il recouvre (noir sur le
+     clair, blanc sur le sombre), au pixel, synchrone avec le fond. Le
+     mélange se fait sur la piste (c'est elle qui glisse, et un calque qui
+     glisse isole ce qu'il contient). Plus sur le côté ; il s'efface quand
+     il passe sur la mention du coin bas (voir titresDansLesImages). */
+  .tp-piste { mix-blend-mode: difference; }
+  .titre-projet, .titre-projet.sur-sombre { color: #fff; }
+  .titre-projet.pres-du-bas { opacity: 0; }
   .titre-projet {
-    position: absolute; top: 50%; left: calc(var(--ui-x, 26px) + 13vw);   /* (il monte avec la carte : plus près du bord, il croisait « Design graphique ») */
+    position: absolute; top: 50%; left: calc(var(--ui-x, 26px) + 2.6vw);
     translate: 0 -50%; width: max-content;
     text-align: center; white-space: nowrap;
-    color: #101014; transition: color 0.35s ease;
+    transition: opacity 0.25s ease;
   }
-  .titre-projet.sur-sombre { color: #fff; }
   /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
      dessus de la vapeur (voir titresDansLesImages) */
-  .titre-vapeur { position: fixed; left: 0; top: 0; translate: none; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
+  .titre-vapeur { position: fixed; left: 0; top: 0; translate: none; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; mix-blend-mode: difference; }
   .titre-vapeur.est-la { visibility: visible; }
   .tp-fct {
     margin: 0 0 0.5em;
@@ -1881,6 +1889,17 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 
 /* mise en page « Violaine & Jérémy » : 2 images même hauteur, marges latérales + gouttière centrale égales */
 .proj-panel-gallery-row.duo.vj { padding: 0 1.4rem; gap: 1.4rem; }
+/* (03/11, TEST sur Arch'ocktail, à la souris) LES IMAGES RAPPROCHÉES — « il
+   y a trop de bordures » : 8 px entre les rangées, entre deux images et
+   sur les bords, comme sur sa capture */
+@media (hover: hover) and (pointer: fine) {
+  .proj-panel.volet-serre .proj-panel-gallery { gap: 8px; }
+  .proj-panel.volet-serre .proj-panel-gallery-row.duo,
+  .proj-panel.volet-serre .proj-panel-gallery-row.duo.vj { padding: 0 8px; gap: 8px; }
+  .proj-panel.volet-serre .proj-panel-gallery-row.solo,
+  .proj-panel.volet-serre .proj-panel-gallery-row.full.inset,
+  .proj-panel.volet-serre .proj-panel-gallery-row.full.media-video { padding-left: 8px; padding-right: 8px; }
+}
 .proj-panel-gallery-row.duo.vj img,
 .proj-panel-gallery-row.duo.vj video { aspect-ratio: 1/1; }
 
@@ -5577,6 +5596,8 @@ function openPanel(card) {
   /* (essai du 30/10) LA FENÊTRE : un projet peut se présenter dans une
      fenêtre centrée sur fond noir (voir .mise-fenetre) — Arch'ocktail */
   panel.classList.toggle('mise-fenetre', card.dataset.mise === 'fenetre');
+  /* (03/11, TEST sur Arch'ocktail) la galerie serrée : 8 px partout */
+  panel.classList.toggle('volet-serre', /^arch/i.test(card.dataset.title || ''));
   const fenBas = panel.querySelector('.fen-bas');
   if (fenBas) {
     fenBas.querySelector('.fen-g').textContent = title || '';
@@ -7308,8 +7329,8 @@ var titresProjets = (function titresDansLesImages() {
     const plan = stackCards.map((c, i) => {
       const t = titres[i], r = c.getBoundingClientRect();
       const visible = r.top < vh && r.bottom > 0;
-      const l = visible && lire ? encreBlanche(t.el.getBoundingClientRect(), document.body.classList.contains('on-projects') ? 0 : 1) : null;
-      return { t, l, r };
+      const bas = visible && t.el.getBoundingClientRect().bottom > vh - 84;   // sur la mention du coin bas
+      return { t, bas, r };
     });
     /* le double d'Arch'ocktail : exactement là où est le vrai, sous la vapeur */
     const r0 = plan[0].r, t0 = titres[0];
@@ -7317,12 +7338,12 @@ var titresProjets = (function titresDansLesImages() {
     const montrer = vapeur && r0.top < vh;
     /* sous la vapeur : clair tant que le brouillard domine, sombre une fois
        la photo d'Arch'ocktail montée aux deux tiers */
-    const lDouble = montrer && lire ? encreBlanche(rv, r0.top < vh * 0.4 ? 0 : 1) : null;
     double.classList.toggle('est-la', montrer);
+    double.classList.toggle('pres-du-bas', rv.bottom > vh - 84);
     if (montrer) double.style.transform = 'translate3d(' + rv.left.toFixed(1) + 'px,' + rv.top.toFixed(1) + 'px,0)';
-    if (lDouble !== null) { doubleClair = !lDouble; double.classList.toggle('sur-sombre', lDouble); }
-    plan.forEach(({ t, l }) => {
-      if (l !== null) { t.clair = !l; t.el.classList.toggle('sur-sombre', l); }
+
+    plan.forEach(({ t, bas }) => {
+      t.el.classList.toggle('pres-du-bas', bas);
     });
   }
   if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
