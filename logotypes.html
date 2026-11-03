@@ -1013,9 +1013,23 @@ body.refraction-on .hero { position: sticky; top: 0; }
      mélange se fait sur la piste (c'est elle qui glisse, et un calque qui
      glisse isole ce qu'il contient). Plus sur le côté ; il s'efface quand
      il passe sur la mention du coin bas (voir titresDansLesImages). */
-  .tp-piste { mix-blend-mode: difference; }
-  .titre-projet, .titre-projet.sur-sombre { color: #fff; }
+  .titre-projet { color: #101014; }
+  .titre-projet.sur-sombre { color: #fff; }
   .titre-projet.pres-du-bas { opacity: 0; }
+  /* (03/11) L'ARRIVÉE — une forme blanche, floue, paraît là où sera le nom ;
+     la typographie en sort, floue, puis nette, pendant que la forme se
+     dissout. Rien avant : le nom attend, invisible. */
+  .titre-projet::before {
+    content: ""; position: absolute; inset: -14% -8%; z-index: -1; pointer-events: none;
+    border-radius: 999px; background: rgba(255, 255, 255, 0.92); filter: blur(16px);
+    opacity: 0; transform: scale(0.5);
+  }
+  .titre-projet .tp-fct, .titre-projet .tp-nom { opacity: 0; filter: blur(12px); }
+  .titre-projet.forme::before { animation: tp-forme 1.25s cubic-bezier(0.3, 0, 0.2, 1) forwards; }
+  .titre-projet.forme .tp-fct, .titre-projet.forme .tp-nom { animation: tp-net 1.25s cubic-bezier(0.3, 0, 0.2, 1) forwards; }
+  .titre-projet.forme-fait .tp-fct, .titre-projet.forme-fait .tp-nom { opacity: 1; filter: none; }
+  @keyframes tp-forme { 0% { opacity: 0; transform: scale(0.5); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.12); } }
+  @keyframes tp-net { 0%, 22% { opacity: 0; filter: blur(14px); } 58% { opacity: 1; filter: blur(5px); } 100% { opacity: 1; filter: blur(0); } }
   .titre-projet {
     position: absolute; top: 50%; left: calc(var(--ui-x, 26px) + 2.6vw);
     translate: 0 -50%; width: max-content;
@@ -1024,7 +1038,7 @@ body.refraction-on .hero { position: sticky; top: 0; }
   }
   /* le nom d'Arch'ocktail, pendant la vapeur du hero : la même chose, au-
      dessus de la vapeur (voir titresDansLesImages) */
-  .titre-vapeur { position: fixed; left: 0; top: 0; translate: none; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; mix-blend-mode: difference; }
+  .titre-vapeur { position: fixed; left: 0; top: 0; translate: none; z-index: 95; margin: 0; pointer-events: none; visibility: hidden; }
   .titre-vapeur.est-la { visibility: visible; }
   .tp-fct {
     margin: 0 0 0.5em;
@@ -3320,8 +3334,8 @@ body.zone-foot .about-story {
       --ib-h: clamp(320px, calc(100vh - 248px), 980px);
       --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
       --ib-dy: 30px;                              /* (02/11) remonté : « on remonte un peu plus les projets » */
-      --ib-fs: clamp(2.3rem, 3.8vw, 4.9rem);
-      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 26px);   /* le pied du nom : 26 px au-dessus de l'image */
+      --ib-fs: clamp(2rem, 3.2vw, 4.2rem);        /* (03/11) un peu plus petit */
+      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 40px);   /* (03/11) plus haut : le pied du nom à 40 px de l'image */
     }
     .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
     .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; pointer-events: none; }   /* (02/11) ils ne prennent plus le survol ni le clic des dossiers */
@@ -3331,7 +3345,16 @@ body.zone-foot .about-story {
     /* la fonction, collée au nom, en noir ; elle tourne autour du MÊME axe
        que lui (le pied du nom) : les deux passent d'un seul bloc */
     .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; transform-origin: 50% calc(100% + var(--ib-fs) * 0.9); }
-    .ib-fct > span { font-size: clamp(13px, 1.1vw, 18px); color: #111114; }
+    .ib-fct > span { font-size: clamp(12px, 0.95vw, 16px); color: #111114; }
+    /* LA COLONNE : à plat, sans ombre ; une bande blanche en haut, sous le
+       nom, sous laquelle l'image qui part disparaît */
+    .ib-carte { box-shadow: none; }
+    .ib-texte::before {
+      content: ""; position: absolute; top: 0;
+      left: calc((var(--ib-l) - 100vw) / 2); width: 100vw;
+      height: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 14px);
+      background: #fff; pointer-events: none;
+    }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -6547,9 +6570,17 @@ function buildIndexBureau(cards) {
   });
   ibMesurer();
 }
+/* (03/11, sa demande) au bureau, à la souris : une fois le premier projet
+   déployé, LA COLONNE — les projets se suivent à plat, sur le blanc, case
+   par case, serrés (IB_JOINT), et défilent en continu, au même pas que la
+   page ; plus de 3D. L'image qui part monte et passe sous la bande du
+   haut ; la suivante arrive par le bas ; au milieu, son nom paraît. */
+const ibColonne = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const IB_JOINT = 14;
 function ibMesurer() {
   if (!ib || !ibCartes.length) return;
   ibEtat.pas = Math.round(innerHeight * 0.55);
+  if (ibColonne) ibEtat.pas = (ibCartes[0].b.offsetHeight || innerHeight * 0.6) + IB_JOINT;
   ib.style.setProperty('--ib-piste', (innerHeight + ibEtat.pas * (ibCartes.length - 1)) + 'px');
   ibEtat.H = ibCartes[0].b.offsetHeight || innerHeight * 0.58;
   ibEtat.fs = parseFloat(getComputedStyle(ibCartes[0].t).fontSize) || 50;
@@ -6569,6 +6600,7 @@ function ibChoisir(k) {
    du pas de chaque côté), la bascule adoucie entre deux */
 function ibCible() {
   const r = Math.max(0, Math.min(ibCartes.length - 1, worksPanel.scrollTop / ibEtat.pas));
+  if (ibColonne) return r;                      // (03/11) en continu : pas de palier
   const n = Math.floor(r), f = r - n;
   const t = Math.min(1, Math.max(0, (f - 0.12) / 0.76));
   return n + t * t * (3 - 2 * t);
@@ -6580,6 +6612,7 @@ function ibCible() {
 const IB_P = 1500;
 function ibPose(d, n, H, leve) {
   const A = IB_ANGLE * 180 / Math.PI;
+  if (ibColonne && leve >= 1) return { T: -H / 2 + d * (H + IB_JOINT), z: 0, rx: 0 };
   /* (29/10) un peu plus d'air entre les dossiers */
   const devant   = e => ({ T: H / 2 + 20 + (e - 1) * H * 0.12, z: 40 + (e - 1) * 60, rx: A });
   /* (02/11) un dossier passé ne se couche plus en haut : il RECULE derrière
@@ -6593,6 +6626,7 @@ function ibPose(d, n, H, leve) {
     const q = d >= 0 ? devant(1) : derriere(1), t = Math.abs(d);
     p = { T: -H / 2 + (q.T + H / 2) * t, z: q.z * t, rx: q.rx * t };
   }
+  if (ibColonne) p = { T: -H / 2 + d * (H + IB_JOINT), z: 0, rx: 0 };   // la vue de loin se déplie en colonne
   if (leve >= 1) return p;
   // la vue de loin : tous couchés, en escalier régulier, la pile centrée
   const u = d - (n - 1) / 2;
@@ -6624,7 +6658,7 @@ function ibDessiner() {
     const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
     const op = 1 - ibEtat.leve * (1 - voile);
     c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
-    c.b.style.setProperty('--ib-ombre', ((1 - debout) * 0.1).toFixed(3));
+    c.b.style.setProperty('--ib-ombre', ibColonne ? '0' : ((1 - debout) * 0.1).toFixed(3));
     /* les textes : le sortant se couche en arrière et s'efface, l'entrant
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
@@ -7258,7 +7292,7 @@ var titresProjets = (function titresDansLesImages() {
     el.append(fct, nom);
     piste.appendChild(el);
     card.appendChild(piste);
-    return { el, vu: true, clair: true, l: 300, h: 90 };
+    return { el, vu: false, clair: true, l: 300, h: 90 };
   });
   /* ARCH'OCKTAIL DANS LA VAPEUR : sa carte est sous la réfraction tant
      qu'elle dure ; un double de son nom, au-dessus, suit exactement la
@@ -7286,7 +7320,7 @@ var titresProjets = (function titresDansLesImages() {
      du paquet de Malbec faisait choisir le blanc, illisible sur le blanc du
      paquet. Dans la vapeur du hero (qui ne se lit pas), le brouillard est
      clair au début, puis c'est la photo sombre d'Arch'ocktail. */
-  const VOILE_CLAIR = 0, VOILE_SOMBRE = 0;                 // (02/11) plus de voile
+  const VOILE_CLAIR = 0, VOILE_SOMBRE = 0;                 // (02/11) plus de voile ; (03/11) l'encre revient au contraste
   const lineaire = v => Math.pow(Math.min(1, Math.max(0, v)), 2.2);
   function encreBlanche(tr, fondInconnu) {
     const cB = [], cN = [];
@@ -7313,8 +7347,16 @@ var titresProjets = (function titresDansLesImages() {
     const plan = stackCards.map((c, i) => {
       const t = titres[i], r = c.getBoundingClientRect();
       const visible = r.top < vh && r.bottom > 0;
-      const bas = visible && t.el.getBoundingClientRect().bottom > vh - 84;   // sur la mention du coin bas
-      return { t, bas, r };
+      const tr = visible ? t.el.getBoundingClientRect() : null;
+      const bas = visible && tr.bottom > vh - 84;   // sur la mention du coin bas
+      const e = 1 - r.top / vh;
+      /* la forme naît quand le NOM est bien dans l'écran (au-dessus du
+         quart bas, loin de la mention du coin) ; elle se rejoue si l'on
+         redescend sous le quart */
+      const nait = !t.vu && visible && tr.bottom < vh * 0.72 && r.bottom > 0 && (i > 0 || !vapeur);
+      const repart = t.vu && (e < 0.25 || r.bottom <= 0);
+      const l = visible && (lire || nait) ? encreBlanche(tr, document.body.classList.contains('on-projects') ? 0 : 1) : null;
+      return { t, bas, r, nait, repart, l };
     });
     /* le double d'Arch'ocktail : exactement là où est le vrai, sous la vapeur */
     const r0 = plan[0].r, t0 = titres[0];
@@ -7324,10 +7366,20 @@ var titresProjets = (function titresDansLesImages() {
        la photo d'Arch'ocktail montée aux deux tiers */
     double.classList.toggle('est-la', montrer);
     double.classList.toggle('pres-du-bas', rv.bottom > vh - 84);
+    const e0 = 1 - r0.top / vh;
+    if (montrer && !double.classList.contains('forme') && rv.bottom < vh * 0.72) double.classList.add('forme');
+    else if (e0 < 0.25) double.classList.remove('forme');
+    if (montrer && lire) double.classList.toggle('sur-sombre', encreBlanche(rv, r0.top < vh * 0.4 ? 0 : 1));
+    /* au relais : si la forme a déjà eu lieu dans la vapeur, le vrai nom est
+       posé net, sans la rejouer */
+    if (!vapeur && double.classList.contains('forme') && !t0.vu) { t0.vu = true; t0.el.classList.add('forme-fait'); double.classList.remove('forme'); }
     if (montrer) double.style.transform = 'translate3d(' + rv.left.toFixed(1) + 'px,' + rv.top.toFixed(1) + 'px,0)';
 
-    plan.forEach(({ t, bas }) => {
+    plan.forEach(({ t, bas, nait, repart, l }) => {
       t.el.classList.toggle('pres-du-bas', bas);
+      if (l !== null) { t.clair = !l; t.el.classList.toggle('sur-sombre', l); }
+      if (nait) { t.vu = true; t.el.classList.remove('forme-fait'); t.el.classList.add('forme'); }
+      else if (repart) { t.vu = false; t.el.classList.remove('forme', 'forme-fait'); }
     });
   }
   if (typeof inertie !== 'undefined' && inertie) inertie.apres(poser);
