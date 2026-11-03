@@ -3352,15 +3352,10 @@ body.zone-foot .about-story {
        que lui (le pied du nom) : les deux passent d'un seul bloc */
     .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; transform-origin: 50% calc(100% + var(--ib-fs) * 0.9); }
     .ib-fct > span { font-size: clamp(12px, 0.95vw, 16px); color: #111114; }
-    /* LA COLONNE : à plat, sans ombre ; une bande blanche en haut, sous le
-       nom, sous laquelle l'image qui part disparaît */
+    /* LA COLONNE : à plat, sans ombre ; le titre SOUS les images (elles
+       passent dessus en montant) */
     .ib-carte { box-shadow: none; }
-    .ib-texte::before {
-      content: ""; position: absolute; top: 0;
-      left: calc((var(--ib-l) - 100vw) / 2); width: 100vw;
-      height: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 14px);
-      background: #fff; pointer-events: none;
-    }
+    .ib-texte, .ib-fonction { z-index: 0; }
   }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
@@ -6577,12 +6572,14 @@ function buildIndexBureau(cards) {
   ibMesurer();
 }
 /* (03/11, sa demande) au bureau, à la souris : une fois le premier projet
-   déployé, LA COLONNE — les projets se suivent à plat, sur le blanc, case
-   par case, serrés (IB_JOINT), et défilent en continu, au même pas que la
-   page ; plus de 3D. L'image qui part monte et passe sous la bande du
-   haut ; la suivante arrive par le bas ; au milieu, son nom paraît. */
+   déployé, LA COLONNE — les projets se suivent à plat, sur le blanc, et
+   défilent en continu, au même pas que la page ; plus de 3D. Le titre est
+   FIXE, en haut, SOUS les images : l'image qui part monte jusqu'en haut et
+   le recouvre ; caché, il change ; la suivante monte à sa place, et quand
+   l'ancienne a fini de passer, on lit le nouveau nom. L'écart (IB_JOINT)
+   laisse le titre libre au repos : l'image d'avant est sortie par le haut. */
 const ibColonne = matchMedia('(hover: hover) and (pointer: fine)').matches;
-const IB_JOINT = 14;
+const IB_JOINT = 100;
 function ibMesurer() {
   if (!ib || !ibCartes.length) return;
   ibEtat.pas = Math.round(innerHeight * 0.55);
@@ -6669,10 +6666,13 @@ function ibDessiner() {
        monte couché de dessous et se redresse — au même pas que les dossiers */
     const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
     const tT = (ibTextesRelies ? 'translate(-50%, -100%)' : 'translate(-50%, -50%)') + ' translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
+    /* la colonne : le titre ne bouge pas ; seul celui du projet le plus
+       proche est là — il change pendant qu'une image le recouvre */
+    const seul = ibColonne && ibEtat.leve >= 1 ? (i === Math.round(ibEtat.pos) ? 1 : 0) : null;
     [c.t, c.f].forEach(el => {
-      el.style.transform = tT;
-      el.style.opacity = opT.toFixed(3);
-      el.style.visibility = opT <= 0.001 ? 'hidden' : '';
+      el.style.transform = seul === null ? tT : 'translate(-50%, -100%)';
+      el.style.opacity = (seul === null ? opT : seul).toFixed(3);
+      el.style.visibility = (seul === null ? opT <= 0.001 : !seul) ? 'hidden' : '';
     });
     /* loin du regardé, un dossier est hors de l'écran : on ne le peint plus */
     c.b.style.opacity = op < 0.999 ? op.toFixed(3) : '';
