@@ -827,12 +827,12 @@ body.light {
    qu'elle attend */
 .hero-phrase.phrase-mesure .mot { filter: none !important; opacity: 1 !important; transform: none !important; animation: none !important; }
 
-/* ══ L'INTRO — LE TB QUI SE FORME (04/11, d'après sa référence) ══════════
-   Sur le blanc, rien que de l'opacité : deux petits disques noirs paraissent
-   en fondu (en CSS, dès le premier affichage), se fondent l'un dans l'autre
-   comme un liquide et créent peu à peu le dessin de TB (voir introSignature,
-   un morphing en WebGL). Le dessin exact prend le relais, net, puis tout
-   s'efface en fondu : aucune échelle. Au-dessus de tout, curseur compris. */
+/* ══ L'INTRO — L'ENCRE QUI SE CONDENSE EN TB (04/11) ═════════════════════
+   Sur le blanc, rien d'abord. Puis une encre sans forme précise naît en
+   opacité là où sera le monogramme, coule, se rejoint, devient un TB très gras
+   qui s'affine jusqu'à son vrai dessin (voir introSignature, en WebGL). TB reste
+   figé un instant, puis tout l'écran s'efface en fondu sur le hero : aucune
+   échelle, aucune coupure. Au-dessus de tout, curseur compris. */
 .intro {
   position: fixed; inset: 0; z-index: 10000;
   display: grid; place-items: center;
@@ -840,21 +840,10 @@ body.light {
   pointer-events: none;
   --intro-h: clamp(44px, 3.9vw, 60px);        /* la hauteur de TB */
 }
-/* pendant le retrait le blanc n'est plus un écran : c'est déjà le hero */
-.intro.is-retrait { background: transparent; }
+.intro.is-retrait { opacity: 0; transition: opacity 700ms cubic-bezier(0.4, 0, 0.3, 1); }
 /* TB occupe 62 % de ce carré : le reste laisse la place au liquide */
-.intro__morph {
-  position: relative; display: block;
-  width: calc(var(--intro-h) / 0.62); height: calc(var(--intro-h) / 0.62);
-  animation: intro-nait 500ms ease-out both;
-}
-.intro.is-retrait .intro__morph { animation: none; opacity: 0; transition: opacity 550ms ease; }
-@keyframes intro-nait { from { opacity: 0; } to { opacity: 1; } }
-.intro__disques, .intro__toile { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.intro__disques { fill: #101014; }
-.intro__toile { visibility: hidden; }
-.intro.est-morph .intro__toile { visibility: visible; }
-.intro.est-morph .intro__disques { visibility: hidden; }
+.intro__morph { position: relative; display: block; width: calc(var(--intro-h) / 0.62); height: calc(var(--intro-h) / 0.62); }
+.intro__toile { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* le dessin exact : en masque, avec de l'air autour (Safari rognait la courbe du B) */
 .intro__signe {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: block;
@@ -867,16 +856,14 @@ body.light {
   background-color: #101014;
   opacity: 0;
 }
-.intro.est-net .intro__signe { opacity: 1; }
-.intro.est-net .intro__toile, .intro.est-net .intro__disques { visibility: hidden; }
-/* sans WebGL : les disques cèdent la place au dessin, en fondu */
-.intro.sans-morph.est-net .intro__signe { transition: opacity 700ms ease; }
+.intro.est-net .intro__signe { opacity: 1; transition: opacity 300ms ease; }
+/* sans WebGL : le dessin paraît simplement en fondu */
+.intro.sans-morph.est-net .intro__signe { transition: opacity 900ms ease; }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
   .intro__signe { opacity: 1; }
-  .intro__disques { display: none; }
 }
 }
 
@@ -3110,7 +3097,7 @@ body.zone-foot .about-story {
 }
 /* déjà en place : l'introduction l'y a posée */
 .ix-case.ix-deja { --ix-r: 0s; --ix-t: 0s; }
-.ix-case.ix-deja .ix-volet, .ix-case.ix-deja .ix-contre { transform: none; transition: none; }
+.ix-case.ix-deja .ix-volet, .ix-case.ix-deja .ix-contre, .ix-case.ix-deja .ix-ligne > span { transform: none; transition: none; }
 /* la photo déborde de sa case : elle peut y glisser sans laisser de bord */
 .ix-photo, .ix-logos {
   position: absolute; left: -8%; top: -8%; width: 116%; height: 116%;
@@ -3612,7 +3599,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- L'INTRO : le monogramme (Documents/perso/logo_2.svg, intact, en masque),
      qui se remplit d'ocre puis de noir ; retirée par le JS (voir introSignature) -->
 <div class="intro" id="intro" aria-hidden="true">
-  <div class="intro__morph"><svg class="intro__disques" viewBox="0 0 100 100" aria-hidden="true"><circle cx="41.5" cy="50" r="9.5"/><circle cx="58.5" cy="50" r="9.5"/></svg><canvas class="intro__toile"></canvas><span class="intro__signe" style="--signe: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FscXVlXzEiIGRhdGEtbmFtZT0iQ2FscXVlIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDg5LjMzIDkwLjU4Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjMWQxZDFiOwogICAgICAgIHN0cm9rZTogIzFkMWQxYjsKICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTA7CiAgICAgICAgc3Ryb2tlLXdpZHRoOiAuNzVweDsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNODUuMzUsNTQuMTdjLTIuNC0zLjM3LTYuMDUtNi4wMy0xMC45NS03Ljk3LTQuNjMtMS44My0xMC4zNS0yLjgxLTE3LjEtMi45OSw1LjQ2LS42NSwxMC4xNi0xLjkxLDEzLjkzLTMuOTEsNC4wNS0yLjE1LDcuMDctNC44MSw5LjA1LTcuOTcsMS45OC0zLjE3LDIuOTctNi41NiwyLjk3LTEwLjE5LDAtNi44NC0yLjQtMTItNy4yMS0xNS41MUM3MS4yMywyLjEzLDYzLjY4LjM4LDUzLjM5LjM4Yy0xLjc3LDAtNS44Mi4xMy0xMi4xNS4zOC0zLjA0LjE3LTUuMTUuMjUtNi4zMy4yNWgwcy0xNS4yNiwwLTE1LjI2LDBjLTQuMDgsMC03LjQ0LS4wMi0xMC4wNy0uMDYtMi42My0uMDQtNC45My0uMTEtNi44OC0uMTl2LjM5YzAtLjQyLS4zOSwzLjc0LTEuMTUsMTIuNDgtLjE3LDEuNDUtLjM0LDMuMDYtLjUxLDQuODQtLjE3LDEuNzgtLjM5LDMuNzQtLjY0LDUuODZsLjI1LjEzYzEuODctNy4zOSwzLjU5LTEyLjQ2LDUuMTYtMTUuMjMsMS41Ny0yLjc2LDQuMTItNC41Nyw3LjY1LTUuNDEsMy41Mi0uODUsOS43LTEuMjgsMTguNTQtMS4yOGgxLjUzdjY4LjgxYzAsNS4xOC0uMzYsOC44OC0xLjA4LDExLjA4LS43MiwyLjIxLTIuMTMsMy44LTQuMjEsNC43OHMtNS44LDEuODktMTEuMTUsMi43NHYuMjVoMzIuNjhjNi4xLDAsMTEuNTItLjM5LDE2LjA4LTEuMTYsNy44MS0xLjMxLDEzLjYxLTMuODQsMTcuNDEtNy42LDMuOC0zLjc1LDUuNy04LjkyLDUuNy0xNS41MSwwLTQuNDctMS4yLTguNC0zLjYxLTExLjc3Wk02Ny45NCw1LjE4YzcuMDEsMy4xMiwxMC41MSw4Ljc0LDEwLjUxLDE2Ljg0LDAsOS4yOC00LjA5LDE1LjI1LTEyLjI4LDE3LjkxLTcuNjEsMi40Ny0xNy4wMSwzLjA2LTI4LjA1LDEuOTJWMi43OGMxMy4zMS0xLjIyLDIzLjM1LS40OCwyOS44MiwyLjRaTTc0Ljg0LDgzLjQ4Yy03LjQsNC4zOC0xNC40Niw1LjIxLTIxLjMzLDUuNjMtLjY1LjA0LTIuMTQuMTEtNC4wNS0uMTItMy40MS0uNDEtNS40OS0xLjQ4LTYuMDYtMS43OC0uODQtLjQ1LTEuNy0uOTItMi41NS0xLjg1LS43My0uODEtMS4yOS0xLjc5LTEuNjYtMi45My0uNzItMi4yMS0xLjA4LTUuOS0xLjA4LTExLjA4di0yNi44OGMxMi4wMi0xLjMsMjIuNi0uNjUsMzEuNTksMi4xMSw5LjYyLDIuOTUsMTQuNDMsOS42MiwxNC40MywyMCwwLDcuNi0zLjEsMTMuMjMtOS4zMSwxNi45WiIvPgo8L3N2Zz4=')"></span></div>
+  <div class="intro__morph"><canvas class="intro__toile"></canvas><span class="intro__signe" style="--signe: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FscXVlXzEiIGRhdGEtbmFtZT0iQ2FscXVlIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDg5LjMzIDkwLjU4Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjMWQxZDFiOwogICAgICAgIHN0cm9rZTogIzFkMWQxYjsKICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTA7CiAgICAgICAgc3Ryb2tlLXdpZHRoOiAuNzVweDsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNODUuMzUsNTQuMTdjLTIuNC0zLjM3LTYuMDUtNi4wMy0xMC45NS03Ljk3LTQuNjMtMS44My0xMC4zNS0yLjgxLTE3LjEtMi45OSw1LjQ2LS42NSwxMC4xNi0xLjkxLDEzLjkzLTMuOTEsNC4wNS0yLjE1LDcuMDctNC44MSw5LjA1LTcuOTcsMS45OC0zLjE3LDIuOTctNi41NiwyLjk3LTEwLjE5LDAtNi44NC0yLjQtMTItNy4yMS0xNS41MUM3MS4yMywyLjEzLDYzLjY4LjM4LDUzLjM5LjM4Yy0xLjc3LDAtNS44Mi4xMy0xMi4xNS4zOC0zLjA0LjE3LTUuMTUuMjUtNi4zMy4yNWgwcy0xNS4yNiwwLTE1LjI2LDBjLTQuMDgsMC03LjQ0LS4wMi0xMC4wNy0uMDYtMi42My0uMDQtNC45My0uMTEtNi44OC0uMTl2LjM5YzAtLjQyLS4zOSwzLjc0LTEuMTUsMTIuNDgtLjE3LDEuNDUtLjM0LDMuMDYtLjUxLDQuODQtLjE3LDEuNzgtLjM5LDMuNzQtLjY0LDUuODZsLjI1LjEzYzEuODctNy4zOSwzLjU5LTEyLjQ2LDUuMTYtMTUuMjMsMS41Ny0yLjc2LDQuMTItNC41Nyw3LjY1LTUuNDEsMy41Mi0uODUsOS43LTEuMjgsMTguNTQtMS4yOGgxLjUzdjY4LjgxYzAsNS4xOC0uMzYsOC44OC0xLjA4LDExLjA4LS43MiwyLjIxLTIuMTMsMy44LTQuMjEsNC43OHMtNS44LDEuODktMTEuMTUsMi43NHYuMjVoMzIuNjhjNi4xLDAsMTEuNTItLjM5LDE2LjA4LTEuMTYsNy44MS0xLjMxLDEzLjYxLTMuODQsMTcuNDEtNy42LDMuOC0zLjc1LDUuNy04LjkyLDUuNy0xNS41MSwwLTQuNDctMS4yLTguNC0zLjYxLTExLjc3Wk02Ny45NCw1LjE4YzcuMDEsMy4xMiwxMC41MSw4Ljc0LDEwLjUxLDE2Ljg0LDAsOS4yOC00LjA5LDE1LjI1LTEyLjI4LDE3LjkxLTcuNjEsMi40Ny0xNy4wMSwzLjA2LTI4LjA1LDEuOTJWMi43OGMxMy4zMS0xLjIyLDIzLjM1LS40OCwyOS44MiwyLjRaTTc0Ljg0LDgzLjQ4Yy03LjQsNC4zOC0xNC40Niw1LjIxLTIxLjMzLDUuNjMtLjY1LjA0LTIuMTQuMTEtNC4wNS0uMTItMy40MS0uNDEtNS40OS0xLjQ4LTYuMDYtMS43OC0uODQtLjQ1LTEuNy0uOTItMi41NS0xLjg1LS43My0uODEtMS4yOS0xLjc5LTEuNjYtMi45My0uNzItMi4yMS0xLjA4LTUuOS0xLjA4LTExLjA4di0yNi44OGMxMi4wMi0xLjMsMjIuNi0uNjUsMzEuNTksMi4xMSw5LjYyLDIuOTUsMTQuNDMsOS42MiwxNC40MywyMCwwLDcuNi0zLjEsMTMuMjMtOS4zMSwxNi45WiIvPgo8L3N2Zz4=')"></span></div>
 </div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
@@ -6699,7 +6686,7 @@ worksPanel.addEventListener('scroll', ixAuDefilement, { passive: true });
 if (inertie && inertie.apresDe) inertie.apresDe(worksPanel, ixDefiler);
 /* LA CHORÉGRAPHIE : chaque case se montre en arrivant dans l'écran, une
    fois sa photo décodée — jamais une image qui se dessine */
-let ixObs = null, ixSonRang = 0;
+let ixObs = null;
 function ixMontrer(c) {
   if (c.vu) return;
   c.vu = true;
@@ -6710,7 +6697,6 @@ function ixMontrer(c) {
     if (c.d.video) { const l = c.photo._video.play(); if (l) l.catch(() => {}); }
     /* la photo a pris sa place sous les coins : ils la relisent */
     setTimeout(ixRelireCadre, 450); setTimeout(ixRelireCadre, 1500);
-    if (c.rang > ixSonRang) { ixSonRang = c.rang; if (c.rang > 1) son.jouer('pile'); }
   });
 }
 function ixArmer() {
@@ -6792,9 +6778,7 @@ function ibDemarrer() {
    tard, la pile s'efface (aucun blanc possible). Les titres viennent ensuite. */
 function ibAtterrir() {
   ibTemps.enCours = false; ibTemps.arme = false;
-  /* seules les cases dont le dossier s'est vraiment posé sont déjà en place ; les
-     autres se montreront normalement, une fois leur image arrivée */
-  ibCartes.forEach(c => { if (c.pret && c.cas.top < ixVue.h) c.cas.el.classList.add('ix-deja'); });
+
   ib.classList.remove('ix-cache');
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (!worksPanel.classList.contains('open')) return;
@@ -6809,7 +6793,7 @@ function ibOuverture() {
   if (!ixCases.length) return;
   ibArreter();
   worksPanel.scrollTop = 0;
-  ixSonRang = 0; ixPrec = -1;
+  ixPrec = -1;
   ixCases.forEach(c => {
     c.vu = false; c.el.classList.remove('est-vu', 'ix-deja');
     if (c.d.video) {
@@ -6821,10 +6805,10 @@ function ibOuverture() {
   });
   ixMesurer();
   ixDefiler(true);
-  /* (04/11) Logotypes et Affiches sont déjà là : pas d'apparition sur eux */
+  /* (04/11, sa demande) au bureau, aucune ouverture : les images et leurs noms
+     sont déjà là, figés. Elles n'ont plus qu'à être décodées d'avance. */
   if (indexBureau.matches) ixCases.forEach(c => {
-    if (c.rang !== 5) return;
-    c.vu = true; c.el.classList.add('est-vu', 'ix-deja');
+    c.el.classList.add('ix-deja');
     if (c.photo.tagName === 'IMG') decodee(c.photo);
   });
   if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); }); return; }
@@ -8414,9 +8398,8 @@ function figerLettres(nom) {
 })();
 
 
-/* ══ L'INTRO — LE TB QUI SE FORME, LA BASCULE ════════════════════════════
-   Le CSS fait paraître les deux disques dès le premier affichage. Ici : le
-   morphing, puis QUAND s'effacer. Le fondu attend que la réfraction soit
+/* ══ L'INTRO — L'ENCRE QUI SE CONDENSE EN TB, LA BASCULE ═════════════════
+   Le morphing, puis QUAND s'effacer. Le fondu attend que la réfraction soit
    prête — la photo du premier projet, les textures : le hero n'apparaît pas
    sans son interaction. Si elle l'est déjà, on enchaîne aussitôt ; sinon on
    l'attend, jamais plus de 2,5 s. Une fois posée, le hero est PRÊT :
@@ -8428,7 +8411,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 450, RETRAIT = 550, PHRASE_APRES = 350, MORPH = 1700, DISQUES = 450,
+  const FIN = 650, RETRAIT = 700, PHRASE_APRES = 200, MORPH = 2300, DISQUES = 150,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -8474,11 +8457,11 @@ function figerLettres(nom) {
     setTimeout(basculer, ATTENTE_MAX);
   }
   /* LE MORPHING : la distance de chaque point au dessin de TB, calculée une fois
-     (un champ de distances) ; à chaque image, on la mélange à la distance aux
-     deux disques, et le seuil de ce mélange donne la forme : un TB très gras,
-     qui s'affine jusqu'à son vrai dessin. Il ne part qu'une fois la page prête :
-     le script principal occupe le navigateur plusieurs secondes au chargement,
-     et le morphing y aurait saccadé. D'ici là, les disques attendent, immobiles. */
+     (un champ de distances). À chaque image, ce champ est déformé par un bruit
+     doux qui coule et décalé d'un seuil : l'encre naît par îlots là où sera TB,
+     se rejoint, devient très grasse, puis le bruit s'éteint et elle s'affine
+     jusqu'au dessin exact. Il ne part qu'une fois la page prête : le script
+     principal occupe le navigateur au chargement, et il y aurait saccadé. */
   let viderMorph = null;
   function distances(masque, N) {
     const INF = 1e20, f = new Float64Array(N), v = new Int32Array(N), z = new Float64Array(N + 1), d = new Float64Array(N);
@@ -8520,17 +8503,18 @@ function figerLettres(nom) {
       out vec2 v; void main() { vec2 p = vec2(float((gl_VertexID & 1) << 2) - 1., float((gl_VertexID & 2) << 1) - 1.); v = vec2(p.x * .5 + .5, .5 - p.y * .5); gl_Position = vec4(p, 0., 1.); }`));
     gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `#version 300 es
       precision highp float; uniform sampler2D s; uniform float e, w, t; in vec2 v; out vec4 o;
-      float umin(float a, float b, float k) { float h = max(k - abs(a - b), 0.) / k; return min(a, b) - h * h * k * .25; }
+      float bruit(vec2 p) {
+        return .62 * sin(p.x * 5. + t * .9 + sin(p.y * 3.5 - t * .6) * 1.4)
+             + .38 * sin(p.y * 7.5 - t * 1.1 + sin(p.x * 6. + t * .7) * 1.2);
+      }
       void main() {
-        /* les disques se fondent en un TB très gras, qui s'affine jusqu'à son vrai dessin */
-        float a = smoothstep(0., .5, e);
-        float vague = sin(a * 3.14159);
-        vec2 q = v + vague * .007 * vec2(sin(v.y * 11. + t * 1.6), sin(v.x * 9. - t * 1.2));
-        float k = .0001 + .07 * smoothstep(0., .35, e);
-        float c = umin(length(q - vec2(.415, .5)) - .095, length(q - vec2(.585, .5)) - .095, k);
-        float gras = .062 * pow(1. - smoothstep(.12, 1., e), 1.15) + .07 * (1. - a);
-        float d = mix(c, texture(s, q).r - gras, a);
-        float al = 1. - smoothstep(-w, w, d);
+        /* un bruit doux, qui coule */
+        float a = 1. - smoothstep(.25, .9, e);
+        vec2 q = v + a * .016 * vec2(bruit(v * 1.6 + 3.1), bruit(v * 1.6 + 7.3));
+        /* le seuil : rien, puis très gras, puis le dessin exact */
+        float seuil = mix(mix(-.06, .04, smoothstep(0., .52, e)), 0., smoothstep(.52, 1., e));
+        float d = texture(s, q).r - seuil + bruit(v * 2.4 + 11.) * .036 * (1. - smoothstep(.12, .7, e));
+        float al = (1. - smoothstep(-w, w, d)) * smoothstep(0., .14, e);
         o = vec4(vec3(.0627, .0627, .0784) * al, al);
       }`));
     gl.linkProgram(prog);
@@ -8560,15 +8544,15 @@ function figerLettres(nom) {
     if (!dessiner) {
       intro.classList.add('sans-morph');
       setTimeout(() => { intro.classList.add('est-net'); }, 100);
-      setTimeout(formeFinie, 800);
+      setTimeout(formeFinie, 1000);
       return;
     }
     dessiner(0, 0);
     let debut = 0;
     const pas = ts => {
-      if (!debut) { debut = ts; intro.classList.add('est-morph'); }
+      if (!debut) debut = ts;
       const t = Math.max(0, Math.min(1, (ts - debut) / MORPH));
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const e = 0.5 - 0.5 * Math.cos(Math.PI * t);
       dessiner(e, (ts - debut) / 1000);
       if (t > 0.66) presence();
       if (t < 1) requestAnimationFrame(pas);
