@@ -3159,6 +3159,8 @@ body.zone-foot .about-story {
 }
 .ix-fct { font-style: italic; }
 .ix-tiret { margin: 0 0.32em; }
+/* (04/11) le nom un rien plus petit que la spécificité, qui garde sa taille */
+@media (min-width: 901px) { .ix-nom { font-size: 0.9em; } }
 /* L'ALLURE DE CHAQUE RANGÉE : les photos seules s'ouvrent lentement, de côté,
    chacune d'un bord ; les paires se répondent, l'une monte, l'autre suit */
 .ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
