@@ -2851,11 +2851,11 @@ body.zone-foot .about-story {
   transition-timing-function: var(--zone-courbe);
 }
 
-/* (04/11, sa demande) au bureau : en Castillon, régulier, pas en capitales ; le numéro en italique */
+/* (04/11, sa demande) au bureau : en Castillon, pas en capitales */
 @media (min-width: 901px) {
-  /* la même présence que les anciennes capitales : un rien plus grand, sans lourdeur */
-  .repere { font-family: 'Castillon', Georgia, serif; font-weight: 300; font-size: clamp(13px, 0.95vw, 15px); letter-spacing: 0; text-transform: none; }
-  .repere__num { font-style: italic; font-variant-numeric: normal; margin-right: 0; }
+  /* (04/11) plus grand, en italique, un peu plus espacé ; le numéro finit au ras du filet */
+  .repere { font-family: 'Castillon', Georgia, serif; font-weight: 300; font-style: italic; font-size: clamp(15px, 1.15vw, 18px); letter-spacing: 0.045em; text-transform: none; }
+  .repere__num { font-variant-numeric: normal; margin-right: -0.045em; }
 }
 
 /* ── LE CORPS — DEUX MISES EN PAGE, ET SEULEMENT DEUX ─────────────────────
