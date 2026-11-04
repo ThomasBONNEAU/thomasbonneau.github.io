@@ -3195,6 +3195,9 @@ body.zone-foot .about-story {
 @media (max-width: 900px) {
   /* AU TÉLÉPHONE : une seule colonne, le même format pour tous */
   .ix-grille { --ix-m: 14px; --ix-g: 8px; padding: 56px var(--ix-m) 110px; }
+  /* au téléphone, rien ne glisse : la photo garde son cadrage d'avant */
+  .ix-photo, .ix-logos { left: -4%; top: -4%; width: 108%; height: 108%; }
+  .ix-contre { transform: translate3d(calc(var(--vx) * -0.74), calc(var(--vy) * -0.74), 0) scale(1.04); }
   .ix-rang { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
   .ix-rang + .ix-rang { margin-top: 40px; }
   .ix-image, .ix-c-sillage .ix-image, .ix-c-onf .ix-image, .ix-autre .ix-image { aspect-ratio: 1.25; max-height: none; }
