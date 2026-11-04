@@ -538,8 +538,8 @@ body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
 }
 .cursor__fleche { transition: opacity 0.2s ease; }
 .cursor.sur-ib .cursor__fleche { opacity: 0; }
-/* une image mêle clair et sombre sous un mot entier : il s'inverse sur elle */
-.cursor.sur-ib { color: #fff; mix-blend-mode: difference; }
+/* (04/11) plus de mix-blend-mode : il recomposait tout l'écran à chaque image du
+   défilement. Le mot prend la couleur lue sous lui, comme la flèche. */
 .cursor.sur-ib .cursor__voir { opacity: 1; }
 .cursor.sur-ib .cursor__indice { visibility: hidden; }
 /* la souris n'est pas (encore) sur la page : pas de curseur */
@@ -838,28 +838,42 @@ body.light {
    qu'elle attend */
 .hero-phrase.phrase-mesure .mot { filter: none !important; opacity: 1 !important; transform: none !important; animation: none !important; }
 
-/* ══ L'INTRO — TB EN LIGNE CONTINUE (04/11) ══════════════════════════════
-   Sur le blanc, une ligne très fine dessine le contour de TB, d'un seul trait,
-   doublée d'un léger relief ; le dessin se remplit ensuite en opacité, et TB
-   reste figé un instant. Puis tout l'écran s'efface en fondu sur le hero :
-   aucune échelle, aucune coupure. C'est le monogramme du cadre, en SVG, qui
-   déborde librement de son cadre : le B n'est plus rogné. */
+/* ══ L'INTRO — TB NAÎT DE L'INTÉRIEUR (04/11) ════════════════════════════
+   Comme la signature du pied de page : d'abord rien ; l'encre arrive sur un
+   trait ultra-fin, au cœur de chaque jambage, puis le trait s'étoffe lentement
+   de l'intérieur vers l'extérieur jusqu'au dessin exact (voir introSignature,
+   en WebGL). Dessous, « Thomas Bonneau » paraît lettre après lettre, comme les
+   noms de l'Index. TB reste figé un instant, puis tout l'écran s'efface en
+   fondu sur le hero : aucune échelle, aucune coupure. */
 .intro {
   position: fixed; inset: 0; z-index: 10000;
   display: grid; place-items: center;
   background: #fff;
   pointer-events: none;
+  --intro-h: clamp(36px, 3vw, 46px);
 }
 .intro.is-retrait { opacity: 0; transition: opacity 700ms cubic-bezier(0.4, 0, 0.3, 1); }
-.intro__trace { display: block; height: clamp(36px, 3vw, 46px); width: auto; aspect-ratio: 89.33 / 90.58; overflow: visible; }
-.intro__fond { fill: #101014; stroke: #101014; stroke-width: 0.75px; stroke-miterlimit: 10; opacity: 0; }
-.intro__ligne { fill: none; stroke: #101014; stroke-width: 1.1px; stroke-linecap: round; stroke-linejoin: round; }
-.intro__relief { fill: none; stroke: #101014; stroke-width: 1.1px; stroke-linecap: round; stroke-linejoin: round; opacity: 0.16; }
+.intro__bloc { position: relative; display: block; height: var(--intro-h); aspect-ratio: 89.33 / 90.58; }
+.intro__toile {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: block;
+  width: calc(var(--intro-h) / 0.86); height: calc(var(--intro-h) / 0.86);
+}
+.intro__trace { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.intro__fond { fill: #101014; stroke: #101014; stroke-width: 0.75px; stroke-miterlimit: 10; opacity: 0; transition: opacity 260ms ease; }
+.intro.est-net .intro__fond { opacity: 1; }
+.intro.sans-toile.est-net .intro__fond { transition-duration: 1100ms; }
+.intro__nom {
+  position: absolute; left: 50%; top: 100%; translate: -50% 0; margin: clamp(14px, 1.15vw, 19px) 0 0;
+  font-family: 'Castillon', Georgia, serif; font-weight: 200; font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.2; letter-spacing: 0.02em; white-space: nowrap; color: transparent;
+}
+.intro.nom-la .intro__l { color: #101014; transition: color 0.8s cubic-bezier(0.3, 0, 0.2, 1) var(--d, 0ms); }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
   .intro__fond { opacity: 1; }
+  .intro__nom { color: #101014; }
 }
 }
 
@@ -3134,10 +3148,13 @@ body.zone-foot .about-story {
   transform: none;
   transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t));
 }
-.ix-fct { font-style: italic; }
+.ix-fct { font-style: italic; letter-spacing: 0.04em; }
 @media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
-  .ix-l, .ix-sous .ix-point { opacity: 0; }
-  .ix-case.est-vu .ix-l, .ix-case.est-vu .ix-sous .ix-point { opacity: 1; transition: opacity 0.75s cubic-bezier(0.3, 0, 0.2, 1) var(--d, 0ms); }
+  /* la couleur et non l'opacité : aucun calque à créer pendant le défilement */
+  .ix-l { color: transparent; }
+  .ix-sous .ix-point { background-color: transparent; }
+  .ix-case.est-vu .ix-l { color: #111114; transition: color 0.75s cubic-bezier(0.3, 0, 0.2, 1) var(--d, 0ms); }
+  .ix-case.est-vu .ix-sous .ix-point { background-color: #111114; transition: background-color 0.75s cubic-bezier(0.3, 0, 0.2, 1) var(--d, 0ms); }
 }
 /* entre les deux, un tout petit rond noir, au milieu de la hauteur des lettres */
 .ix-point { display: inline-block; width: 0.14em; height: 0.14em; margin: 0 0.3em; border-radius: 50%; background: currentColor; vertical-align: middle; }
@@ -3154,14 +3171,14 @@ body.zone-foot .about-story {
 
 /* Malbec : l'image reste dessous, la vidéo se pose dessus quand ses images arrivent */
 .ix-photo.ix-film { display: block; }
-.ix-film > img, .ix-film > video, .ix-film > canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ix-film > img, .ix-film > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .ix-film > video { opacity: 0; transition: opacity 0.5s ease; }
 .ix-film > video.est-la { opacity: 1; }
 
 @media (hover: hover) and (pointer: fine) {
   /* LE SURVOL : la photo avance à peine, lentement. Rien d'autre. */
-  .ix-case:hover .ix-photo, .ix-case:hover .ix-logos img { scale: 1.03; }
-  .ix-photo, .ix-logos { will-change: transform; }
+  .ix-case.ix-survol .ix-photo, .ix-case.ix-survol .ix-logos img { scale: 1.03; }
+  .ix-photo, .ix-logos, .ix-grille { will-change: transform; }
 }
 @media (max-width: 900px) {
   /* AU TÉLÉPHONE : une seule colonne, le même format pour tous */
@@ -3598,7 +3615,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 
 <!-- L'INTRO : le monogramme (Documents/perso/logo_2.svg, intact, en masque),
      qui se remplit d'ocre puis de noir ; retirée par le JS (voir introSignature) -->
-<div class="intro" id="intro" aria-hidden="true"><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg></div>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro__bloc"><canvas class="intro__toile"></canvas><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg><p class="intro__nom">Thomas Bonneau</p></div></div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
 <div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
@@ -4040,19 +4057,23 @@ function onMotionPointer(fn) { _pointerConsumers.push(fn); return fn; }
 const inertie = (function inertieDuDefilement() {
   const fin = matchMedia('(hover: hover) and (pointer: fine)');
   if (!fin.matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-  const TAU = 380;                                   // ms : la constante de décélération (30/10 : « plus d'inertie », 105 → 175 → 260 → 380)
+  /* (04/11) UN AMORTISSEMENT CRITIQUE (le « SmoothDamp » des moteurs de jeu, l'idée
+     de Lenis poussée plus loin) à la place de l'ancien « on rattrape un pourcentage » :
+     la vitesse ne saute plus à chaque cran de molette, et la fin n'a plus cette
+     longue traîne où la page rampait pixel par pixel. */
+  const LISSAGE = 0.42;                              // s : le temps de lissage
   const pistes = new Map();                          // un élément défilant → son état
   const racine = document.scrollingElement || document.documentElement;
   function piste(el) {
     let p = pistes.get(el);
     if (!p) {
-      p = { el, cible: 0, pos: 0, ecrit: -1, raf: 0, prec: 0 };
+      p = { el, cible: 0, pos: 0, vit: 0, ecrit: -1, raf: 0, prec: 0 };
       const lire = () => (el === racine ? window.scrollY : el.scrollTop);
       p.lire = lire;
       /* un défilement venu d'ailleurs (clavier, barre, saut du site) : on s'y recale */
       (el === racine ? window : el).addEventListener('scroll', () => {
         const y = lire();
-        if (Math.abs(y - p.ecrit) > 1.5) { p.pos = p.cible = y; p.ecrit = -1; if (p.raf) { cancelAnimationFrame(p.raf); p.raf = 0; } }
+        if (Math.abs(y - p.ecrit) > 1.5) { p.pos = p.cible = y; p.vit = 0; p.ecrit = -1; if (p.raf) { cancelAnimationFrame(p.raf); p.raf = 0; } }
       }, { passive: true });
       pistes.set(el, p);
     }
@@ -4066,14 +4087,18 @@ const inertie = (function inertieDuDefilement() {
   function ecrire(p, y) {
     p.ecrit = Math.round(y * 2) / 2;
     if (p.el === racine) { window.scrollTo({ top: y, behavior: 'instant' }); apres.forEach(f => f()); }
-    else { p.el.scrollTo({ top: y, behavior: 'instant' }); const f = apresEl.get(p.el); if (f) f(); }
+    else { p.el.scrollTo({ top: y, behavior: 'instant' }); const f = apresEl.get(p.el); if (f) f(y); }
   }
   function boucle(p, ts) {
     p.raf = 0;
-    const dt = p.prec ? Math.min(64, Math.max(4, ts - p.prec)) : 16.7;
+    const dt = (p.prec ? Math.min(50, Math.max(4, ts - p.prec)) : 16.7) / 1000;
     p.prec = ts;
-    p.pos += (p.cible - p.pos) * (1 - Math.exp(-dt / TAU));
-    if (Math.abs(p.cible - p.pos) < 0.4) p.pos = p.cible;
+    const w = 2 / LISSAGE, xx = w * dt, ex = 1 / (1 + xx + 0.48 * xx * xx + 0.235 * xx * xx * xx);
+    const ecart = p.pos - p.cible, tmp = (p.vit + w * ecart) * dt;
+    p.vit = (p.vit - w * tmp) * ex;
+    p.pos = p.cible + (ecart + tmp) * ex;
+    /* à l'arrêt, sur un pixel entier : le texte et les images restent nets */
+    if (Math.abs(p.cible - p.pos) < 0.2 && Math.abs(p.vit) < 8) { p.cible = Math.round(p.cible); p.pos = p.cible; p.vit = 0; }
     ecrire(p, p.pos);
     if (p.pos !== p.cible) p.raf = requestAnimationFrame(t => boucle(p, t));
     else p.prec = 0;
@@ -4103,7 +4128,7 @@ const inertie = (function inertieDuDefilement() {
     /* un volet verrouillé (pendant son passage) ne défile pas */
     if (el !== racine && getComputedStyle(el).overflowY === 'hidden') return;
     const p = piste(el);
-    if (!p.raf) p.pos = p.cible = p.lire();                  // on repart de la vraie position
+    if (!p.raf) { p.pos = p.cible = p.lire(); p.vit = 0; }   // on repart de la vraie position
     const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * el.clientHeight : e.deltaY;
     p.cible = Math.max(0, Math.min(max(el), p.cible + d));
     e.preventDefault();
@@ -6506,7 +6531,8 @@ const IX_CADRE = [-0.08, -0.08, 1.16, 1.16], IX_GLISSE = 0.072;   // la photo d�
 let ixCases = [], ibCartes = [];
 function ixSource(d) {
   const part = indexBureau.matches ? d.col / 12 : d.tel;
-  return varianteProche(d.src, Math.round(innerWidth * part * IX_CADRE[2] * Math.min(devicePixelRatio || 1, 2)));
+  /* un peu sous la taille exacte : 4 fois moins de mémoire à envoyer à la carte graphique, aucune perte visible */
+  return varianteProche(d.src, Math.round(innerWidth * part * IX_CADRE[2] * Math.min(devicePixelRatio || 1, 2) * 0.8));
 }
 function ibFonction(card) {
   const titre = (card.dataset.title || '').trim().toLowerCase();
@@ -6551,17 +6577,6 @@ function ixConstruire(cards) {
         v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
         v.src = d.video;
         v.addEventListener('playing', () => v.classList.add('est-la'));
-        /* la dernière image, recopiée : plus rien à décoder, elle reste figée */
-        v.addEventListener('ended', () => {
-          try {
-            const cv = document.createElement('canvas');
-            cv.width = v.videoWidth; cv.height = v.videoHeight;
-            cv.getContext('2d').drawImage(v, 0, 0);
-            cv.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
-            photo.appendChild(cv);
-            photo._fige = cv;
-          } catch (e) {}
-        });
         photo.appendChild(v);
         photo._video = v;
       } else {
@@ -6569,7 +6584,6 @@ function ixConstruire(cards) {
         photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
         photo.src = ixSource(d);
         photo.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
-        photo._ixX = d.x; photo._ixY = d.y;
         contre.appendChild(photo);
       }
     }
@@ -6691,20 +6705,108 @@ function ixDefiler(force) {
     c.photo.style.transform = 'translate3d(0,' + (-p * c.h * IX_GLISSE).toFixed(1) + 'px,0)';
   }
 }
-let ixRaf = 0, ixLecture = 0, ixDerniere = 0;
-const ixRelireCadre = () => document.dispatchEvent(new Event('cadre-relire'));
+/* LES COINS DU CADRE, sur l'Index : tout se calcule depuis les positions relevées
+   et la lumière déjà mesurée de chaque photo. Plus de elementsFromPoint ni de
+   mesure de photo pendant qu'on défile : c'était la source des petits arrêts. */
+let ixCoins = [];
+function ixMesurerCoins() {
+  ixCoins = ['.site-frame__tl', '.site-frame__tr', '.site-frame__bl', '.site-frame__br'].map(sel => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { el, x: r.left + r.width / 2, y: r.top + r.height / 2, clair: !el.classList.contains('on-dark') };
+  }).filter(Boolean);
+}
+/* LA LUMIÈRE D'UNE PHOTO, une fois pour toutes, sur sa petite variante décodée à
+   part : mesurer la grande image bloquait le navigateur 100 ms, au moment même
+   où le défilement s'arrêtait. */
+function ixMesurerLumiere(c) {
+  if (c.photo.tagName !== 'IMG' || c.lumiere) return;
+  c.lumiere = true;
+  lumMaps.set(c.photo, null);                   // personne d'autre ne la mesure
+  const im = new Image();
+  im.decoding = 'async'; im.src = varianteProche(c.d.src, 700);
+  decodee(im).then(() => {
+    if (!im.naturalWidth || !c.w || !c.h) return;
+    const sc = Math.max(c.w / im.naturalWidth, c.h / im.naturalHeight), sw = c.w / sc, sh = c.h / sc;
+    const cv = document.createElement('canvas'); cv.width = 32; cv.height = 20;
+    const x = cv.getContext('2d', { willReadFrequently: true });
+    try {
+      x.drawImage(im, (im.naturalWidth - sw) * c.d.x, (im.naturalHeight - sh) * c.d.y, sw, sh, 0, 0, 32, 20);
+      const px = x.getImageData(0, 0, 32, 20).data, d = new Float32Array(640);
+      for (let i = 0; i < 640; i++) d[i] = (0.2126 * px[i * 4] + 0.7152 * px[i * 4 + 1] + 0.0722 * px[i * 4 + 2]) / 255;
+      lumMaps.set(c.photo, { w: 32, h: 20, d });
+    } catch (e) {}                              // en file:// : la teinte de fond suffit
+  });
+}
+function ixLumierePoint(x, y, st) {
+  for (let i = 0; i < ixCases.length; i++) {
+    const c = ixCases[i], haut = c.top - st;
+    if (y < haut || y > haut + c.h || x < c.left || x > c.left + c.w) continue;
+    const g = lumMaps.get(c.photo);
+    if (g) {
+      const u = Math.min(g.w - 1, Math.max(0, Math.floor((x - c.left) / c.w * g.w)));
+      const v = Math.min(g.h - 1, Math.max(0, Math.floor((y - haut) / c.h * g.h)));
+      return g.d[v * g.w + u];
+    }
+    const l = lumCouleur(c.d.fond);
+    return l === null ? 1 : l;
+  }
+  return 1;                                     // le blanc de la page
+}
+function ixLireCoins() {
+  const st = worksPanel.scrollTop;
+  ixCoins.forEach(o => {
+    const l = ixLumierePoint(o.x, o.y, st);
+    const avant = o.clair;
+    if (o.clair && l < LUM_SOMBRE) o.clair = false;
+    else if (!o.clair && l > LUM_CLAIR) o.clair = true;
+    if (o.clair !== avant || !o.pose) {
+      o.pose = true;
+      o.el.classList.toggle('on-light', o.clair);
+      o.el.classList.toggle('on-dark', !o.clair);
+    }
+  });
+}
+let ixRaf = 0;
 function ixAuDefilement() {
-  if (!ixRaf) ixRaf = requestAnimationFrame(() => { ixRaf = 0; ixDefiler(); });
-  /* les coins du cadre se lisent sur ce qui passe dessous : dix fois par
-     seconde suffisent, et une dernière fois à l'arrêt */
-  const t = performance.now();
-  if (t > ixLecture) { ixLecture = t + 100; ixRelireCadre(); }
-  clearTimeout(ixDerniere);
-  ixDerniere = setTimeout(ixRelireCadre, 140);
+  /* un défilement venu d'ailleurs (clavier, barre) : plus de reste */
+  if (ixReste && Math.abs(worksPanel.scrollTop - ixPosMoteur) > 1.5) ixPoserReste(0);
+  if (typeof dernierDefilement !== 'undefined') dernierDefilement = performance.now();   // la mesure des photos attend le repos
+  if (ixSurvol) ixPoserSurvol(null);
+  if (!ixRaf) ixRaf = requestAnimationFrame(() => { ixRaf = 0; ixDefiler(); ixLireCoins(); });
 }
 worksPanel.addEventListener('scroll', ixAuDefilement, { passive: true });
-/* dans Safari, la MÊME image que le moteur de défilement : aucun décalage */
-if (inertie && inertie.apresDe) inertie.apresDe(worksPanel, ixDefiler);
+/* LA FRACTION DE PIXEL. Le navigateur ne défile que par pixels entiers : en fin de
+   course, la page avançait de 1, 1, 0, 1, 1, 0… et cela se voyait. Le moteur écrit
+   donc la position exacte : le défilement natif prend la partie entière, et un
+   décalage du contenu porte le reste. Le mouvement est continu jusqu'à l'arrêt, où
+   le reste vaut zéro. C'est aussi dans la MÊME image que le moteur (Safari). */
+let ixReste = 0, ixPosMoteur = -1;
+function ixPoserReste(r) {
+  if (r === ixReste) return;
+  ixReste = r;
+  ixGrille.style.transform = r ? 'translate3d(0,' + (-r).toFixed(2) + 'px,0)' : '';
+}
+if (inertie && inertie.apresDe) inertie.apresDe(worksPanel, y => {
+  ixPosMoteur = y;
+  ixPoserReste(y - worksPanel.scrollTop);
+  ixDefiler();
+});
+/* LE SURVOL, SEULEMENT QUAND LA SOURIS BOUGE VRAIMENT : le navigateur simule un
+   mouvement quand le défilement s'arrête, et la photo se mettait à avancer à
+   cet instant précis, l'à-coup de l'arrêt. */
+let ixSurvol = null;
+function ixPoserSurvol(el) {
+  if (el === ixSurvol) return;
+  if (ixSurvol) ixSurvol.classList.remove('ix-survol');
+  ixSurvol = el;
+  if (el) el.classList.add('ix-survol');
+}
+worksPanel.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' && (e.movementX || e.movementY)) ixPoserSurvol(e.target.closest ? e.target.closest('.ix-case') : null);
+}, { passive: true });
+worksPanel.addEventListener('pointerleave', () => ixPoserSurvol(null), { passive: true });
 /* LA CHORÉGRAPHIE : chaque case se montre en arrivant dans l'écran, une
    fois sa photo décodée — jamais une image qui se dessine */
 let ixObs = null;
@@ -6716,8 +6818,6 @@ function ixMontrer(c) {
     if (!worksPanel.classList.contains('open')) { c.vu = false; return; }
     c.el.classList.add('est-vu');
     if (c.d.video) { const l = c.photo._video.play(); if (l) l.catch(() => {}); }
-    /* la photo a pris sa place sous les coins : ils la relisent */
-    setTimeout(ixRelireCadre, 450); setTimeout(ixRelireCadre, 1500);
   });
 }
 function ixArmer() {
@@ -6807,7 +6907,8 @@ function ibAtterrir() {
     ib.classList.remove('ix-scene');
     worksPanel.classList.remove('ix-verrou');
     document.body.classList.remove('ib-intro');
-    ixRelireCadre();
+    ixMesurerCoins();
+    ixLireCoins();
     ixArmer();
   }));
 }
@@ -6815,6 +6916,7 @@ function ibOuverture() {
   if (!ixCases.length) return;
   ibArreter();
   worksPanel.scrollTop = 0;
+  ixPoserReste(0);
   ixPrec = -1;
   ixCases.forEach(c => {
     c.vu = false; c.el.classList.remove('est-vu', 'ix-deja');
@@ -6822,7 +6924,6 @@ function ibOuverture() {
       const v = c.photo._video;
       try { v.pause(); v.currentTime = 0; } catch (e) {}
       v.classList.remove('est-la');
-      if (c.photo._fige) { c.photo._fige.remove(); c.photo._fige = null; }
     }
   });
   ixMesurer();
@@ -6833,6 +6934,9 @@ function ibOuverture() {
     c.el.classList.add('ix-deja');
     if (c.photo.tagName === 'IMG') decodee(c.photo);
   });
+  ixCases.forEach(ixMesurerLumiere);
+  ixMesurerCoins();
+  ixLireCoins();
   if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); }); return; }
   if (!indexBureau.matches || !ibCartes.length) return;      // au téléphone : pas de pile, voir entreeIndex
   ibGeometrie();
@@ -6893,7 +6997,8 @@ function ixOuvrir(c) {
   Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
     anims.forEach(a => { try { a.cancel(); } catch (e) {} });
     ixDepart = false;
-    ixRelireCadre();
+    ixMesurerCoins();
+    ixLireCoins();
   });
 }
 addEventListener('resize', () => {
@@ -6901,7 +7006,8 @@ addEventListener('resize', () => {
   ixMesurer();
   ixDefiler(true);
   if (ib && ib.classList.contains('ix-scene')) { ibGeometrie(); ibDessiner(ibTemps.T); }
-  ixRelireCadre();
+  ixMesurerCoins();
+  ixLireCoins();
 });
 /* les images de l'Index partent dès que la page est posée : à l'ouverture,
    tout est déjà là */
@@ -6922,6 +7028,7 @@ function closeWorksPanel() {
   worksPanel.classList.remove('open');
   document.body.style.overflow = '';
   document.body.classList.remove('index-ouvert');            // la croix redevient « Index »
+  document.dispatchEvent(new Event('cadre-relire'));
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'false');
   /* une fois la page effacée (0,45 s), plus rien ne doit y rester, et le
      cadre reprend sa place et ses couleurs */
@@ -8093,13 +8200,6 @@ function lumAt(img, x, y) {
   if (!g) return null;
   const r = img.getBoundingClientRect();
   if (!r.width || !r.height) return null;
-  if (img._ixX !== undefined && img.naturalWidth) {
-    /* (04/11) une case de l'Index : la photo est cadrée, on lit le bon endroit */
-    const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
-    const iw = img.naturalWidth * k, ih = img.naturalHeight * k;
-    const a = (x - r.left - (r.width - iw) * img._ixX) / iw, b = (y - r.top - (r.height - ih) * img._ixY) / ih;
-    return g.d[Math.min(g.h - 1, Math.max(0, Math.floor(b * g.h))) * g.w + Math.min(g.w - 1, Math.max(0, Math.floor(a * g.w)))];
-  }
   const u = Math.min(g.w - 1, Math.max(0, Math.floor((x - r.left) / r.width * g.w)));
   const v = Math.min(g.h - 1, Math.max(0, Math.floor((y - r.top) / r.height * g.h)));
   /* le dégradé bas du média assombrit réellement ce qu'on voit */
@@ -8229,6 +8329,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   let raf = 0;
   function apply() {
     raf = 0;
+    if (document.body.classList.contains('index-ouvert')) return;   // (04/11) l'Index lit ses coins lui-même (voir ixLireCoins)
     /* la zone ocre a sa couleur propre — le jaune de « Thomas Bonneau » : on
        lui rend la main plutôt que d'imposer un noir ou un blanc. */
     const ocre = document.body.classList.contains('zone-pres');
@@ -8281,7 +8382,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   const kick = () => { if (!raf) raf = requestAnimationFrame(apply); };
   onMotionScroll(kick);                       // scroll CENTRAL
   addEventListener('resize', kick, { passive: true });
-  document.addEventListener('cadre-relire', kick);   // (04/11) l'Index défile : voir ixAuDefilement
+  document.addEventListener('cadre-relire', kick);   // (04/11) l'Index referme : les coins relisent l'accueil
   /* les photographies arrivent après : on remesure quand elles sont décodées */
   addEventListener('load', kick);
   setTimeout(apply, 60);
@@ -8420,8 +8521,8 @@ function figerLettres(nom) {
 })();
 
 
-/* ══ L'INTRO — TB EN LIGNE CONTINUE, LA BASCULE ══════════════════════════
-   Le dessin, puis QUAND s'effacer. Le fondu attend que la réfraction soit
+/* ══ L'INTRO — TB NAÎT DE L'INTÉRIEUR, LA BASCULE ════════════════════════
+   La naissance de TB, puis QUAND s'effacer. Le fondu attend que la réfraction soit
    prête — la photo du premier projet, les textures : le hero n'apparaît pas
    sans son interaction. Si elle l'est déjà, on enchaîne aussitôt ; sinon on
    l'attend, jamais plus de 2,5 s. Une fois posée, le hero est PRÊT :
@@ -8433,7 +8534,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 650, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 2400, DISQUES = 150,
+  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, GRAISSE = 2600, ENCRE = 1200, NOM = 950, DISQUES = 150,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -8463,7 +8564,7 @@ function figerLettres(nom) {
       intro.classList.add('is-retrait');                 // TB s'efface, en fondu
       setTimeout(() => { indiceTot = true; updateIndice(); }, RETRAIT + 250);
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
-      setTimeout(() => intro.remove(), RETRAIT + 40);
+      setTimeout(() => { if (viderToile) viderToile(); intro.remove(); }, RETRAIT + 40);
       setTimeout(() => { phrase.classList.remove('phrase-attente', 'phrase-entre'); fini(); },
                  PHRASE_APRES + PHRASE + DECALAGE + 60);
     }, FIN);
@@ -8478,53 +8579,147 @@ function figerLettres(nom) {
     addEventListener('refraction-prete', basculer, { once: true });
     setTimeout(basculer, ATTENTE_MAX);
   }
-  /* LE DESSIN : le contour de TB, sous-chemin après sous-chemin, à vitesse continue
-     le long du trait ; un second trait, à peine décalé et très pâle, le précède et
-     donne le relief. Le remplissage vient en opacité quand la ligne s'achève. Il
-     ne part qu'une fois la page prête : le script principal occupe le navigateur
-     au chargement, et la ligne y aurait saccadé. */
+  /* LA NAISSANCE DE TB, en deux temps comme la signature du pied de page :
+     l'encre arrive sur un trait ultra-fin, puis le trait s'étoffe.
+     Chaque point du dessin reçoit une valeur : 0 au cœur de son jambage, 1 sur
+     son contour — sa distance au bord, rapportée à l'épaisseur du jambage en ce
+     point. Un seuil qui monte de 0 à 1 fait donc grossir TOUS les traits en même
+     temps, déliés comme jambages, de l'intérieur vers l'extérieur.
+     Il ne part qu'une fois la page prête : le script principal occupe le
+     navigateur au chargement, et le mouvement y aurait saccadé. */
   const formeFinie = () => { presence(); attendre(); };
+  function distances(masque, N) {
+    const INF = 1e20, f = new Float64Array(N), v = new Int32Array(N), z = new Float64Array(N + 1), d = new Float64Array(N);
+    const passe = () => {
+      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+      for (let q = 1; q < N; q++) {
+        let s;
+        do { const r = v[k]; s = (f[q] + q * q - f[r] - r * r) / (2 * q - 2 * r); } while (s <= z[k] && --k > -1);
+        k++; v[k] = q; z[k] = s; z[k + 1] = INF;
+      }
+      k = 0;
+      for (let q = 0; q < N; q++) { while (z[k + 1] < q) k++; const r = v[k]; d[q] = (q - r) * (q - r) + f[r]; }
+    };
+    const g = new Float64Array(N * N);
+    for (let i = 0; i < N * N; i++) g[i] = masque[i] ? 0 : INF;
+    for (let x = 0; x < N; x++) { for (let y = 0; y < N; y++) f[y] = g[y * N + x]; passe(); for (let y = 0; y < N; y++) g[y * N + x] = d[y]; }
+    for (let y = 0; y < N; y++) { for (let x = 0; x < N; x++) f[x] = g[y * N + x]; passe(); for (let x = 0; x < N; x++) g[y * N + x] = d[x]; }
+    return g;
+  }
+  let viderToile = null;
+  function preparerToile(d) {
+    const toile = intro.querySelector('.intro__toile');
+    let gl = null;
+    try { gl = toile.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false }); } catch (e) {}
+    if (!gl) return null;
+    const N = 512, c2 = document.createElement('canvas');
+    c2.width = c2.height = N;
+    const x = c2.getContext('2d', { willReadFrequently: true });
+    const ech = 0.86 * N / 90.58, chemin = new Path2D(d);
+    x.translate((N - 89.33 * ech) / 2, (N - 90.58 * ech) / 2); x.scale(ech, ech);
+    x.fill(chemin); x.lineWidth = 0.75; x.miterLimit = 10; x.stroke(chemin);
+    const a = x.getImageData(0, 0, N, N).data, dedans = new Uint8Array(N * N), dehors = new Uint8Array(N * N);
+    for (let i = 0; i < N * N; i++) { dedans[i] = a[i * 4 + 3] > 127 ? 1 : 0; dehors[i] = 1 - dedans[i]; }
+    const versDedans = distances(dedans, N), versBord = distances(dehors, N);
+    const P = new Float32Array(N * N), E = new Float32Array(N * N), champ = new Float32Array(N * N);
+    for (let i = 0; i < N * N; i++) if (dedans[i]) P[i] = Math.sqrt(versBord[i]);
+    /* l'épaisseur locale : chaque point de la ligne de crête couvre le disque qu'il peut remplir */
+    for (let yy = 1; yy < N - 1; yy++) for (let xx = 1; xx < N - 1; xx++) {
+      const i = yy * N + xx, r = P[i];
+      if (!r || P[i - 1] > r || P[i + 1] > r || P[i - N] > r || P[i + N] > r || P[i - N - 1] > r || P[i - N + 1] > r || P[i + N - 1] > r || P[i + N + 1] > r) continue;
+      const c = Math.ceil(r), rr = r * r;
+      for (let dy = -c; dy <= c; dy++) for (let dx = -c; dx <= c; dx++) {
+        if (dx * dx + dy * dy > rr) continue;
+        const j = (yy + dy) * N + xx + dx;
+        if (j >= 0 && j < N * N && r > E[j]) E[j] = r;
+      }
+    }
+    for (let i = 0; i < N * N; i++) {
+      champ[i] = dedans[i] ? 1 - Math.max(0, P[i] - 0.5) / Math.max(1, (E[i] || P[i]) - 0.5)
+                           : 1 + Math.min(1, (Math.sqrt(versDedans[i]) - 0.5) / 12);
+    }
+    const shader = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, `#version 300 es
+      out vec2 v; void main() { vec2 p = vec2(float((gl_VertexID & 1) << 2) - 1., float((gl_VertexID & 2) << 1) - 1.); v = vec2(p.x * .5 + .5, .5 - p.y * .5); gl_Position = vec4(p, 0., 1.); }`));
+    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `#version 300 es
+      precision highp float; uniform sampler2D s; uniform float e, a; in vec2 v; out vec4 o;
+      void main() {
+        float c = texture(s, v).r, l = max(fwidth(c) * .7, .004);
+        float al = (1. - smoothstep(e - l, e + l, c)) * a;
+        o = vec4(vec3(.0627, .0627, .0784) * al, al);
+      }`));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+    gl.useProgram(prog);
+    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, N, N, 0, gl.RED, gl.FLOAT, champ);
+    [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]].forEach(([p, val]) => gl.texParameteri(gl.TEXTURE_2D, p, val));
+    gl.bindVertexArray(gl.createVertexArray());
+    /* deux fois la définition de l'écran : le navigateur la réduit, les déliés restent propres */
+    const px = Math.max(128, Math.round(toile.offsetWidth * Math.min(devicePixelRatio || 1, 2) * 2));
+    toile.width = toile.height = px;
+    gl.viewport(0, 0, px, px);
+    gl.clearColor(0, 0, 0, 0);
+    const uE = gl.getUniformLocation(prog, 'e'), uA = gl.getUniformLocation(prog, 'a');
+    viderToile = () => { const l = gl.getExtension('WEBGL_lose_context'); if (l) l.loseContext(); };
+    return (e, al) => { gl.clear(gl.COLOR_BUFFER_BIT); gl.uniform1f(uE, e); gl.uniform1f(uA, al); gl.drawArrays(gl.TRIANGLES, 0, 3); };
+  }
+  /* une courbe de Bézier, comme en CSS : la même allure que la signature */
+  const bezier = (x1, y1, x2, y2) => t => {
+    if (t <= 0) return 0; if (t >= 1) return 1;
+    let a = 0, b = 1, u = t;
+    for (let i = 0; i < 16; i++) {
+      u = (a + b) / 2;
+      const q = 1 - u, xu = 3 * q * q * u * x1 + 3 * q * u * u * x2 + u * u * u;
+      if (xu < t) a = u; else b = u;
+    }
+    const q = 1 - u;
+    return 3 * q * q * u * y1 + 3 * q * u * u * y2 + u * u * u;
+  };
   let morphLance = false;
   function lancerMorph() {
     if (morphLance) return;
     morphLance = true;
     const trace = intro.querySelector('.intro__trace');
-    const NS = 'http://www.w3.org/2000/svg';
     const logo = document.querySelector('#frameLogo svg path');
     const d = logo && logo.getAttribute('d');
     if (!trace || !d) { formeFinie(); return; }
-    const chemin = (cl, dd) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('class', cl); p.setAttribute('d', dd); trace.appendChild(p); return p; };
-    const fond = chemin('intro__fond', d);
-    const bouts = d.match(/M[^M]+/g) || [d];
-    let total = 0;
-    const traits = bouts.map(b => {
-      const r = chemin('intro__relief', b); r.setAttribute('transform', 'translate(1.15 1.15)');
-      const l = chemin('intro__ligne', b);
-      const long = l.getTotalLength();
-      const t = { r, l, long, debut: total };
-      total += long;
-      [r, l].forEach(x => { x.style.strokeDasharray = long + ' ' + long; x.style.strokeDashoffset = long; });
-      return t;
-    });
-    const lisse = t => 0.5 - 0.5 * Math.cos(Math.PI * Math.max(0, Math.min(1, t)));
-    const poser = (x, t, parcours) => {
-      x.style.strokeDashoffset = t.long - Math.max(0, Math.min(t.long, parcours - t.debut));
-    };
-    let debut = 0;
+    const fond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    fond.setAttribute('class', 'intro__fond'); fond.setAttribute('d', d);
+    trace.appendChild(fond);
+    /* le nom, lettre après lettre */
+    const nomEl = intro.querySelector('.intro__nom');
+    if (nomEl) {
+      const texte = nomEl.textContent; let rang = 0;
+      nomEl.textContent = '';
+      for (const ch of texte) {
+        const l = document.createElement('span');
+        l.className = 'intro__l'; l.textContent = ch;
+        l.style.setProperty('--d', (rang++ * 34) + 'ms');
+        nomEl.appendChild(l);
+      }
+    }
+    let dessiner = null;
+    try { dessiner = preparerToile(d); } catch (e) { dessiner = null; }
+    if (!dessiner) {
+      intro.classList.add('sans-toile', 'est-net');
+      setTimeout(() => intro.classList.add('nom-la'), NOM);
+      setTimeout(formeFinie, GRAISSE);
+      return;
+    }
+    const graisse = bezier(0.45, 0, 0.25, 1), encre = bezier(0.4, 0, 0.6, 1);
+    dessiner(0, 0);
+    let debut = 0, nomVu = false;
     const pas = ts => {
       if (!debut) debut = ts;
       const ms = ts - debut;
-      /* la ligne : 75 % du temps ; le relief la devance un peu */
-      const e = lisse(ms / (DESSIN * 0.75));
-      traits.forEach(t => { poser(t.l, t, e * total); poser(t.r, t, Math.min(1, e * 1.07) * total); });
-      /* le remplissage, en opacité, à partir de la moitié ; le relief s'efface avec lui */
-      const f = lisse((ms - DESSIN * 0.5) / (DESSIN * 0.5));
-      fond.style.opacity = f.toFixed(3);
-      const pale = (0.16 * (1 - f)).toFixed(3);
-      traits.forEach(t => { t.r.style.opacity = pale; });
-      if (ms > DESSIN * 0.66) presence();
-      if (ms < DESSIN) requestAnimationFrame(pas);
-      else { traits.forEach(t => { t.r.remove(); t.l.remove(); }); formeFinie(); }
+      dessiner(graisse(ms / GRAISSE) * 1.02, encre(ms / ENCRE));
+      if (!nomVu && ms > NOM) { nomVu = true; intro.classList.add('nom-la'); }
+      if (ms > GRAISSE * 0.66) presence();
+      if (ms < GRAISSE) requestAnimationFrame(pas);
+      else { intro.classList.add('est-net'); formeFinie(); }
     };
     /* deux images d'attente : le navigateur a repris son souffle */
     requestAnimationFrame(() => requestAnimationFrame(pas));
