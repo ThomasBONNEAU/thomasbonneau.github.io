@@ -1985,12 +1985,14 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
      et tous descendaient de 60 px */
   position: absolute; left: 50%; top: 50%;
   translate: -50% -50%;
-  width: calc(var(--w, 64) * 1%);       /* « w74: » devant un fichier règle --w */
+  width: calc(var(--w, var(--w-marque, 64)) * 1%);       /* « w74: » devant un fichier règle --w */
   height: auto;
   aspect-ratio: auto;
   display: block;
   transition: opacity 0.5s var(--ease-smooth);
 }
+/* (04/11) au bureau, les logos sans largeur propre un peu plus petits (le premier a la sienne) */
+@media (min-width: 901px) { .marque-plan { --w-marque: 48; } }
 .marque-plan img.marque-cache { opacity: 0; }
 /* LE CALQUE DES FLÈCHES — au bureau, exactement sur le plan (même case de la
    grille, ou toute la scène des affiches) : les flèches y sont posées à
@@ -3100,25 +3102,12 @@ body.zone-foot .about-story {
   max-width: none; display: block;
 }
 .ix-photo { object-fit: cover; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
-/* Logotypes n'a pas de photographie : ses marques, plus grandes, qui tournent
-   d'un angle à l'autre — un pas, une pause, tout le carré ensemble */
+/* Logotypes n'a pas de photographie : le premier logo, seul, au centre */
 .ix-logos { background: #f1efe8; }
 .ix-logos img {
-  position: absolute; left: 32%; top: 32%; width: 36%; height: 36%; object-fit: contain;
+  position: absolute; left: 30%; top: 30%; width: 40%; height: 40%; object-fit: contain;
   pointer-events: none; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
-  animation: ix-tourne 13.6s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }
-.ix-logos img:nth-child(2) { animation-delay: -3.4s; }
-.ix-logos img:nth-child(3) { animation-delay: -10.2s; }
-.ix-logos img:nth-child(4) { animation-delay: -6.8s; }
-@keyframes ix-tourne {
-  0%, 16.2% { transform: translate(-66%, -62%); }
-  25%, 41.2% { transform: translate(66%, -62%); }
-  50%, 66.2% { transform: translate(66%, 62%); }
-  75%, 91.2% { transform: translate(-66%, 62%); }
-  100% { transform: translate(-66%, -62%); }
-}
-.works-panel:not(.open) .ix-logos img { animation-play-state: paused; }
 
 /* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom, un petit rond, la spécificité en italique */
 .ix-sous {
@@ -3182,11 +3171,6 @@ body.zone-foot .about-story {
 @media (prefers-reduced-motion: reduce) {
   .ix-volet, .ix-contre, .ix-ligne > span { transform: none !important; transition: none !important; }
   .ix-photo, .ix-logos img { transition: none; }
-  .ix-logos img { animation: none; }
-  .ix-logos img:nth-child(1) { transform: translate(-66%, -62%); }
-  .ix-logos img:nth-child(2) { transform: translate(66%, -62%); }
-  .ix-logos img:nth-child(3) { transform: translate(-66%, 62%); }
-  .ix-logos img:nth-child(4) { transform: translate(66%, 62%); }
 }
 /* L'INTRODUCTION — la pile, au-dessus de la grille encore cachée, dans le
    noir ; puis chaque dossier rejoint SA case (voir ibDessiner) */
@@ -6502,7 +6486,7 @@ const IX_PROJETS = {
   'Grapillon': { cl: 'grapillon', src: 'web/proj-grapillon.webp', x: 0.5, y: 0.5, fond: '#b9a48c', col: 6, tel: 1 },
   'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse.webp', x: 0.5, y: 0.5, fond: '#2a2527', col: 6, tel: 1 },
   'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/logo_arbre.webp', x: 0.5, y: 0.5, fond: '#1c2a1f', col: 12, tel: 1 },
-  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fond: '#f1efe8', col: 6, tel: 1 },
+  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg'], fond: '#f1efe8', col: 6, tel: 1 },
   'Affiches': { cl: 'affiches', src: 'web/affiches/Affiche2_Mur.webp', x: 0.5, y: 0.5, fond: '#d9d9d9', col: 6, tel: 1 }
 };
 const IX_RANGEES = [['Arch’ocktail', 'Malbec'], ['Sillage'], ['Grapillon', 'Studio Synapse'], ['ONF'], ['Logotypes', 'Affiches']];
