@@ -683,7 +683,15 @@ body.curtain-live .works-panel.open { transition: none; }
    « Index » se change en croix — le même signe × que les volets projet. */
 body.index-cadre .site-frame { z-index: 160; }
 body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
-body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #101014; }
+body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { color: #101014; transition: color 0.25s ease; }
+/* (04/11) les images passent sous les coins : ils se lisent sur elles */
+body.index-cadre #siteNav.site-frame .site-frame__tl.on-dark, body.index-cadre #siteNav.site-frame .site-frame__tr.on-dark,
+body.index-cadre #siteNav.site-frame .site-frame__bl.on-dark, body.index-cadre #siteNav.site-frame .site-frame__br.on-dark { color: #fff; }
+/* pendant l'introduction : blancs sur le noir, puis ils rejoignent l'encre avec lui */
+body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__tl, body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__tr,
+body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__bl, body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__br { color: #101014; transition: color 1.1s cubic-bezier(0.65, 0, 0.35, 1); }
+body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__tl, body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__tr,
+body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__bl, body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__br { color: #fff; transition: none; }
 .site-frame .frame-menu__mot {
   display: inline-block;
   transition: opacity 0.35s ease, filter 0.35s ease;
@@ -3058,13 +3066,158 @@ body.zone-foot .about-story {
        en blanc, qui passe au crème et à l'ocre dès qu'on descend un peu —
        puis tout le reste défile comme avant. Le premier temps mort de la
        narration s'allonge d'autant (voir aboutStory).
-   3 · L'INDEX EN GALERIE (sa référence : le « Notre travail » de Koto) :
-       à gauche, une colonne fixe — « Index », le nom du projet regardé en
-       gris, son texte en petit, sa légende en bas ; à droite, les grandes
-       images de tous les projets défilent l'une sous l'autre. Le texte de
-       gauche suit l'image qui passe au milieu de l'écran ; un clic sur une
-       image ouvre le projet (voir indexBureau). ══════════════════════════ */
-.index-bureau { display: none; }
+   3 · L'INDEX : voir plus bas, « LA PLANCHE ». ══════════════════════════ */
+/* ══ L'INDEX — LA PLANCHE (04/11, son brief « Refonte de l'index ») ═══════
+   Une mise en page éditoriale sur 12 colonnes, composée pour CES huit
+   projets et ces images-là : deux projets en tête, serrés (8 + 4) ; une
+   respiration (Sillage seul, poussé à droite, du vide à gauche) ; deux
+   projets alignés par le pied (5 + 7, l'un haut, l'autre large) ; trois
+   carrés pour finir, vite. Les marges sont celles du cadre : TB, la croix
+   et les images tombent sur la même verticale. Le titre est DANS l'image :
+   ni voile, ni ombre — l'encre de chaque projet, et le cadrage de sa photo,
+   ont été choisis pour qu'il s'y lise (voir IX_PROJETS).
+   Tout le mouvement passe par transform : aucune mise en page ne bouge. */
+.works-list, .works-aura { display: none; }
+.works-panel { scrollbar-width: none; }
+.works-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.works-panel.ix-verrou { overflow-y: hidden; }
+.index-bureau { position: relative; }
+.ix-grille {
+  --ix-m: clamp(18px, 1.35vw, 26px);
+  --ix-g: clamp(8px, 1.1vw, 20px);
+  --ix-h1: max(320px, min(40vw, calc(100vh - 190px)));
+  position: relative;
+  padding: 64px var(--ix-m) clamp(96px, 16vh, 180px);
+}
+.ix-rang {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--ix-g); align-items: end;
+}
+.ix-r2 { margin-top: clamp(56px, 5vw, 120px); }
+.ix-r3 { margin-top: clamp(64px, 6.5vw, 130px); }
+.ix-r4 { margin-top: calc(var(--ix-g) * 2.2); }
+.ix-c-archocktail { grid-column: 1 / span 8; height: var(--ix-h1); }
+.ix-c-malbec { grid-column: 9 / span 4; height: var(--ix-h1); }
+.ix-c-sillage { grid-column: 4 / span 9; aspect-ratio: 2.15; }
+.ix-c-grapillon { grid-column: 1 / span 5; aspect-ratio: 0.86; }
+.ix-c-studio-synapse { grid-column: 6 / span 7; aspect-ratio: 1.5; }
+.ix-c-onf, .ix-c-logotypes, .ix-c-affiches { grid-column: span 4; aspect-ratio: 1; }
+.ix-autre { grid-column: 1 / -1; aspect-ratio: 2.2; }
+
+/* UNE CASE. Le volet glisse, la photo glisse moins vite en sens inverse, à
+   l'intérieur (--vx / --vy : d'où elle vient ; --ix-d, --ix-r, --ix-c : son
+   allure, son retard, sa courbe). Le titre arrive ensuite, ligne par ligne,
+   chacune dans son masque. */
+.ix-case {
+  --vx: 0%; --vy: 100%; --ix-d: 1.2s; --ix-r: 0s; --ix-t: 0.48s;
+  --ix-c: cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative; display: block; overflow: hidden;
+  container-type: inline-size;
+  color: #fff; text-decoration: none; cursor: none;
+}
+.ix-case.encre-fonce { color: #111114; }
+.ix-case:focus-visible { outline: 1px solid currentColor; outline-offset: -8px; }
+.ix-volet, .ix-contre { position: absolute; inset: 0; display: block; }
+.ix-volet { overflow: hidden; transform: translate3d(var(--vx), var(--vy), 0); }
+.ix-contre { transform: translate3d(calc(var(--vx) * -0.74), calc(var(--vy) * -0.74), 0) scale(1.06); }
+.ix-case.est-vu .ix-volet, .ix-case.est-vu .ix-contre {
+  transform: none;
+  transition: transform var(--ix-d) var(--ix-c) var(--ix-r);
+}
+/* déjà en place : l'introduction l'y a posée */
+.ix-case.ix-deja { --ix-r: 0s; --ix-t: 0s; }
+.ix-case.ix-deja .ix-volet, .ix-case.ix-deja .ix-contre { transform: none; transition: none; }
+/* la photo déborde de sa case : elle peut glisser dedans sans laisser de bord */
+.ix-photo, .ix-logos {
+  position: absolute; left: -8%; top: -8%; width: 116%; height: 116%;
+  max-width: none; display: block;
+}
+.ix-photo { object-fit: cover; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
+/* Logotypes n'a pas de photographie : ses marques, aux quatre coins */
+.ix-logos { background: #f1efe8; }
+.ix-logos img {
+  position: absolute; width: 25%; height: 25%; object-fit: contain;
+  pointer-events: none; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.ix-logos img:nth-child(1) { left: 12%; top: 12%; }
+.ix-logos img:nth-child(2) { right: 12%; top: 12%; }
+.ix-logos img:nth-child(3) { left: 12%; bottom: 12%; }
+.ix-logos img:nth-child(4) { right: 12%; bottom: 12%; }
+
+/* LE TITRE : au milieu de l'image ; la spécificité, petite et italique ; le
+   nom, juste dessous, à la mesure de la case (cqw : la largeur de la case) */
+.ix-titre {
+  position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 0 5%; pointer-events: none;
+  font-family: 'Castillon', Georgia, serif;
+}
+.ix-ligne { display: block; overflow: hidden; padding: 0.16em 0.2em; margin: -0.16em -0.2em; }
+.ix-ligne > span {
+  display: block; transform: translate3d(0, 118%, 0);
+  transition: translate 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.ix-case.est-vu .ix-ligne > span {
+  transform: none;
+  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t)), translate 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.ix-case.est-vu .ix-nom > span { transition-delay: calc(var(--ix-r) + var(--ix-t) + 0.07s), 0s; }
+.ix-fct {
+  font-style: italic; font-weight: 200; letter-spacing: 0.02em; line-height: 1.2;
+  font-size: clamp(12px, calc(0.5vw + 0.8cqw), 21px);
+}
+.ix-nom {
+  margin-top: calc(-0.16em + clamp(3px, 0.65cqw, 10px));
+  font-weight: 150; letter-spacing: -0.012em; line-height: 1.02; white-space: nowrap;
+  font-size: clamp(30px, calc(1.2vw + 4.6cqw), 96px);
+}
+/* L'ALLURE DE CHAQUE RANGÉE : la respiration s'ouvre lentement, de côté ;
+   les deux suivantes se répondent (l'une monte, l'autre arrive de droite) ;
+   les trois carrés passent vite, l'un après l'autre */
+.ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
+.ix-c-grapillon { --ix-d: 1.05s; }
+.ix-c-studio-synapse { --vx: 100%; --vy: 0%; --ix-r: 0.16s; }
+.ix-r4 .ix-case { --ix-d: 0.8s; --ix-t: 0.3s; }
+.ix-c-logotypes { --ix-r: 0.09s; }
+.ix-c-affiches { --ix-r: 0.18s; }
+.ix-c-malbec.ix-deja { --ix-r: 0.1s; }
+
+@media (hover: hover) and (pointer: fine) {
+  /* LE SURVOL : la photo avance à peine, lentement ; la spécificité remonte
+     d'un rien. Rien d'autre. */
+  .ix-case:hover .ix-photo, .ix-case:hover .ix-logos img { scale: 1.03; }
+  .ix-case:hover .ix-fct > span { translate: 0 -3px; }
+  .ix-photo, .ix-logos, .ix-titre { will-change: transform; }
+}
+@media (max-width: 900px) {
+  /* AU TÉLÉPHONE, une autre mise en page, pas la même en plus petit : une
+     colonne, des largeurs qui alternent, les petits carrés deux à deux */
+  .ix-grille { --ix-m: 14px; --ix-g: 8px; padding: 56px var(--ix-m) 110px; }
+  .ix-rang { row-gap: var(--ix-g); }
+  .ix-r2, .ix-r3 { margin-top: 44px; }
+  .ix-r4 { margin-top: var(--ix-g); }
+  .ix-c-archocktail { grid-column: 1 / -1; height: auto; aspect-ratio: 1 / 1.05; }
+  .ix-c-malbec { grid-column: 1 / -1; height: auto; width: 70%; justify-self: end; aspect-ratio: 4 / 5; }
+  .ix-c-sillage { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
+  .ix-c-grapillon { grid-column: 1 / -1; width: 78%; aspect-ratio: 4 / 5; }
+  .ix-c-studio-synapse { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
+  .ix-c-onf, .ix-c-logotypes { grid-column: span 6; aspect-ratio: 1; }
+  .ix-c-affiches { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
+  .ix-case, .ix-r2 .ix-case, .ix-c-studio-synapse, .ix-r4 .ix-case, .ix-c-logotypes, .ix-c-affiches, .ix-c-grapillon {
+    --vx: 0%; --vy: 100%; --ix-d: 0.95s; --ix-r: 0s; --ix-t: 0.35s; --ix-c: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ix-c-logotypes { --ix-r: 0.08s; }
+  .ix-fct { font-size: clamp(11.5px, 3.6cqw, 17px); }
+  .ix-nom { font-size: clamp(26px, 9.6cqw, 54px); margin-top: calc(-0.16em + clamp(2px, 1cqw, 8px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ix-volet, .ix-contre, .ix-ligne > span { transform: none !important; transition: none !important; }
+  .ix-photo, .ix-logos img { transition: none; }
+}
+/* L'INTRODUCTION — la pile, au-dessus de la grille encore cachée, dans le
+   noir ; puis chaque dossier rejoint SA case (voir ibDessiner) */
+.ib-scene { display: none; }
+.index-bureau.ix-cache .ix-grille { visibility: hidden; }
 @media (min-width: 901px) {
   .works-more { height: 0; padding: 0; }
   .works-more-btn {
@@ -3203,29 +3356,20 @@ body.zone-foot .about-story {
 }
 @media (min-width: 901px) {
 
-  .works-list, .works-aura { display: none; }
-  /* L'INDEX EN DOSSIERS EMPILÉS (29/10, d'après SA vidéo de référence).
-     Trois colonnes : à gauche le nom, centré dans son blanc ; à droite ce
-     qu'est le projet, centré de même ; au milieu, LA PILE. Les projets sont
-     des dossiers posés en biais, l'un derrière l'autre : ceux déjà vus
-     au-dessus, au loin ; ceux à venir en dessous, plus près. Le projet
-     regardé se redresse et se pose face à nous, au centre. Rien ne défile
-     vraiment : la scène est collée, la piste qu'on parcourt est vide, et
-     un seul rAF place les dossiers d'après elle (voir ibDossiers).
-     À L'OUVERTURE : fond NOIR, la pile vue de loin, un rien zoomée ; puis
-     le noir passe au blanc, on dézoome, et le premier dossier se redresse.
-     AU CLIC : la pile file vers le haut, le projet paraît sur le blanc. */
+  /* L'INTRODUCTION DE L'INDEX (29/10, d'après SA vidéo de référence, gardée
+     telle quelle) : fond NOIR, la pile de dossiers vue de loin, un rien
+     zoomée ; le noir passe au blanc, on dézoome. Depuis le 04/11 chaque
+     dossier finit dans SA case de la grille, au pixel près (voir ibDessiner). */
   .works-panel { background: #fff; }
   .index-bureau {
     --ib-x: clamp(18px, 1.35vw, 26px);          /* la marge du cadre */
-    --ib-h: min(58vh, 31vw);                    /* le dossier regardé, en 4/3 */
-    --ib-l: calc(var(--ib-h) * 4 / 3);
-    --ib-fs: clamp(2rem, 3.4vw, 4.4rem);        /* le corps du nom */
-    display: block; position: relative; height: var(--ib-piste, 100vh);
+    --ib-h: clamp(320px, calc(100vh - 248px), 980px);
+    --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
+    --ib-dy: 30px;
   }
-  .ib-scene {
-    position: sticky; top: 0; height: 100vh; overflow: hidden;
-    display: grid; grid-template-columns: minmax(0, 1fr) var(--ib-l) minmax(0, 1fr);
+  .index-bureau.ix-scene .ib-scene {
+    display: block; position: absolute; left: 0; right: 0; top: 0; height: 100vh;
+    overflow: hidden; z-index: 3; pointer-events: none;
   }
   /* le noir de l'ouverture : une couche sous la pile, qui s'efface */
   .ib-scene::before {
@@ -3240,105 +3384,27 @@ body.zone-foot .about-story {
   .works-panel.ib-noir { background-color: #000; }
   .works-panel.open { transition: opacity 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 1.1s cubic-bezier(0.65, 0, 0.35, 1); }
   .works-panel.open.ib-noir { transition: opacity 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
-  /* les coins, blancs sur le noir, rejoignent l'encre avec lui */
-  body.index-cadre #siteNav.site-frame .site-frame__tl, body.index-cadre #siteNav.site-frame .site-frame__tr,
-  body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br {
-    transition: color 1.1s cubic-bezier(0.65, 0, 0.35, 1);
-  }
-  body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__tl, body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__tr,
-  body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__bl, body.index-cadre.ib-cadre-noir #siteNav.site-frame .site-frame__br {
-    color: #fff; transition: none;
-  }
-  /* (30/10) LES TEXTES SUIVENT LES DOSSIERS : un nom et une fonction par
-     projet, empilés au milieu de leur colonne. Celui du projet qui part se
-     couche en arrière en s'effaçant ; celui qui arrive monte de dessous,
-     couché, et se redresse jusqu'à son plein (voir ibDessiner). */
-  .ib-texte, .ib-fonction {
-    position: relative; z-index: 2; height: 100vh; box-sizing: border-box;
-    perspective: 900px;
-    transition: opacity 0.6s ease;
-  }
-  .ib-texte { grid-column: 1; }
-  .ib-fonction { grid-column: 3; margin: 0; }
-  .ib-titre, .ib-fct {
-    position: absolute; left: 50%; top: 50%;
-    transform-origin: 50% 100%;
-    backface-visibility: hidden;
-    pointer-events: none;
-  }
-  /* la ligne a le corps et l'interligne du nom : la fonction se pose sur
-     la MÊME ligne de base que lui */
-  .ib-fct { margin: 0; font-family: 'Castillon', serif; font-size: var(--ib-fs); line-height: 1.05; white-space: nowrap; }
-  .ib-fct > span {
-    display: inline-block;
-    font-size: clamp(15px, 1.3vw, 21px); font-style: italic; font-weight: 200;
-    letter-spacing: 0.02em; white-space: nowrap;
-    color: rgba(17, 17, 20, 0.74);
-  }
-  .ib-titre {
-    margin: 0; display: block;
-    font-family: 'Castillon', serif; font-weight: 100;
-    font-size: var(--ib-fs); line-height: 1.05; letter-spacing: -0.01em;
-    white-space: pre; text-align: center; color: #111114;   /* un nom de deux mots : deux lignes */
-  }
-  /* dans le noir de l'ouverture, et pendant que la pile s'envole, les
-     textes se retirent */
-  .index-bureau.ib-sans-texte .ib-texte,
-  .index-bureau.ib-sans-texte .ib-fonction { opacity: 0; transition-duration: 0.25s; }
-  /* LA PILE : une perspective commune ; chaque dossier, posé au centre,
-     pivote autour de son bord BAS (il est debout dans le tiroir). L'ordre
-     d'empilement est celui du document : le plus proche passe devant. */
+  /* LA PILE : une perspective commune ; chaque dossier pivote autour de son
+     bord BAS. L'ordre d'empilement est celui du document. */
   .ib-images {
-    grid-column: 2; grid-row: 1; position: relative; z-index: 1;
+    position: absolute; left: 50%; top: 0; width: var(--ib-l); height: 100%;
+    margin-left: calc(var(--ib-l) / -2); z-index: 1;
     perspective: 1500px; perspective-origin: 50% 50%;   /* = IB_P du script */
     transform-origin: 50% 50%;
-    transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
   }
-  .works-panel.ib-noir .ib-images { transform: scale(1.14); transition: none; }
   .ib-carte {
-    position: absolute; left: 0; top: 50%;
-    width: 100%; height: var(--ib-h); margin: calc(var(--ib-h) / -2) 0 0;
-    padding: 0; border: 0; overflow: hidden; cursor: none;
-    background: #ececec;
+    position: absolute; left: 0; top: 50%; display: block;
+    width: 100%; height: var(--ib-h); margin: calc(var(--ib-h) / -2 + var(--ib-dy)) 0 0;
+    overflow: hidden; background: #ececec;
     transform-origin: 50% 100%;
     backface-visibility: hidden;
-    /* une ombre large et diffuse, légère — rien qui souligne les bords */
-    box-shadow: 0 46px 110px -26px rgba(0, 0, 0, 0.17);
+    will-change: transform;
   }
-  /* couché dans la pile, un dossier prend un peu d'ombre (--ib-ombre) */
-  .ib-carte::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: #000; opacity: var(--ib-ombre, 0);
+  .ib-carte img {
+    position: absolute; left: 50%; top: 50%; max-width: none; display: block;
+    object-fit: contain; will-change: transform;
   }
-  /* toutes un rien agrandies dans leur cadre : on entre dans l'image */
-  .ib-carte img { width: 100%; height: 100%; object-fit: cover; display: block; scale: 1.07; }
-  /* (02/11) L'IMAGE EN GRAND, LE NOM AU-DESSUS — l'image va d'un peu sous
-     TB et la croix à un peu au-dessus des deux mentions du bas, en 3/2 (« le
-     format d'avant, c'était bien »), décalée vers le bas (--ib-dy) ; au-
-     dessus d'elle, centrés et bien détachés d'elle, la fonction en
-     italique puis le nom. */
-  @media (hover: hover) and (pointer: fine) {
-    .index-bureau {
-      --ib-h: clamp(320px, calc(100vh - 248px), 980px);
-      --ib-l: min(calc(var(--ib-h) * 1.5), calc(100vw - 2 * var(--ib-x) - 80px));
-      --ib-dy: 30px;                              /* (02/11) remonté : « on remonte un peu plus les projets » */
-      --ib-fs: clamp(2rem, 3.2vw, 4.2rem);        /* (03/11) un peu plus petit */
-      --ib-haut: calc(50% + var(--ib-dy) - var(--ib-h) / 2 - 40px);   /* (03/11) plus haut : le pied du nom à 40 px de l'image */
-    }
-    .ib-carte { margin-top: calc(var(--ib-h) / -2 + var(--ib-dy)); }
-    .ib-texte, .ib-fonction { grid-column: 2; grid-row: 1; pointer-events: none; }   /* (02/11) ils ne prennent plus le survol ni le clic des dossiers */
-    .ib-titre { top: var(--ib-haut); left: 50%; text-align: center; white-space: nowrap; }
-    /* la fonction juste au-dessus du nom (sa ligne a le corps du nom : on la
-       remonte d'une hauteur de nom, moins son jambage) */
-    /* la fonction, collée au nom, en noir ; elle tourne autour du MÊME axe
-       que lui (le pied du nom) : les deux passent d'un seul bloc */
-    .ib-fct { top: calc(var(--ib-haut) - var(--ib-fs) * 0.9); left: 50%; text-align: center; transform-origin: 50% calc(100% + var(--ib-fs) * 0.9); }
-    .ib-fct > span { font-size: clamp(12px, 0.95vw, 16px); color: #111114; }
-    /* LA COLONNE : à plat, sans ombre ; le titre SOUS les images (elles
-       passent dessus en montant) */
-    .ib-carte { box-shadow: none; }
-    .ib-texte, .ib-fonction { z-index: 0; }
-  }
+  .ib-carte.est-logos { background: #f1efe8; }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
      passent pas devant l'Index) */
@@ -3572,13 +3638,10 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- WORKS PANEL -->
 <div class="works-panel" id="worksPanel">
   <div class="works-list" id="worksPanelGrid"></div>
-  <!-- au bureau (essai du 27/10) : l'Index en galerie, construit par buildIndexBureau -->
+  <!-- l'Index : la planche des projets (ixConstruire), et la pile de son introduction (ibConstruirePile) -->
   <div class="index-bureau">
-    <div class="ib-scene">
-      <aside class="ib-texte"></aside>
-      <div class="ib-images"></div>
-      <div class="ib-fonction"></div>
-    </div>
+    <div class="ib-scene"><div class="ib-images"></div></div>
+    <div class="ix-grille"></div>
   </div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
     <figure class="works-trace"><img alt=""></figure>
@@ -4030,11 +4093,11 @@ const inertie = (function inertieDuDefilement() {
   /* (31/10) ceux qui suivent la page dans la MÊME image que son défilement
      (les photos qui glissent) : prévenus juste après l'écriture — dans
      Safari, aucun décalage d'une image */
-  const apres = [];
+  const apres = [], apresEl = new Map();
   function ecrire(p, y) {
     p.ecrit = Math.round(y * 2) / 2;
     if (p.el === racine) { window.scrollTo({ top: y, behavior: 'instant' }); apres.forEach(f => f()); }
-    else p.el.scrollTo({ top: y, behavior: 'instant' });
+    else { p.el.scrollTo({ top: y, behavior: 'instant' }); const f = apresEl.get(p.el); if (f) f(); }
   }
   function boucle(p, ts) {
     p.raf = 0;
@@ -4077,7 +4140,7 @@ const inertie = (function inertieDuDefilement() {
     e.preventDefault();
     if (!p.raf) p.raf = requestAnimationFrame(t => boucle(p, t));
   }, { passive: false });
-  return { actif: true, apres: f => apres.push(f) };
+  return { actif: true, apres: f => apres.push(f), apresDe: (el, f) => apresEl.set(el, f) };
 })();
 
 // Cursor = flèche Castillon simple (lit motionState). Pas d'after-image.
@@ -4341,10 +4404,9 @@ document.addEventListener('mouseup', () => { targetScale = 1; });
 document.addEventListener('mouseover', e => {
   if (!cursor) return;
   const view = e.target.closest('.stack-card');
-  const ibc = e.target.closest('.ib-carte');
+  const ibc = e.target.closest('.ix-case');
   const link = !ibc && e.target.closest('a, button');
-  ibSurvol = ibc;
-  cursor.classList.toggle('sur-ib', !!ibc && ibc.classList.contains('est-actif'));
+  cursor.classList.toggle('sur-ib', !!ibc);
   cursor.classList.toggle('hover-view', !!view);
   cursor.classList.toggle('hover-link', !view && !!link);
   if (cursorRing) cursorRing.classList.toggle('hover-view', !!view);
@@ -5991,55 +6053,11 @@ function presencesVider() {
 }
 
 function buildWorksPanel() {
-  worksPanelGrid.innerHTML = '';
   presencesVider();
   worksLeave();
   /* la pile de l'accueil, PUIS les projets qui n'y défilent pas : l'Index est
-     la seule liste complète, et l'ordre du document en donne la numérotation */
-  const cards = [...document.querySelectorAll('.stack-card, .projet-fiche')];
-  cards.forEach((card, i) => {
-    const title = card.dataset.title || '';
-    const src = vignetteFiche(card);
-
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'works-line';
-    row.style.setProperty('--i', i);
-
-    const idx = document.createElement('em');
-    idx.className = 'works-line__idx';
-    idx.textContent = String(i + 1).padStart(2, '0');
-
-    const word = document.createElement('span');
-    word.className = 'works-line__word';
-    word.textContent = title;
-
-    row.appendChild(idx);
-    row.appendChild(word);
-
-    row.addEventListener('pointerenter', () => { worksEnter(i, row, src); prechargerProjet(card); });
-    row.addEventListener('focus', () => worksEnter(i, row, src, true));
-    row.addEventListener('pointerleave', worksLeave);
-    row.addEventListener('blur', worksLeave);
-
-    row.addEventListener('click', () => {
-      /* L'INDEX RESTE OUVERT : le volet du projet monte PAR-DESSUS lui — on
-         ne repasse jamais par l'accueil. Dans le projet, la flèche redescend
-         le volet et rend l'Index ; la croix ferme les deux (voir
-         retourProjet). L'image survolée reste posée sous le volet. */
-      worksDepart = true;
-      clearTimeout(worksIntention);
-      projetDepuisIndex = true;
-      if (pageCurtain) pageCurtain.open(card, null); else openPanel(card);
-    });
-
-    worksPanelGrid.appendChild(row);
-  });
-  /* le corps des noms se plafonne sur ce nombre : la liste tient dans l'écran
-     sans qu'aucune valeur ne soit à tenir à jour ailleurs */
-  worksPanelGrid.style.setProperty('--n', cards.length);
-  presencesPrecharger(cards.map(vignetteFiche));
-  if (indexBureau.matches) buildIndexBureau(cards);
+     la seule liste complète */
+  buildIndexBureau([...document.querySelectorAll('.stack-card, .projet-fiche')]);
 }
 
 /* ══ LE SON (30-31/10, sa demande) ════════════════════════════════════════
@@ -6485,286 +6503,373 @@ function openWorksPanel() {
   if (menuTriggerBtn) menuTriggerBtn.setAttribute('aria-expanded', 'true');
   worksPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
-  /* l'Index s'ouvre posé sur le premier projet */
-  if (indexBureau.matches) ibOuverture();
+  /* l'Index s'ouvre sur sa première rangée */
+  ibOuverture();
   /* dans l'Index, les coins du bas disent toujours « Design graphique » et
      « Direction artistique », même ouvert depuis un projet de l'accueil */
   frameApply(-1);
 }
 
-/* ══ L'INDEX EN DOSSIERS EMPILÉS (au bureau, 29/10) ═══════════════════════
-   D'après SA vidéo de référence. Au milieu, la pile : chaque projet est un
-   dossier couché en biais ; ceux déjà vus s'éloignent au-dessus, ceux à
-   venir attendent en dessous, plus près ; le projet regardé se redresse
-   face à nous, au centre. À gauche son nom, à droite ce qu'il est.
-   La scène est COLLÉE : ce qui défile est une piste vide, et un seul rAF
-   pose les dossiers d'après elle — rien n'est à la fois déplacé par le
-   navigateur et par le script (la leçon de Safari). Un palier sur chaque
-   projet : il reste debout un moment, puis le suivant se lève.
-   À l'ouverture : la pile vue de loin, dans le NOIR, un rien zoomée ; le
-   noir passe au blanc, on dézoome, le premier dossier se redresse.
-   Au clic sur le dossier debout : la pile s'envole vers le haut et le
-   projet paraît sur le blanc (un clic sur un autre dossier l'amène). */
+/* ══ L'INDEX — LA PLANCHE (04/11, son brief « Refonte de l'index ») ═══════
+   IX_PROJETS : ce que chaque projet montre dans sa case — une image de sa
+   galerie, choisie et cadrée (x, y) pour que le titre s'y LISE sans voile
+   ni ombre, l'encre mesurée sur la photo (fonce : noire ; sinon blanche),
+   et la teinte de fond de la photo (fond : ce que lisent les coins du cadre
+   quand la page est ouverte en file://). col / tel : la largeur de la case,
+   en colonnes au bureau, en part de la page au téléphone (pour charger la
+   bonne variante). cadre : la boîte de la photo [gauche, haut, largeur,
+   hauteur] en part de la case, quand il faut la resserrer ou la déplacer
+   pour que le titre évite un détail (le verre, le sceau, le texte imprimé).
+   k et kt : l'écart de vitesse de la case et de son titre
+   au défilement, en px — ils s'annulent quand la case est au milieu de
+   l'écran, pour que les alignements tombent juste. */
+const IX_PROJETS = {
+  'Arch’ocktail': { cl: 'archocktail', src: 'web/proj-archocktail-cocktail.webp', x: 0.5, y: 1, cadre: [-0.08, -0.16, 1.16, 1.21], fond: '#23261c', k: 0, kt: 12, col: 8, tel: 1 },
+  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-mockup.webp', x: 0.5, y: 1, cadre: [-0.219, -0.58, 1.53, 1.59], fond: '#6d0f16', k: 24, kt: -8, col: 4, tel: 0.7 },
+  'Sillage': { cl: 'sillage', src: 'web/81615901-3d1f-4473-8d54-ac4e5065790b.webp', x: 0.5, y: 0.5, fonce: true, fond: '#e8e6e0', k: -14, kt: 12, col: 9, tel: 1 },
+  'Grapillon': { cl: 'grapillon', src: 'web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp', x: 0.5, y: 0.5, fond: '#2b2420', k: 16, kt: 10, col: 5, tel: 0.78 },
+  'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse-3.webp', x: 0.5, y: 0.5, cadre: [-0.203, -0.132, 1.5, 1.685], fond: '#101015', k: -22, kt: -10, col: 7, tel: 1 },
+  'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp', x: 0.5, y: 0.12, fond: '#1c2a1f', k: 0, kt: 6, col: 4, tel: 0.5 },
+  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fonce: true, fond: '#f1efe8', k: 16, kt: 6, col: 4, tel: 0.5 },
+  'Affiches': { cl: 'affiches', src: 'web/affiches/Poster_Frame_Mockup_2.webp', x: 0.5, y: 0.55, fonce: true, fond: '#d9d9d9', k: 32, kt: 6, col: 4, tel: 1 }
+};
+const IX_RANGEES = [['Arch’ocktail', 'Malbec'], ['Sillage'], ['Grapillon', 'Studio Synapse'], ['ONF', 'Logotypes', 'Affiches']];
 const indexBureau = matchMedia('(min-width: 901px)');
 const ib = document.querySelector('.index-bureau');
 const ibImages = ib && ib.querySelector('.ib-images');
-let ibActif = -1, ibCartes = [], ibSurvol = null;
-/* pos : la position montrée, en projets ; leve : 0 = tous couchés (la vue
-   de loin de l'ouverture), 1 = le regardé debout ; envol : 0 → 1 au clic */
-const ibEtat = { pos: 0, leve: 1, envol: 0, raf: 0, prec: 0, pas: 400, H: 400, anims: [] };
-const IB_ANGLE = 64 * Math.PI / 180;            // la pente d'un dossier couché
-function buildIndexBureau(cards) {
-  if (!ibImages) return;
-  ibImages.innerHTML = '';
-  const colTexte = ib.querySelector('.ib-texte'), colFonction = ib.querySelector('.ib-fonction');
-  colTexte.innerHTML = ''; colFonction.innerHTML = '';
-  ibCartes = cards.map((card, i) => {
-    /* l'image que l'accueil a DÉJÀ chargée pour la carte (la bonne taille,
-       en cache) : elle paraît tout de suite ; sinon la vignette du projet */
-    const photo = card.querySelector('.proj-photo');
-    const deja = photo && (photo.currentSrc || '');
-    const src = vignetteFiche(card);
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'ib-carte';
-    b.style.zIndex = String(i + 1);              // le plus proche passe devant
-    b.setAttribute('aria-label', (card.dataset.title || '') + ' — voir le projet');
-    const im = document.createElement('img');
-    im.alt = ''; im.decoding = 'async'; im.loading = 'eager';
-    /* rien ne paraît avant d'être chargé ET décodé : jamais d'image qui se
-       dessine par bandes, ni de case vide qui clignote */
-    if (deja || src) {
-      im.src = deja || varianteProche(src, 1700);
-      decodee(im).then(() => { if (im.naturalWidth) im.classList.add('est-charge'); });
-    }
-    b.appendChild(im);
-    b.addEventListener('pointerenter', () => prechargerProjet(card));
-    b.addEventListener('click', () => ibClic(i));
-    ibImages.appendChild(b);
-    /* son nom (deux mots : deux lignes) et sa fonction, chacun dans sa colonne */
-    const t = document.createElement('p');
-    t.className = 'ib-titre';
-    t.textContent = (card.dataset.title || '').trim().split(/\s+/).join('\n');
-    colTexte.appendChild(t);
-    const f = document.createElement('p');
-    f.className = 'ib-fct';
-    const fs = document.createElement('span'); fs.textContent = ibFonction(card); f.appendChild(fs);
-    colFonction.appendChild(f);
-    return { card, b, t, f, src: deja || src };
-  });
-  ibMesurer();
-}
-/* (03/11, sa demande) au bureau, à la souris : une fois le premier projet
-   déployé, LA COLONNE — les projets se suivent à plat, sur le blanc, et
-   défilent en continu, au même pas que la page ; plus de 3D. Le titre est
-   FIXE, en haut, SOUS les images : l'image qui part monte jusqu'en haut et
-   le recouvre ; caché, il change ; la suivante monte à sa place, et quand
-   l'ancienne a fini de passer, on lit le nouveau nom. L'écart (IB_JOINT)
-   laisse le titre libre au repos : l'image d'avant est sortie par le haut. */
-const ibColonne = matchMedia('(hover: hover) and (pointer: fine)').matches;
-const IB_JOINT = 100;
-function ibMesurer() {
-  if (!ib || !ibCartes.length) return;
-  ibEtat.pas = Math.round(innerHeight * 0.55);
-  if (ibColonne) ibEtat.pas = (ibCartes[0].b.offsetHeight || innerHeight * 0.6) + IB_JOINT;
-  ib.style.setProperty('--ib-piste', (innerHeight + ibEtat.pas * (ibCartes.length - 1)) + 'px');
-  ibEtat.H = ibCartes[0].b.offsetHeight || innerHeight * 0.58;
-  ibEtat.fs = parseFloat(getComputedStyle(ibCartes[0].t).fontSize) || 50;
+const ixGrille = ib && ib.querySelector('.ix-grille');
+/* le relief au défilement : à la souris seulement (au doigt, le défilement
+   natif devancerait toujours le script) */
+const ixSouris = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const IX_CADRE = [-0.08, -0.08, 1.16, 1.16], IX_GLISSE = 0.072;   // la photo déborde de 8 %, et glisse de 7,2 % dans sa case
+let ixCases = [], ibCartes = [];
+function ixSource(d) {
+  const part = indexBureau.matches ? d.col / 12 : d.tel;
+  return varianteProche(d.src, Math.round(innerWidth * part * (d.cadre || IX_CADRE)[2] * Math.min(devicePixelRatio || 1, 2)));
 }
 function ibFonction(card) {
   const titre = (card.dataset.title || '').trim().toLowerCase();
   const domaines = (card.dataset.cat || '').split('·').map(t => t.trim()).filter(Boolean);
   return domaines.find(t => t.toLowerCase() !== titre) || domaines[0] || '';
 }
-function ibChoisir(k) {
-  if (ibActif >= 0 && k !== ibActif) son.jouer('pile');        // (31/10) un dossier qui se pose
-  ibActif = k;
-  ibCartes.forEach((c, i) => c.b.classList.toggle('est-actif', i === k));
-  if (typeof cursor !== 'undefined' && cursor && ibSurvol) cursor.classList.toggle('sur-ib', ibSurvol.classList.contains('est-actif'));
+function buildIndexBureau(cards) {
+  if (!ixGrille) return;
+  if (!ixCases.length) ixConstruire(cards);
+  if (indexBureau.matches && ibImages && !ibCartes.length) ibConstruirePile(cards);
 }
-/* le défilement → la position visée : un PALIER sur chaque projet (12 %
-   du pas de chaque côté), la bascule adoucie entre deux */
-function ibCible() {
-  const r = Math.max(0, Math.min(ibCartes.length - 1, worksPanel.scrollTop / ibEtat.pas));
-  if (ibColonne) return r;                      // (03/11) en continu : pas de palier
-  const n = Math.floor(r), f = r - n;
-  const t = Math.min(1, Math.max(0, (f - 0.12) / 0.76));
-  return n + t * t * (3 - 2 * t);
-}
-/* LA POSE d'un dossier, d'après son écart d au projet regardé. On choisit
-   où doit tomber, À L'ÉCRAN, son bord haut (T, depuis le milieu) et sa
-   profondeur (z) ; la perspective (P) donne alors son décalage exact :
-   chaque dossier couché laisse voir une bande de lui-même, ni plus ni moins */
-const IB_P = 1500;
-function ibPose(d, n, H, leve) {
-  const A = IB_ANGLE * 180 / Math.PI;
-  if (ibColonne && leve >= 1) return { T: -H / 2 + d * (H + IB_JOINT), z: 0, rx: 0 };
-  /* (29/10) un peu plus d'air entre les dossiers */
-  const devant   = e => ({ T: H / 2 + 20 + (e - 1) * H * 0.12, z: 40 + (e - 1) * 60, rx: A });
-  /* (02/11) un dossier passé ne se couche plus en haut : il RECULE derrière
-     l'image, debout, comme une pile qui s'enfonce — le haut reste libre
-     pour le nom et la fonction */
-  const derriere = e => ({ T: -H / 2 + 8 * e, z: -110 * e, rx: 0 });
-  let p;
-  if (d >= 1) p = devant(d);
-  else if (d <= -1) p = derriere(-d);
-  else {
-    const q = d >= 0 ? devant(1) : derriere(1), t = Math.abs(d);
-    p = { T: -H / 2 + (q.T + H / 2) * t, z: q.z * t, rx: q.rx * t };
-  }
-  if (ibColonne) p = { T: -H / 2 + d * (H + IB_JOINT), z: 0, rx: 0 };   // la vue de loin se déplie en colonne
-  if (leve >= 1) return p;
-  // la vue de loin : tous couchés, en escalier régulier, la pile centrée
-  const u = d - (n - 1) / 2;
-  const o = { T: u * H * 0.12 - H * 0.2, z: u * 50, rx: A };
-  return { T: o.T + (p.T - o.T) * leve, z: o.z + (p.z - o.z) * leve, rx: o.rx + (p.rx - o.rx) * leve };
-}
-/* (02/11) au bureau, à la souris : la fonction et le nom posés au-dessus
-   de l'image, centrés (voir le CSS « L'IMAGE EN GRAND ») */
-const ibTextesRelies = matchMedia('(hover: hover) and (pointer: fine)').matches;
-function ibDessiner() {
-  const n = ibCartes.length, H = ibEtat.H, vh = innerHeight;
-  ibCartes.forEach((c, i) => {
-    const d = i - ibEtat.pos;
-    const p = ibPose(d, n, H, ibEtat.leve);
-    const r = p.rx * Math.PI / 180;
-    // le décalage qui pose le bord haut en T, perspective comprise
-    let y = p.T * (IB_P - p.z + H * Math.sin(r)) / IB_P - H / 2 + H * Math.cos(r);
-    /* l'envol : les dossiers du haut partent d'abord, chacun en accélérant */
-    if (ibEtat.envol > 0) {
-      const e = Math.min(1, Math.max(0, ibEtat.envol * 1.5 - i * 0.06));
-      y -= e * e * vh * 1.7;
+function ixConstruire(cards) {
+  const restants = new Map(cards.map(card => [(card.dataset.title || '').trim(), card]));
+  const span = (cl, parent) => {
+    const s = document.createElement('span'); s.className = cl;
+    if (parent) parent.appendChild(s);
+    return s;
+  };
+  const uneCase = (titre, card, rang) => {
+    const d = IX_PROJETS[titre] || { cl: 'autre', src: vignetteFiche(card), x: 0.5, y: 0.5, fond: '#222', k: 0, kt: 0, col: 12, tel: 1 };
+    const el = document.createElement('a');
+    el.className = (IX_PROJETS[titre] ? 'ix-case ix-c-' + d.cl : 'ix-case ix-autre') + (d.fonce ? ' encre-fonce' : '');
+    el.href = (IX_PROJETS[titre] ? d.cl : '#') + (IX_PROJETS[titre] ? '.html' : '');
+    const volet = span('ix-volet', el);
+    volet.style.backgroundColor = d.fond;
+    const contre = span('ix-contre', volet);
+    let photo;
+    if (d.logos) {
+      photo = span('ix-logos', contre);
+      d.logos.forEach(src => { const im = new Image(); im.alt = ''; im.decoding = 'async'; im.src = src; photo.appendChild(im); });
+    } else {
+      photo = new Image();
+      photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
+      photo.src = ixSource(d);
+      photo.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
+      if (d.cadre) { const [l, t, w, h] = d.cadre; Object.assign(photo.style, { left: (l * 100) + '%', top: (t * 100) + '%', width: (w * 100) + '%', height: (h * 100) + '%' }); }
+      photo._ixX = d.x; photo._ixY = d.y;
+      contre.appendChild(photo);
     }
-    const debout = Math.max(0, 1 - Math.abs(d)) * ibEtat.leve;
-    /* les dossiers DÉJÀ VUS, au-dessus : celui qui vient de se coucher
-       reste PLEIN ; seul le suivant s'efface, à 50 % ; plus rien au-delà
-       (sa demande du 29/10). Ceux du bas restent pleins. Dans la vue de
-       loin, tous pleins. */
-    const e = -d;
-    const voile = e <= 1 ? 1 : e <= 2 ? 1 - 0.5 * (e - 1) : e <= 3 ? 0.5 * (3 - e) : 0;
-    const op = 1 - ibEtat.leve * (1 - voile);
-    c.b.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,' + p.z.toFixed(1) + 'px) rotateX(' + p.rx.toFixed(2) + 'deg)';
-    c.b.style.setProperty('--ib-ombre', ibColonne ? '0' : ((1 - debout) * 0.1).toFixed(3));
-    /* les textes : le sortant se couche en arrière et s'efface, l'entrant
-       monte couché de dessous et se redresse — au même pas que les dossiers */
-    const et = Math.min(1, Math.abs(d)), opT = Math.max(0, 1 - et * 2.1);
-    const tT = (ibTextesRelies ? 'translate(-50%, -100%)' : 'translate(-50%, -50%)') + ' translate3d(0,' + ((d < 0 ? -0.7 : 0.8) * et * ibEtat.fs).toFixed(1) + 'px,0) rotateX(' + (et * 80).toFixed(1) + 'deg)';
-    /* la colonne : le titre ne bouge pas ; seul celui du projet le plus
-       proche est là — il change pendant qu'une image le recouvre */
-    const seul = ibColonne && ibEtat.leve >= 1 ? (i === Math.round(ibEtat.pos) ? 1 : 0) : null;
-    [c.t, c.f].forEach(el => {
-      el.style.transform = seul === null ? tT : 'translate(-50%, -100%)';
-      el.style.opacity = (seul === null ? opT : seul).toFixed(3);
-      el.style.visibility = (seul === null ? opT <= 0.001 : !seul) ? 'hidden' : '';
+    const t = span('ix-titre', el);
+    [['ix-fct', ibFonction(card)], ['ix-nom', titre]].forEach(([cl, texte]) => {
+      span('ix-ligne ' + cl, t).appendChild(document.createElement('span')).textContent = texte;
     });
-    /* loin du regardé, un dossier est hors de l'écran : on ne le peint plus */
-    c.b.style.opacity = op < 0.999 ? op.toFixed(3) : '';
-    c.b.style.visibility = (ibEtat.leve >= 1 && Math.abs(d) > 6.5) || op <= 0.001 ? 'hidden' : '';
+    const c = { card, d, el, photo, titre: t, rang, k: ixSouris ? d.k : 0, kt: ixSouris ? d.kt : 0, top: 0, left: 0, w: 0, h: 0, vu: false };
+    el.addEventListener('pointerenter', () => prechargerProjet(card));
+    el.addEventListener('click', e => {
+      /* cmd-clic, clic milieu : le navigateur ouvre la vraie page du projet */
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+      e.preventDefault();
+      ixOuvrir(c);
+    });
+    el._ix = c;
+    return c;
+  };
+  const ajouterRang = (titres, k) => {
+    const rang = document.createElement('div');
+    rang.className = 'ix-rang ix-r' + k;
+    titres.forEach(titre => {
+      const card = restants.get(titre);
+      if (!card) return;
+      restants.delete(titre);
+      const c = uneCase(titre, card, k);
+      rang.appendChild(c.el);
+      ixCases.push(c);
+    });
+    if (rang.children.length) ixGrille.appendChild(rang);
+  };
+  IX_RANGEES.forEach((titres, i) => ajouterRang(titres, i + 1));
+  /* un projet ajouté un jour, pas encore composé : une rangée pour lui seul */
+  [...restants.keys()].forEach((titre, i) => ajouterRang([titre], 5 + i));
+}
+/* LES DOSSIERS DE L'INTRODUCTION, dans l'ordre du document : ils montrent la
+   MÊME image que leur case, pour s'y poser sans raccord visible */
+function ibConstruirePile(cards) {
+  ibImages.innerHTML = '';
+  ibCartes = cards.map((card, i) => {
+    const cas = ixCases.find(c => c.card === card);
+    if (!cas) return null;
+    const b = document.createElement('div');
+    b.className = 'ib-carte' + (cas.d.logos ? ' est-logos' : '');
+    b.style.zIndex = String(i + 1);              // le plus proche passe devant
+    const im = new Image();
+    im.alt = ''; im.decoding = 'async'; im.loading = 'eager';
+    im.src = cas.d.logos ? cas.d.logos[0] : (cas.photo.currentSrc || cas.photo.src);
+    decodee(im).then(() => { if (im.naturalWidth || cas.d.logos) { im.classList.add('est-charge'); ibGeometrie(); } });
+    b.appendChild(im);
+    ibImages.appendChild(b);
+    return { b, im, cas };
+  }).filter(Boolean);
+}
+/* LES POSITIONS, relevées une fois pour toutes (ouverture, redimensionnement) :
+   aucune lecture de mise en page pendant le défilement */
+let ixVue = { w: 0, h: 0 };
+function ixMesurer() {
+  ixVue = { w: worksPanel.clientWidth, h: worksPanel.clientHeight };
+  ixCases.forEach(c => {
+    const r = c.el.getBoundingClientRect();     // les tailles exactes, au dixième de pixel
+    c.top = c.el.offsetTop + ixGrille.offsetTop; c.left = r.left - worksPanel.getBoundingClientRect().left;
+    c.w = r.width; c.h = r.height;
   });
 }
-function ibBoucle(ts) {
-  ibEtat.raf = 0;
-  if (!worksPanel.classList.contains('open') || !ibCartes.length) { ibEtat.prec = 0; return; }
-  const dt60 = ibEtat.prec && ts ? Math.min(3, Math.max(0.25, (ts - ibEtat.prec) / (1000 / 60))) : 1;
-  ibEtat.prec = ts || 0;
-  const maintenant = performance.now();
-  ibEtat.anims = ibEtat.anims.filter(a => {
-    const t = Math.min(1, (maintenant - a.debut) / a.duree);
-    ibEtat[a.prop] = a.de + (a.a - a.de) * a.courbe(t);
-    if (t < 1) return true;
-    if (a.fin) a.fin();
-    return false;
+/* où en est une case dans sa traversée de l'écran : +1 elle entre par le
+   bas, 0 elle est au milieu, -1 elle sort par le haut */
+function ixProgres(c, st) {
+  const p = (c.top + c.h / 2 - st - ixVue.h / 2) / ((ixVue.h + c.h) / 2);
+  return Math.max(-1, Math.min(1, p));
+}
+let ixPrec = -1;
+function ixDefiler(force) {
+  if (!ixSouris || motionState.reducedMotion || !worksPanel.classList.contains('open')) return;
+  const st = worksPanel.scrollTop;
+  if (st === ixPrec && force !== true) return;
+  ixPrec = st;
+  for (let i = 0; i < ixCases.length; i++) {
+    const c = ixCases[i], haut = c.top - st;
+    if (force !== true && (haut > ixVue.h + 80 || haut + c.h < -80)) continue;
+    const p = ixProgres(c, st);
+    c.el.style.transform = 'translate3d(0,' + (p * c.k).toFixed(1) + 'px,0)';
+    c.photo.style.transform = 'translate3d(0,' + (-p * c.h * IX_GLISSE).toFixed(1) + 'px,0)';
+    c.titre.style.transform = 'translate3d(0,' + (p * c.kt).toFixed(1) + 'px,0)';
+  }
+}
+let ixRaf = 0, ixLecture = 0, ixDerniere = 0;
+const ixRelireCadre = () => document.dispatchEvent(new Event('cadre-relire'));
+function ixAuDefilement() {
+  if (!ixRaf) ixRaf = requestAnimationFrame(() => { ixRaf = 0; ixDefiler(); });
+  /* les coins du cadre se lisent sur ce qui passe dessous : dix fois par
+     seconde suffisent, et une dernière fois à l'arrêt */
+  const t = performance.now();
+  if (t > ixLecture) { ixLecture = t + 100; ixRelireCadre(); }
+  clearTimeout(ixDerniere);
+  ixDerniere = setTimeout(ixRelireCadre, 140);
+}
+worksPanel.addEventListener('scroll', ixAuDefilement, { passive: true });
+/* dans Safari, la MÊME image que le moteur de défilement : aucun décalage */
+if (inertie && inertie.apresDe) inertie.apresDe(worksPanel, ixDefiler);
+/* LA CHORÉGRAPHIE : chaque case se montre en arrivant dans l'écran, une
+   fois sa photo décodée — jamais une image qui se dessine */
+let ixObs = null, ixSonRang = 0;
+function ixMontrer(c) {
+  if (c.vu) return;
+  c.vu = true;
+  const pret = c.photo.tagName === 'IMG' ? decodee(c.photo) : Promise.resolve();
+  pret.then(() => {
+    if (!worksPanel.classList.contains('open')) { c.vu = false; return; }
+    c.el.classList.add('est-vu');
+    /* la photo a pris sa place sous les coins : ils la relisent */
+    setTimeout(ixRelireCadre, 450); setTimeout(ixRelireCadre, 1500);
+    if (c.rang > ixSonRang) { ixSonRang = c.rang; if (c.rang > 1) son.jouer('pile'); }
   });
-  const cible = ibCible();
-  ibEtat.pos += (cible - ibEtat.pos) * (1 - Math.pow(0.7, dt60));
-  if (Math.abs(cible - ibEtat.pos) < 0.0005) ibEtat.pos = cible;
-  ibDessiner();
-  const k = Math.round(ibEtat.pos);
-  if (k !== ibActif) ibChoisir(k);
-  if (ibEtat.pos !== cible || ibEtat.anims.length) ibEtat.raf = requestAnimationFrame(ibBoucle);
-  else ibEtat.prec = 0;
 }
-function ibRelancer() { if (!ibEtat.raf) ibEtat.raf = requestAnimationFrame(ibBoucle); }
-function ibAnimer(prop, de, a, duree, courbe, fin) {
-  ibEtat.anims = ibEtat.anims.filter(x => x.prop !== prop);
-  ibEtat.anims.push({ prop, de, a, duree, courbe, fin, debut: performance.now() });
-  ibEtat[prop] = de;
-  ibRelancer();
+function ixArmer() {
+  if (ixObs) ixObs.disconnect();
+  if (!('IntersectionObserver' in window)) { ixCases.forEach(ixMontrer); return; }
+  ixObs = new IntersectionObserver(entrees => entrees.forEach(en => {
+    if (!en.isIntersecting) return;
+    ixObs.unobserve(en.target);
+    ixMontrer(en.target._ix);
+  }), { root: worksPanel, rootMargin: '0px 0px -12% 0px', threshold: 0 });
+  ixCases.forEach(c => { if (!c.vu) ixObs.observe(c.el); });
 }
+/* ── L'INTRODUCTION : le noir, la pile vue de loin ; puis le blanc, le dézoom,
+   et chaque dossier rejoint sa case. Une seule horloge (T, de 0 à 1) mène
+   tout, pour que l'arrivée tombe au pixel. La pose de départ est celle de
+   toujours ; à l'arrivée, le dossier a exactement le rectangle de sa case,
+   et son image — contre-déformée pendant le trajet, jamais écrasée — la
+   taille et le cadrage de la photo. Ceux de devant partent les premiers et
+   dégagent la vue ; le premier projet se pose le dernier. */
+const IB_ANGLE = 64 * Math.PI / 180, IB_P = 1500, IB_CASCADE = 0.34, IB_DUREE = 1500;
 const ibCourbe = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-/* L'OUVERTURE : le noir, la pile vue de loin et zoomée ; puis le blanc, le
-   dézoom, le premier dossier qui se redresse, les textes en dernier */
-let ibIntro = 0;
+const ibTemps = { T: 0, raf: 0, prec: 0, vitesse: 1, arme: false, attente: 0 };
+let ibH = 0;
+function ibGeometrie() {
+  if (!ibCartes.length) return;
+  const W = ibImages.offsetWidth, H = ibCartes[0].b.offsetHeight;
+  if (!W || !H) return;
+  ibH = H;
+  const bas = ibCartes[0].b.offsetTop + H, centre = ibImages.offsetLeft + W / 2;
+  ibCartes.forEach(c => {
+    const x = c.cas, p0 = ixProgres(x, 0);
+    c.tx = x.left + x.w / 2 - centre;
+    c.ty = x.top + p0 * x.k + x.h - bas;
+    c.sx = x.w / W; c.sy = x.h / H;
+    if (x.d.logos) {
+      /* une marque au centre de son dossier, sans déformation */
+      c.B = c.R = c.M = 1; c.dx = c.dy = 0;
+      c.im.style.width = (W * 0.46) + 'px'; c.im.style.height = (H * 0.46) + 'px';
+      return;
+    }
+    const nw = c.im.naturalWidth || W, nh = c.im.naturalHeight || H;
+    const [cl, ct, cw, ch] = x.d.cadre || IX_CADRE;
+    const PW = x.w * cw, PH = x.h * ch;
+    c.B = Math.max(W / nw, H / nh) * 1.07;       // toutes un rien agrandies dans la pile
+    c.R = Math.max(PW / nw, PH / nh);            // l'échelle exacte de la photo dans sa case
+    c.M = Math.max(c.B, c.R);                    // l'image reste nette de bout en bout
+    c.im.style.width = (nw * c.M) + 'px'; c.im.style.height = (nh * c.M) + 'px';
+    c.dx = cl * x.w + (PW - nw * c.R) * x.d.x + nw * c.R / 2 - x.w / 2;
+    c.dy = ct * x.h + (PH - nh * c.R) * x.d.y + nh * c.R / 2 - x.h / 2 - (ixSouris ? p0 * x.h * IX_GLISSE : 0);
+  });
+}
+function ibDessiner(T) {
+  const n = ibCartes.length, H = ibH, A = IB_ANGLE;
+  ibCartes.forEach((c, i) => {
+    if (c.tx === undefined) return;
+    const retard = (n - 1 - i) / (n - 1) * IB_CASCADE;
+    const e = ibCourbe(Math.max(0, Math.min(1, (T - retard) / (1 - retard))));
+    /* la vue de loin : tous couchés, en escalier régulier, la pile centrée */
+    const u = i - (n - 1) / 2, T0 = u * H * 0.12 - H * 0.2, z0 = u * 50;
+    const y0 = T0 * (IB_P - z0 + H * Math.sin(A)) / IB_P - H / 2 + H * Math.cos(A);
+    const y = y0 + (c.ty - y0) * e, z = z0 * (1 - e), rx = (A * 180 / Math.PI) * (1 - e);
+    const sx = 1 + (c.sx - 1) * e, sy = 1 + (c.sy - 1) * e, E = c.B + (c.R - c.B) * e;
+    c.b.style.transform = 'translate3d(' + (c.tx * e).toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + z.toFixed(2) + 'px) rotateX(' + rx.toFixed(3) + 'deg) scale(' + sx.toFixed(5) + ',' + sy.toFixed(5) + ')';
+    c.im.style.transform = 'translate(-50%,-50%) translate(' + (c.dx * e / sx).toFixed(2) + 'px,' + (c.dy * e / sy).toFixed(2) + 'px) scale(' + (E / (c.M * sx)).toFixed(5) + ',' + (E / (c.M * sy)).toFixed(5) + ')';
+  });
+  ibImages.style.transform = 'scale(' + (1 + 0.14 * (1 - ibCourbe(T))).toFixed(5) + ')';
+}
+function ibPas(ts) {
+  ibTemps.raf = 0;
+  const dt = Math.max(0, ts - ibTemps.prec);
+  ibTemps.prec = ts;
+  ibTemps.T = Math.min(1, ibTemps.T + dt / IB_DUREE * ibTemps.vitesse);
+  ibDessiner(ibTemps.T);
+  if (ibTemps.T < 1) ibTemps.raf = requestAnimationFrame(ibPas);
+  else ibAtterrir();
+}
+function ibDemarrer() {
+  clearTimeout(ibTemps.attente); ibTemps.attente = 0;
+  worksPanel.classList.remove('ib-noir');
+  document.body.classList.remove('ib-cadre-noir');
+  ibTemps.T = 0; ibTemps.prec = performance.now(); ibTemps.enCours = true;
+  ibTemps.raf = requestAnimationFrame(ibPas);
+}
+/* la pile posée : la grille paraît SOUS elle, identique ; deux images plus
+   tard, la pile s'efface (aucun blanc possible). Les titres viennent ensuite. */
+function ibAtterrir() {
+  ibTemps.enCours = false; ibTemps.arme = false;
+  ixCases.forEach(c => { if (c.top < ixVue.h) c.el.classList.add('ix-deja'); });
+  ib.classList.remove('ix-cache');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (!worksPanel.classList.contains('open')) return;
+    ib.classList.remove('ix-scene');
+    worksPanel.classList.remove('ix-verrou');
+    document.body.classList.remove('ib-intro');
+    ixRelireCadre();
+    ixArmer();
+  }));
+}
 function ibOuverture() {
-  if (!ib || !ibCartes.length) return;
-  clearTimeout(ibIntro);
+  if (!ixCases.length) return;
+  ibArreter();
   worksPanel.scrollTop = 0;
-  ibMesurer();
-  ibEtat.pos = 0; ibEtat.envol = 0; ibEtat.anims = []; ibActif = -1;
-  ibChoisir(0);
-  if (motionState.reducedMotion) { ibEtat.leve = 1; ibDessiner(); return; }
-  ibEtat.leve = 0;
-  worksPanel.classList.add('ib-noir');
-  document.body.classList.add('ib-cadre-noir');
-  ib.classList.add('ib-sans-texte');
-  ibDessiner();
+  ixSonRang = 0; ixPrec = -1;
+  ixCases.forEach(c => { c.vu = false; c.el.classList.remove('est-vu', 'ix-deja'); });
+  ixMesurer();
+  ixDefiler(true);
+  if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); }); return; }
+  if (!indexBureau.matches || !ibCartes.length) return;      // au téléphone : pas de pile, voir entreeIndex
+  ibGeometrie();
+  ibTemps.T = 0; ibTemps.vitesse = 1;
+  ibDessiner(0);
+  ib.classList.add('ix-scene', 'ix-cache');
+  worksPanel.classList.add('ib-noir', 'ix-verrou');
+  document.body.classList.add('ib-cadre-noir', 'ib-intro');
 }
 /* lancé par le dévoilement de l'Index (voir entreeIndex) : le noir tient
    un instant, puis vient le blanc */
 function ibLancer() {
-  if (!ib || ibEtat.leve >= 1) return;
-  clearTimeout(ibIntro);
-  ibIntro = setTimeout(() => {
-    worksPanel.classList.remove('ib-noir');
-    document.body.classList.remove('ib-cadre-noir');
-    ibAnimer('leve', 0, 1, 1500, ibCourbe);
-    ibIntro = setTimeout(() => ib.classList.remove('ib-sans-texte'), 1050);
-  }, 550);
+  clearTimeout(ibTemps.attente);
+  ibTemps.arme = true;
+  ibTemps.attente = setTimeout(ibDemarrer, 550);
 }
 function ibArreter() {
-  clearTimeout(ibIntro);
-  worksPanel.classList.remove('ib-noir');
-  document.body.classList.remove('ib-cadre-noir');
-  if (ib) ib.classList.remove('ib-sans-texte');
-  ibEtat.anims = []; ibEtat.leve = 1; ibEtat.envol = 0;
+  clearTimeout(ibTemps.attente); ibTemps.attente = 0;
+  if (ibTemps.raf) cancelAnimationFrame(ibTemps.raf);
+  ibTemps.raf = 0; ibTemps.arme = false; ibTemps.enCours = false;
+  worksPanel.classList.remove('ib-noir', 'ix-verrou');
+  document.body.classList.remove('ib-cadre-noir', 'ib-intro');
+  if (ib) ib.classList.remove('ix-scene', 'ix-cache');
+  if (ixObs) ixObs.disconnect();
 }
-/* LE CLIC : un dossier couché vient se redresser ; le dossier debout
-   ouvre son projet — la pile s'envole (on voit les dossiers partir), puis la
-   page du projet monte du bas, entière et déjà chargée, sans autre effet
-   (sa préférence, confirmée le 29/10 : la carte seule qui grandissait,
-   non). */
-function ibClic(i) {
-  if (ibEtat.envol > 0 || !worksPanel.classList.contains('open')) return;
-  if (i !== ibActif) { worksPanel.scrollTo({ top: i * ibEtat.pas, behavior: 'smooth' }); return; }
-  const card = ibCartes[i].card;
+/* la molette pendant l'introduction : on ne fait pas attendre — elle file */
+worksPanel.addEventListener('wheel', () => {
+  if (!ibTemps.arme) return;
+  if (ibTemps.attente) ibDemarrer();
+  ibTemps.vitesse = 3;
+}, { passive: true });
+/* LE CLIC : les cases à l'écran s'envolent vers le haut, en cascade — celle
+   qu'on a choisie la dernière — puis la page du projet monte du bas, entière
+   et déjà chargée. Au retour, l'Index est là, intact. */
+let ixDepart = false;
+function ixOuvrir(c) {
+  if (ixDepart || !worksPanel.classList.contains('open')) return;
+  const card = c.card;
   worksDepart = true;
   projetDepuisIndex = true;
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
-  ib.classList.add('ib-sans-texte');
-  /* les dossiers s'en vont (1,1 s) ; la page du projet se prépare sous
-     l'écran pendant ce temps, et monte quand ils sont presque tous partis —
-     jamais avant que son haut soit prêt */
-  ibAnimer('envol', 0, 1, 1100, t => t * t);
+  ixDepart = true;
+  const st = worksPanel.scrollTop;
+  const vues = ixCases.filter(x => x !== c && x.top - st < ixVue.h && x.top + x.h - st > 0).sort((a, b) => a.top - b.top);
+  vues.push(c);
+  const anims = vues.map((x, k) => x.el.animate(
+    [{ translate: '0 0' }, { translate: '0 ' + -Math.round(x.top - st + x.h + 60) + 'px' }],
+    { duration: 800, delay: k * 60, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', fill: 'forwards' }));
   Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
-    /* le projet posé, la pile reprend sa place sous lui : au retour,
-       l'Index est là, intact */
-    ibEtat.anims = ibEtat.anims.filter(a => a.prop !== 'envol');
-    ibEtat.envol = 0;
-    ib.classList.remove('ib-sans-texte');
-    ibDessiner();
+    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+    ixDepart = false;
+    ixRelireCadre();
   });
 }
-worksPanel.addEventListener('scroll', ibRelancer, { passive: true });
-addEventListener('resize', () => { if (indexBureau.matches && worksPanel.classList.contains('open')) { ibMesurer(); ibRelancer(); } });
-/* les visuels de l'Index qu'aucune carte de l'accueil n'a chargés (ONF,
-   Logotypes, Affiches) partent dès que la page est posée : à l'ouverture de
-   l'Index, tout est déjà là */
+addEventListener('resize', () => {
+  if (!worksPanel.classList.contains('open')) return;
+  ixMesurer();
+  ixDefiler(true);
+  if (ib && ib.classList.contains('ix-scene')) { ibGeometrie(); ibDessiner(ibTemps.T); }
+  ixRelireCadre();
+});
+/* les images de l'Index partent dès que la page est posée : à l'ouverture,
+   tout est déjà là */
 addEventListener('load', () => {
   if (!indexBureau.matches) return;
-  const partir = () => document.querySelectorAll('.projet-fiche').forEach(card => {
-    const src = vignetteFiche(card);
-    if (!src) return;
-    const im = new Image(); im.decoding = 'async'; im.src = varianteProche(src, 1700);
+  const partir = () => Object.values(IX_PROJETS).forEach(d => {
+    if (d.logos) { d.logos.forEach(src => { new Image().src = src; }); return; }
+    const im = new Image(); im.decoding = 'async'; im.src = ixSource(d);
   });
   ('requestIdleCallback' in window) ? requestIdleCallback(partir, { timeout: 3000 }) : setTimeout(partir, 1500);
 }, { once: true });
@@ -6802,8 +6907,10 @@ if (menuTriggerBtn) menuTriggerBtn.addEventListener('click', () =>
     : passage(worksPanel, 'monte', openWorksPanel, null, entreeIndex));
 /* l'Index découvert : le nom, puis la première image, montent en place */
 function entreeIndex() {
-  /* au bureau, l'ouverture de la pile en tient lieu (voir ibOuverture) */
-  if (indexBureau.matches) ibLancer();
+  /* au bureau, l'introduction de la pile (voir ibOuverture) ; sinon, la
+     première rangée se montre pendant que la page monte */
+  if (ib && ib.classList.contains('ix-scene')) ibLancer();
+  else if (!motionState.reducedMotion) ixArmer();
 }
 
 
@@ -7946,6 +8053,13 @@ function lumAt(img, x, y) {
   if (!g) return null;
   const r = img.getBoundingClientRect();
   if (!r.width || !r.height) return null;
+  if (img._ixX !== undefined && img.naturalWidth) {
+    /* (04/11) une case de l'Index : la photo est cadrée, on lit le bon endroit */
+    const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
+    const iw = img.naturalWidth * k, ih = img.naturalHeight * k;
+    const a = (x - r.left - (r.width - iw) * img._ixX) / iw, b = (y - r.top - (r.height - ih) * img._ixY) / ih;
+    return g.d[Math.min(g.h - 1, Math.max(0, Math.floor(b * g.h))) * g.w + Math.min(g.w - 1, Math.max(0, Math.floor(a * g.w)))];
+  }
   const u = Math.min(g.w - 1, Math.max(0, Math.floor((x - r.left) / r.width * g.w)));
   const v = Math.min(g.h - 1, Math.max(0, Math.floor((y - r.top) / r.height * g.h)));
   /* le dégradé bas du média assombrit réellement ce qu'on voit */
@@ -8127,6 +8241,7 @@ const LUM_SOMBRE = 0.41, LUM_CLAIR = 0.51;
   const kick = () => { if (!raf) raf = requestAnimationFrame(apply); };
   onMotionScroll(kick);                       // scroll CENTRAL
   addEventListener('resize', kick, { passive: true });
+  document.addEventListener('cadre-relire', kick);   // (04/11) l'Index défile : voir ixAuDefilement
   /* les photographies arrivent après : on remesure quand elles sont décodées */
   addEventListener('load', kick);
   setTimeout(apply, 60);
