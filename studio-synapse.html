@@ -3072,10 +3072,9 @@ body.zone-foot .about-story {
    3 · L'INDEX : voir plus bas, « LA PLANCHE ». ══════════════════════════ */
 /* ══ L'INDEX — LA PLANCHE (04/11, son brief « Refonte de l'index ») ═══════
    Une mise en page éditoriale sur 12 colonnes, composée pour CES huit
-   projets et ces images-là : deux projets en tête, serrés (8 + 4) ; une
-   respiration (Sillage seul, poussé à droite, du vide à gauche) ; deux
-   projets alignés par le pied (5 + 7, l'un haut, l'autre large) ; trois
-   carrés pour finir, vite. Les marges sont celles du cadre : TB, la croix
+   projets (sa hiérarchie, 04/11) : deux, un, deux, un, deux. Chaque paire
+   à la même hauteur, en 8 + 4 puis 4 + 8 puis 8 + 4 ; Sillage et l'ONF seuls,
+   sur toute la largeur. Les marges sont celles du cadre : TB, la croix
    et les images tombent sur la même verticale. Le titre est DANS l'image :
    ni voile, ni ombre — l'encre de chaque projet, et le cadrage de sa photo,
    ont été choisis pour qu'il s'y lise (voir IX_PROJETS).
@@ -3096,15 +3095,13 @@ body.zone-foot .about-story {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--ix-g); align-items: end;
 }
-.ix-r2 { margin-top: clamp(56px, 5vw, 120px); }
-.ix-r3 { margin-top: clamp(64px, 6.5vw, 130px); }
-.ix-r4 { margin-top: calc(var(--ix-g) * 2.2); }
-.ix-c-archocktail { grid-column: 1 / span 8; height: var(--ix-h1); }
-.ix-c-malbec { grid-column: 9 / span 4; height: var(--ix-h1); }
-.ix-c-sillage { grid-column: 4 / span 9; aspect-ratio: 2.15; }
-.ix-c-grapillon { grid-column: 1 / span 5; aspect-ratio: 0.86; }
-.ix-c-studio-synapse { grid-column: 6 / span 7; aspect-ratio: 1.5; }
-.ix-c-onf, .ix-c-logotypes, .ix-c-affiches { grid-column: span 4; aspect-ratio: 1; }
+.ix-rang + .ix-rang { margin-top: clamp(56px, 5vw, 120px); }
+/* deux, un, deux, un, deux : chaque paire à la même hauteur, chaque photo seule sur toute la largeur */
+.ix-c-archocktail, .ix-c-logotypes { grid-column: 1 / span 8; height: var(--ix-h1); }
+.ix-c-malbec, .ix-c-affiches { grid-column: 9 / span 4; height: var(--ix-h1); }
+.ix-c-grapillon { grid-column: 1 / span 4; height: var(--ix-h1); }
+.ix-c-studio-synapse { grid-column: 5 / span 8; height: var(--ix-h1); }
+.ix-c-sillage, .ix-c-onf { grid-column: 1 / -1; aspect-ratio: 2.15; }
 .ix-autre { grid-column: 1 / -1; aspect-ratio: 2.2; }
 
 /* UNE CASE. Le volet glisse, la photo glisse moins vite en sens inverse, à
@@ -3178,11 +3175,11 @@ body.zone-foot .about-story {
    les deux suivantes se répondent (l'une monte, l'autre arrive de droite) ;
    les trois carrés passent vite, l'un après l'autre */
 .ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
+.ix-r4 .ix-case { --vx: -100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
 .ix-c-grapillon { --ix-d: 1.05s; }
 .ix-c-studio-synapse { --vx: 100%; --vy: 0%; --ix-r: 0.16s; }
-.ix-r4 .ix-case { --ix-d: 0.8s; --ix-t: 0.3s; }
-.ix-c-logotypes { --ix-r: 0.09s; }
-.ix-c-affiches { --ix-r: 0.18s; }
+.ix-r5 .ix-case { --ix-d: 0.9s; --ix-t: 0.32s; }
+.ix-c-affiches { --ix-r: 0.12s; }
 .ix-c-malbec.ix-deja { --ix-r: 0.1s; }
 
 @media (hover: hover) and (pointer: fine) {
@@ -3197,19 +3194,17 @@ body.zone-foot .about-story {
      colonne, des largeurs qui alternent, les petits carrés deux à deux */
   .ix-grille { --ix-m: 14px; --ix-g: 8px; padding: 56px var(--ix-m) 110px; }
   .ix-rang { row-gap: var(--ix-g); }
-  .ix-r2, .ix-r3 { margin-top: 44px; }
-  .ix-r4 { margin-top: var(--ix-g); }
+  .ix-rang + .ix-rang { margin-top: 44px; }
   .ix-c-archocktail { grid-column: 1 / -1; height: auto; aspect-ratio: 1 / 1.05; }
   .ix-c-malbec { grid-column: 1 / -1; height: auto; width: 70%; justify-self: end; aspect-ratio: 4 / 5; }
-  .ix-c-sillage { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
-  .ix-c-grapillon { grid-column: 1 / -1; width: 78%; aspect-ratio: 4 / 5; }
-  .ix-c-studio-synapse { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
-  .ix-c-onf, .ix-c-logotypes { grid-column: span 6; aspect-ratio: 1; }
-  .ix-c-affiches { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
-  .ix-case, .ix-r2 .ix-case, .ix-c-studio-synapse, .ix-r4 .ix-case, .ix-c-logotypes, .ix-c-affiches, .ix-c-grapillon {
+  .ix-c-sillage, .ix-c-onf { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
+  .ix-c-grapillon { grid-column: 1 / -1; height: auto; width: 78%; aspect-ratio: 4 / 5; }
+  .ix-c-studio-synapse { grid-column: 1 / -1; height: auto; aspect-ratio: 4 / 3; }
+  .ix-c-logotypes { grid-column: 1 / -1; height: auto; aspect-ratio: 4 / 3; }
+  .ix-c-affiches { grid-column: 1 / -1; height: auto; width: 70%; justify-self: end; aspect-ratio: 4 / 5; }
+  .ix-case, .ix-r2 .ix-case, .ix-r4 .ix-case, .ix-c-studio-synapse, .ix-r5 .ix-case, .ix-c-affiches, .ix-c-grapillon {
     --vx: 0%; --vy: 100%; --ix-d: 0.95s; --ix-r: 0s; --ix-t: 0.35s; --ix-c: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .ix-c-logotypes { --ix-r: 0.08s; }
   .ix-fct { font-size: clamp(11.5px, 3.6cqw, 17px); }
   .ix-nom { font-size: clamp(26px, 9.6cqw, 54px); margin-top: calc(-0.16em + clamp(2px, 1cqw, 8px)); }
 }
@@ -6528,15 +6523,15 @@ function openWorksPanel() {
    l'écran, pour que les alignements tombent juste. */
 const IX_PROJETS = {
   'Arch’ocktail': { cl: 'archocktail', src: 'web/proj-archocktail-cocktail.webp', x: 0.5, y: 1, cadre: [-0.08, -0.16, 1.16, 1.21], fond: '#23261c', k: 0, kt: 12, col: 8, tel: 1 },
-  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-mockup.webp', x: 0.5, y: 1, cadre: [-0.219, -0.58, 1.53, 1.59], fond: '#6d0f16', k: 24, kt: -8, col: 4, tel: 0.7 },
-  'Sillage': { cl: 'sillage', src: 'web/81615901-3d1f-4473-8d54-ac4e5065790b.webp', x: 0.5, y: 0.5, fonce: true, fond: '#e8e6e0', k: -14, kt: 12, col: 9, tel: 1 },
-  'Grapillon': { cl: 'grapillon', src: 'web/4e2984de-b7f7-484a-832f-46e87b13f81c.webp', x: 0.5, y: 0.5, fond: '#2b2420', k: 16, kt: 10, col: 5, tel: 0.78 },
-  'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse-3.webp', x: 0.5, y: 0.5, cadre: [-0.203, -0.132, 1.5, 1.685], fond: '#101015', k: -22, kt: -10, col: 7, tel: 1 },
-  'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp', x: 0.5, y: 0.12, fond: '#1c2a1f', k: 0, kt: 6, col: 4, tel: 0.5 },
-  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fonce: true, fond: '#f1efe8', k: 16, kt: 6, col: 4, tel: 0.5 },
-  'Affiches': { cl: 'affiches', src: 'web/affiches/Poster_Frame_Mockup_2.webp', x: 0.5, y: 0.55, fonce: true, fond: '#d9d9d9', k: 32, kt: 6, col: 4, tel: 1 }
+  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', x: 0.5, y: 0.5, cadre: [-1.181, -0.462, 3.363, 1.567], fonce: true, fond: '#e8d8be', k: 0, kt: -8, col: 4, tel: 0.7 },
+  'Sillage': { cl: 'sillage', src: 'web/81615901-3d1f-4473-8d54-ac4e5065790b.webp', x: 0.5, y: 0.5, fonce: true, fond: '#e8e6e0', k: 0, kt: 12, col: 12, tel: 1 },
+  'Grapillon': { cl: 'grapillon', src: 'web/proj-grapillon.webp', x: 0.5, y: 0.5, cadre: [-0.548, -0.104, 2.305, 1.45], fond: '#2b2420', k: 0, kt: 10, col: 4, tel: 0.78 },
+  'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse-3.webp', x: 0.5, y: 0.5, cadre: [-0.203, -0.132, 1.5, 1.685], fond: '#101015', k: 0, kt: -10, col: 8, tel: 1 },
+  'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/logo_arbre.webp', x: 0.5, y: 0.5, cadre: [-0.196, -0.071, 1.392, 1.764], fond: '#1c2a1f', k: 0, kt: 10, col: 12, tel: 1 },
+  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fonce: true, fond: '#f1efe8', k: 0, kt: 6, col: 8, tel: 1 },
+  'Affiches': { cl: 'affiches', src: 'web/affiches/Affiche2_Mur.webp', x: 0.5, y: 0.5, fonce: true, fond: '#d9d9d9', k: 0, kt: 6, col: 4, tel: 0.7 }
 };
-const IX_RANGEES = [['Arch’ocktail', 'Malbec'], ['Sillage'], ['Grapillon', 'Studio Synapse'], ['ONF', 'Logotypes', 'Affiches']];
+const IX_RANGEES = [['Arch’ocktail', 'Malbec'], ['Sillage'], ['Grapillon', 'Studio Synapse'], ['ONF'], ['Logotypes', 'Affiches']];
 const indexBureau = matchMedia('(min-width: 901px)');
 const ib = document.querySelector('.index-bureau');
 const ibImages = ib && ib.querySelector('.ib-images');
@@ -6580,9 +6575,17 @@ function ixConstruire(cards) {
       photo = span('ix-logos', contre);
       d.logos.forEach(src => { const im = new Image(); im.alt = ''; im.decoding = 'async'; im.src = src; photo.appendChild(im); });
     } else {
-      photo = new Image();
-      photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
-      photo.src = ixSource(d);
+      if (d.video) {
+        /* Malbec : le packaging en mouvement, qui joue une fois et s'arrête */
+        photo = document.createElement('video');
+        photo.muted = true; photo.playsInline = true; photo.preload = 'auto';
+        photo.setAttribute('muted', ''); photo.setAttribute('playsinline', '');
+        photo.className = 'ix-photo'; photo.poster = d.src; photo.src = d.video;
+      } else {
+        photo = new Image();
+        photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
+        photo.src = ixSource(d);
+      }
       photo.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
       if (d.cadre) { const [l, t, w, h] = d.cadre; Object.assign(photo.style, { left: (l * 100) + '%', top: (t * 100) + '%', width: (w * 100) + '%', height: (h * 100) + '%' }); }
       photo._ixX = d.x; photo._ixY = d.y;
@@ -6632,7 +6635,7 @@ function ibConstruirePile(cards) {
     b.style.zIndex = String(i + 1);              // le plus proche passe devant
     const im = new Image();
     im.alt = ''; im.decoding = 'async'; im.loading = 'eager';
-    im.src = cas.d.logos ? cas.d.logos[0] : (cas.photo.currentSrc || cas.photo.src);
+    im.src = cas.d.logos ? cas.d.logos[0] : (cas.d.video ? cas.d.src : (cas.photo.currentSrc || cas.photo.src));
     decodee(im).then(() => { if (im.naturalWidth || cas.d.logos) { im.classList.add('est-charge'); ibGeometrie(); } });
     b.appendChild(im);
     ibImages.appendChild(b);
@@ -6695,6 +6698,7 @@ function ixMontrer(c) {
   pret.then(() => {
     if (!worksPanel.classList.contains('open')) { c.vu = false; return; }
     c.el.classList.add('est-vu');
+    if (c.d.video) { const l = c.photo.play(); if (l) l.catch(() => {}); }
     /* la photo a pris sa place sous les coins : ils la relisent */
     setTimeout(ixRelireCadre, 450); setTimeout(ixRelireCadre, 1500);
     if (c.rang > ixSonRang) { ixSonRang = c.rang; if (c.rang > 1) son.jouer('pile'); }
@@ -6801,7 +6805,10 @@ function ibOuverture() {
   ibArreter();
   worksPanel.scrollTop = 0;
   ixSonRang = 0; ixPrec = -1;
-  ixCases.forEach(c => { c.vu = false; c.el.classList.remove('est-vu', 'ix-deja'); });
+  ixCases.forEach(c => {
+    c.vu = false; c.el.classList.remove('est-vu', 'ix-deja');
+    if (c.d.video) { try { c.photo.pause(); c.photo.currentTime = 0; } catch (e) {} }
+  });
   ixMesurer();
   ixDefiler(true);
   if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); }); return; }
