@@ -3084,8 +3084,8 @@ body.zone-foot .about-story {
 /* ══ L'INDEX — LA PLANCHE STRICTE (04/11, d'après SA référence) ═══════════
    Deux colonnes égales, puis une photo sur toute la largeur : 2, 1, 2, 1, 2.
    Les photos ne sont pas zoomées, le format des cases suit celui des images.
-   Sous chaque image, centrés sur une ligne : le nom, un tiret, la spécificité
-   en italique. Tout passe par transform. */
+   Sous chaque image, centrés sur une ligne : le nom, puis la spécificité en
+   italique, plus petite, sans tiret. Tout passe par transform. */
 .works-list, .works-aura { display: none; }
 .works-panel { scrollbar-width: none; }
 .works-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -3157,7 +3157,7 @@ body.zone-foot .about-story {
 }
 .works-panel:not(.open) .ix-logos img { animation-play-state: paused; }
 
-/* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom – la spécificité */
+/* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom, puis la spécificité en italique, sans tiret */
 .ix-sous {
   display: block; text-align: center; padding-top: clamp(12px, 1vw, 18px); pointer-events: none;
   font-family: 'Castillon', Georgia, serif; line-height: 1.2; color: #111114;
@@ -3171,10 +3171,9 @@ body.zone-foot .about-story {
   transform: none;
   transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t));
 }
-.ix-fct { font-style: italic; }
-.ix-tiret { margin: 0 0.32em; }
-/* (04/11) le nom un rien plus petit que la spécificité, qui garde sa taille */
-@media (min-width: 901px) { .ix-nom { font-size: 0.9em; } }
+.ix-fct { font-style: italic; margin-left: 0.5em; }
+/* (04/11) au bureau, la spécificité nettement plus petite que le nom */
+@media (min-width: 901px) { .ix-nom { font-size: 0.9em; } .ix-fct { font-size: 0.7em; } }
 /* L'ALLURE DE CHAQUE RANGÉE : les photos seules s'ouvrent lentement, de côté,
    chacune d'un bord ; les paires se répondent, l'une monte, l'autre suit */
 .ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
@@ -6611,11 +6610,11 @@ function ixConstruire(cards) {
         contre.appendChild(photo);
       }
     }
-    /* sous l'image : le nom – la spécificité, une seule ligne qui monte dans son masque */
+    /* sous l'image : le nom et la spécificité, une seule ligne qui monte dans son masque */
     const sous = span('ix-sous', el), ligne = span('ix-ligne', sous), mot = document.createElement('span');
     ligne.appendChild(mot);
     span('ix-nom', mot).textContent = titre;
-    span('ix-tiret', mot).textContent = '–';
+    mot.appendChild(document.createTextNode(' '));
     span('ix-fct', mot).textContent = ibFonction(card);
     const c = { card, d, el, box, photo, sous, rang, k: ixSouris ? d.k : 0, kt: ixSouris ? d.kt : 0, top: 0, left: 0, w: 0, h: 0, vu: false };
     el.addEventListener('pointerenter', () => prechargerProjet(card));
