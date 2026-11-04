@@ -687,6 +687,9 @@ body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.
 /* (04/11) les images passent sous les coins : ils se lisent sur elles */
 body.index-cadre #siteNav.site-frame .site-frame__tl.on-dark, body.index-cadre #siteNav.site-frame .site-frame__tr.on-dark,
 body.index-cadre #siteNav.site-frame .site-frame__bl.on-dark, body.index-cadre #siteNav.site-frame .site-frame__br.on-dark { color: #fff; }
+/* les deux mentions du bas seraient à cheval sur la marge et les images : elles s'effacent pendant qu'on défile */
+body.index-cadre #siteNav.site-frame .site-frame__bl, body.index-cadre #siteNav.site-frame .site-frame__br { transition: color 0.25s ease, opacity 0.35s ease; }
+@media (min-width: 901px) { body.ix-sans-mentions #siteNav.site-frame .site-frame__bl, body.ix-sans-mentions #siteNav.site-frame .site-frame__br { opacity: 0; } }
 /* pendant l'introduction : blancs sur le noir, puis ils rejoignent l'encre avec lui */
 body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__tl, body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__tr,
 body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__bl, body.index-cadre.ib-intro:not(.ib-cadre-noir) #siteNav.site-frame .site-frame__br { color: #101014; transition: color 1.1s cubic-bezier(0.65, 0, 0.35, 1); }
@@ -3070,30 +3073,26 @@ body.zone-foot .about-story {
 /* ══ L'INDEX — LA PLANCHE STRICTE (04/11, d'après SA référence) ═══════════
    Deux colonnes égales, puis une photo sur toute la largeur : 2, 1, 2, 1, 2.
    Les photos ne sont pas zoomées, le format des cases suit celui des images.
-   Le nom et la spécificité sont SOUS l'image, en petit, sans numéro. Deux
-   bandes blanches, collées en haut et en bas de l'écran, gardent TB, la
-   croix et les mentions du bas à l'abri : les images passent dessous, et ne
-   les touchent jamais. Tout le mouvement passe par transform. */
+   Sous chaque image, au milieu : la spécificité en italique, puis le nom,
+   sans numéro. Les marges laissent TB et la croix hors des images, qui
+   montent et descendent jusqu'aux bords de l'écran. Tout le mouvement passe
+   par transform. */
 .works-list, .works-aura { display: none; }
 .works-panel { scrollbar-width: none; }
 .works-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .works-panel.ix-verrou { overflow-y: hidden; }
 .index-bureau { position: relative; }
 .ix-grille {
-  --ix-m: clamp(18px, 1.35vw, 26px);              /* la marge du cadre : l'image tombe à l'aplomb de TB */
-  --ix-g: clamp(10px, 1.1vw, 20px);
-  --ix-b-h: 64px; --ix-b-b: 56px;                 /* les deux bandes */
+  --ix-m: clamp(56px, 4.1vw, 84px);               /* TB et la croix restent dans la marge, hors des images */
+  --ix-g: clamp(8px, 0.7vw, 14px);
   position: relative; display: flow-root;
-  padding: 0 var(--ix-m);
+  padding: 40px var(--ix-m) clamp(96px, 16vh, 180px);
 }
-.ix-bande { display: block; position: sticky; z-index: 4; background: #fff; margin-left: calc(var(--ix-m) * -1); margin-right: calc(var(--ix-m) * -1); }
-.ix-bande-haut { top: 0; height: var(--ix-b-h); margin-bottom: 20px; }
-.ix-bande-bas { bottom: 0; height: var(--ix-b-b); margin-top: clamp(40px, 6vh, 80px); }
 .ix-rang {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--ix-g);
 }
-.ix-rang + .ix-rang { margin-top: clamp(40px, 3.8vw, 72px); }
+.ix-rang + .ix-rang { margin-top: clamp(48px, 4.4vw, 84px); }
 .ix-c-sillage, .ix-c-onf, .ix-autre { grid-column: 1 / -1; }
 
 /* UNE CASE : l'image (masquée), le nom dessous. Le volet glisse, la photo
@@ -3108,10 +3107,10 @@ body.zone-foot .about-story {
 .ix-case:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
 .ix-image {
   position: relative; display: block; overflow: hidden; width: 100%;
-  aspect-ratio: 1.3;                              /* le format de ses images : presque rien de coupé */
-  max-height: calc(100vh - 176px);
+  aspect-ratio: 1.12;
+  max-height: calc(100vh - 150px);
 }
-.ix-c-sillage .ix-image, .ix-c-onf .ix-image, .ix-autre .ix-image { aspect-ratio: 2.05; }
+.ix-c-sillage .ix-image, .ix-c-onf .ix-image, .ix-autre .ix-image { aspect-ratio: 2.25; }
 .ix-volet, .ix-contre { position: absolute; inset: 0; display: block; }
 .ix-volet { overflow: hidden; transform: translate3d(var(--vx), var(--vy), 0); }
 .ix-contre { transform: translate3d(calc(var(--vx) * -0.74), calc(var(--vy) * -0.74), 0) scale(1.04); }
@@ -3128,23 +3127,31 @@ body.zone-foot .about-story {
   max-width: none; display: block;
 }
 .ix-photo { object-fit: cover; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
-/* Logotypes n'a pas de photographie : ses marques, deux par deux */
+/* Logotypes n'a pas de photographie : ses marques, plus grandes, qui tournent
+   d'un angle à l'autre — un pas, une pause, tout le carré ensemble */
 .ix-logos { background: #f1efe8; }
 .ix-logos img {
-  position: absolute; width: 26%; height: 26%; object-fit: contain;
+  position: absolute; left: 32%; top: 32%; width: 36%; height: 36%; object-fit: contain;
   pointer-events: none; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: ix-tourne 13.6s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }
-.ix-logos img:nth-child(1) { left: 18%; top: 18%; }
-.ix-logos img:nth-child(2) { right: 18%; top: 18%; }
-.ix-logos img:nth-child(3) { left: 18%; bottom: 18%; }
-.ix-logos img:nth-child(4) { right: 18%; bottom: 18%; }
+.ix-logos img:nth-child(2) { animation-delay: -3.4s; }
+.ix-logos img:nth-child(3) { animation-delay: -10.2s; }
+.ix-logos img:nth-child(4) { animation-delay: -6.8s; }
+@keyframes ix-tourne {
+  0%, 16.2% { transform: translate(-66%, -62%); }
+  25%, 41.2% { transform: translate(66%, -62%); }
+  50%, 66.2% { transform: translate(66%, 62%); }
+  75%, 91.2% { transform: translate(-66%, 62%); }
+  100% { transform: translate(-66%, -62%); }
+}
+.works-panel:not(.open) .ix-logos img { animation-play-state: paused; }
 
-/* SOUS L'IMAGE : le nom à gauche, la spécificité à droite, en italique */
+/* SOUS L'IMAGE, AU MILIEU : la spécificité en italique, le nom dessous */
 .ix-titre {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
-  padding-top: 9px; pointer-events: none;
-  font-family: 'Castillon', Georgia, serif; font-size: clamp(15px, 1.15vw, 19px);
-  font-weight: 300; line-height: 1.2; letter-spacing: 0.01em;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding-top: clamp(14px, 1.2vw, 22px); pointer-events: none;
+  font-family: 'Castillon', Georgia, serif; line-height: 1.15;
 }
 .ix-ligne { display: block; overflow: hidden; padding: 0.16em 0.2em; margin: -0.16em -0.2em; }
 .ix-ligne > span {
@@ -3154,9 +3161,9 @@ body.zone-foot .about-story {
   transform: none;
   transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t));
 }
-.ix-case.est-vu .ix-fct > span { transition-delay: calc(var(--ix-r) + var(--ix-t) + 0.07s); }
-.ix-nom { white-space: nowrap; }
-.ix-fct { font-style: italic; font-weight: 200; white-space: nowrap; }
+.ix-case.est-vu .ix-nom > span { transition-delay: calc(var(--ix-r) + var(--ix-t) + 0.07s); }
+.ix-fct { font-style: italic; font-weight: 200; letter-spacing: 0.02em; white-space: nowrap; font-size: clamp(14px, 1.02vw, 17px); }
+.ix-nom { margin-top: calc(-0.16em + 3px); font-weight: 200; letter-spacing: -0.005em; white-space: nowrap; font-size: clamp(22px, 1.9vw, 32px); }
 /* L'ALLURE DE CHAQUE RANGÉE : les photos seules s'ouvrent lentement, de côté,
    chacune d'un bord ; les paires se répondent, l'une monte, l'autre suit */
 .ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
@@ -3173,12 +3180,9 @@ body.zone-foot .about-story {
 }
 @media (max-width: 900px) {
   /* AU TÉLÉPHONE : une seule colonne, le même format pour tous */
-  .ix-grille { --ix-m: 14px; --ix-g: 8px; --ix-b-h: 52px; }
-  .ix-bande-haut { margin-bottom: 12px; }
-  .ix-bande-bas { display: none; }
-  .ix-grille { padding-bottom: 110px; }
-  .ix-rang { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
-  .ix-rang + .ix-rang { margin-top: 28px; }
+  .ix-grille { --ix-m: 14px; --ix-g: 8px; padding: 56px var(--ix-m) 110px; }
+  .ix-rang { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
+  .ix-rang + .ix-rang { margin-top: 40px; }
   .ix-image, .ix-c-sillage .ix-image, .ix-c-onf .ix-image, .ix-autre .ix-image { aspect-ratio: 1.25; max-height: none; }
   .ix-case, .ix-r2 .ix-case, .ix-r4 .ix-case, .ix-c-studio-synapse, .ix-r5 .ix-case, .ix-c-affiches {
     --vx: 0%; --vy: 100%; --ix-d: 0.95s; --ix-r: 0s; --ix-t: 0.35s; --ix-c: cubic-bezier(0.16, 1, 0.3, 1);
@@ -3187,6 +3191,11 @@ body.zone-foot .about-story {
 @media (prefers-reduced-motion: reduce) {
   .ix-volet, .ix-contre, .ix-ligne > span { transform: none !important; transition: none !important; }
   .ix-photo, .ix-logos img { transition: none; }
+  .ix-logos img { animation: none; }
+  .ix-logos img:nth-child(1) { transform: translate(-66%, -62%); }
+  .ix-logos img:nth-child(2) { transform: translate(66%, -62%); }
+  .ix-logos img:nth-child(3) { transform: translate(-66%, 62%); }
+  .ix-logos img:nth-child(4) { transform: translate(66%, 62%); }
 }
 /* L'INTRODUCTION — la pile, au-dessus de la grille encore cachée, dans le
    noir ; puis chaque dossier rejoint SA case (voir ibDessiner) */
@@ -3379,8 +3388,6 @@ body.zone-foot .about-story {
     object-fit: contain; will-change: transform;
   }
   .ib-carte.est-logos { background: #f1efe8; }
-  /* la bande du bas arrive avec le blanc : le dossier qui dépasse se range dessous */
-  .ib-bas { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; z-index: 2; background: #fff; opacity: 0; }
   .ib-carte img:not(.est-charge) { opacity: 0 !important; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
      passent pas devant l'Index) */
@@ -3616,7 +3623,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
   <div class="works-list" id="worksPanelGrid"></div>
   <!-- l'Index : la planche des projets (ixConstruire), et la pile de son introduction (ibConstruirePile) -->
   <div class="index-bureau">
-    <div class="ib-scene"><div class="ib-images"></div><div class="ib-bas"></div></div>
+    <div class="ib-scene"><div class="ib-images"></div></div>
     <div class="ix-grille"></div>
   </div>
   <div class="works-aura" id="worksAura" aria-hidden="true">
@@ -6494,7 +6501,7 @@ function openWorksPanel() {
 const IX_PROJETS = {
   'Arch’ocktail': { cl: 'archocktail', src: 'web/proj-archocktail-cocktail.webp', x: 0.5, y: 0.5, fond: '#23261c', col: 6, tel: 1 },
   'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', x: 0.5, y: 0.5, fond: '#e8d8be', col: 6, tel: 1 },
-  'Sillage': { cl: 'sillage', src: 'web/81615901-3d1f-4473-8d54-ac4e5065790b.webp', x: 0.5, y: 0.5, fond: '#e8e6e0', col: 12, tel: 1 },
+  'Sillage': { cl: 'sillage', src: 'web/PRESENTATION_SILLAGE_1.webp', x: 0.5, y: 0.5, fond: '#e8e6e0', col: 12, tel: 1 },
   'Grapillon': { cl: 'grapillon', src: 'web/proj-grapillon.webp', x: 0.5, y: 0.5, fond: '#b9a48c', col: 6, tel: 1 },
   'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse-3.webp', x: 0.5, y: 0.5, fond: '#3a2f33', col: 6, tel: 1 },
   'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/logo_arbre.webp', x: 0.5, y: 0.5, fond: '#1c2a1f', col: 12, tel: 1 },
@@ -6527,8 +6534,6 @@ function buildIndexBureau(cards) {
 }
 function ixConstruire(cards) {
   const restants = new Map(cards.map(card => [(card.dataset.title || '').trim(), card]));
-  const bande = cl => { const b = document.createElement('div'); b.className = 'ix-bande ' + cl; ixGrille.appendChild(b); };
-  bande('ix-bande-haut');
   const span = (cl, parent) => {
     const s = document.createElement('span'); s.className = cl;
     if (parent) parent.appendChild(s);
@@ -6565,7 +6570,7 @@ function ixConstruire(cards) {
       contre.appendChild(photo);
     }
     const t = span('ix-titre', el);
-    [['ix-nom', titre], ['ix-fct', ibFonction(card)]].forEach(([cl, texte]) => {
+    [['ix-fct', ibFonction(card)], ['ix-nom', titre]].forEach(([cl, texte]) => {
       span('ix-ligne ' + cl, t).appendChild(document.createElement('span')).textContent = texte;
     });
     const c = { card, d, el, box, photo, titre: t, rang, top: 0, left: 0, w: 0, h: 0, vu: false };
@@ -6595,7 +6600,6 @@ function ixConstruire(cards) {
   IX_RANGEES.forEach((titres, i) => ajouterRang(titres, i + 1));
   /* un projet ajouté un jour, pas encore composé : une rangée pour lui seul */
   [...restants.keys()].forEach((titre, i) => ajouterRang([titre], 6 + i));
-  bande('ix-bande-bas');
 }
 /* LES DOSSIERS DE L'INTRODUCTION, dans l'ordre du document : ils montrent la
    MÊME image que leur case, pour s'y poser sans raccord visible */
@@ -6649,6 +6653,8 @@ function ixDefiler(force) {
 let ixRaf = 0, ixLecture = 0, ixDerniere = 0;
 const ixRelireCadre = () => document.dispatchEvent(new Event('cadre-relire'));
 function ixAuDefilement() {
+  const haut = worksPanel.scrollTop, max = worksPanel.scrollHeight - worksPanel.clientHeight;
+  document.body.classList.toggle('ix-sans-mentions', haut > 24 && haut < max - 24);
   if (!ixRaf) ixRaf = requestAnimationFrame(() => { ixRaf = 0; ixDefiler(); });
   /* les coins du cadre se lisent sur ce qui passe dessous : dix fois par
      seconde suffisent, et une dernière fois à l'arrêt */
@@ -6695,7 +6701,6 @@ function ixArmer() {
    dégagent la vue ; le premier projet se pose le dernier. */
 const IB_ANGLE = 64 * Math.PI / 180, IB_P = 1500, IB_CASCADE = 0.34, IB_DUREE = 1500;
 const ibCourbe = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-const ibBas = ib && ib.querySelector('.ib-bas');
 const ibTemps = { T: 0, raf: 0, prec: 0, vitesse: 1, arme: false, attente: 0 };
 let ibH = 0;
 function ibGeometrie() {
@@ -6741,7 +6746,6 @@ function ibDessiner(T) {
     c.im.style.transform = 'translate(-50%,-50%) translate(' + (c.dx * e / sx).toFixed(2) + 'px,' + (c.dy * e / sy).toFixed(2) + 'px) scale(' + (E / (c.M * sx)).toFixed(5) + ',' + (E / (c.M * sy)).toFixed(5) + ')';
   });
   ibImages.style.transform = 'scale(' + (1 + 0.14 * (1 - ibCourbe(T))).toFixed(5) + ')';
-  if (ibBas) ibBas.style.opacity = Math.max(0, (T - 0.6) / 0.4).toFixed(3);
 }
 function ibPas(ts) {
   ibTemps.raf = 0;
@@ -6806,7 +6810,7 @@ function ibArreter() {
   if (ibTemps.raf) cancelAnimationFrame(ibTemps.raf);
   ibTemps.raf = 0; ibTemps.arme = false; ibTemps.enCours = false;
   worksPanel.classList.remove('ib-noir', 'ix-verrou');
-  document.body.classList.remove('ib-cadre-noir', 'ib-intro');
+  document.body.classList.remove('ib-cadre-noir', 'ib-intro', 'ix-sans-mentions');
   if (ib) ib.classList.remove('ix-scene', 'ix-cache');
   if (ixObs) ixObs.disconnect();
 }
