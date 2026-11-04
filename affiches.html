@@ -824,13 +824,13 @@ body.light {
    qu'elle attend */
 .hero-phrase.phrase-mesure .mot { filter: none !important; opacity: 1 !important; transform: none !important; animation: none !important; }
 
-/* ══ L'INTRO — TB NAÎT DE L'INTÉRIEUR (04/11) ════════════════════════════
-   Comme la signature du pied de page : d'abord rien ; l'encre arrive sur un
-   trait ultra-fin, au cœur de chaque jambage, puis le trait s'étoffe lentement
-   de l'intérieur vers l'extérieur jusqu'au dessin exact (voir introSignature,
-   en WebGL). Dessous, « Thomas Bonneau » paraît lettre après lettre, comme les
-   noms de l'Index. TB reste figé un instant, puis tout l'écran s'efface en
-   fondu sur le hero : aucune échelle, aucune coupure. */
+/* ══ L'INTRO — TB MONTE ET S'ÉTOFFE (04/11) ══════════════════════════════
+   Tout en vecteurs, net à toutes les tailles. L'encre monte du bas vers le haut,
+   avec un bord doux, sur un trait affiné ; une seconde vague, partie du bas elle
+   aussi, lui rend sa graisse jusqu'au dessin exact. Le monogramme remonte à peine
+   en même temps.
+   Dessous, « Thomas Bonneau » paraît lettre après lettre. TB reste figé un
+   instant, puis tout l'écran s'efface en fondu sur le hero. */
 .intro {
   position: fixed; inset: 0; z-index: 10000;
   display: grid; place-items: center;
@@ -840,14 +840,9 @@ body.light {
 }
 .intro.is-retrait { opacity: 0; transition: opacity 700ms cubic-bezier(0.4, 0, 0.3, 1); }
 .intro__bloc { position: relative; display: block; height: var(--intro-h); aspect-ratio: 89.33 / 90.58; }
-.intro__toile {
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: block;
-  width: calc(var(--intro-h) / 0.86); height: calc(var(--intro-h) / 0.86);
-}
 .intro__trace { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
-.intro__fond { fill: #101014; stroke: #101014; stroke-width: 0.75px; stroke-miterlimit: 10; opacity: 0; transition: opacity 260ms ease; }
-.intro.est-net .intro__fond { opacity: 1; }
-.intro.sans-toile.est-net .intro__fond { transition-duration: 1100ms; }
+.intro__fond { fill: #101014; stroke: #101014; stroke-width: 0.75px; stroke-miterlimit: 10; }
+.intro__creux { fill: none; stroke-width: 1.7px; stroke-linejoin: round; stroke-linecap: round; }
 .intro__nom {
   position: absolute; left: 50%; top: 100%; translate: -50% 0; margin: clamp(14px, 1.15vw, 19px) 0 0;
   font-family: 'Castillon', Georgia, serif; font-weight: 200; font-size: clamp(15px, 1.15vw, 18px);
@@ -3105,7 +3100,7 @@ body.zone-foot .about-story {
 /* Logotypes n'a pas de photographie : le premier logo, seul, au centre */
 .ix-logos { background: #f1efe8; }
 .ix-logos img {
-  position: absolute; left: 30%; top: 30%; width: 40%; height: 40%; object-fit: contain;
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain;
   pointer-events: none; transition: scale 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -3585,7 +3580,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 
 <!-- L'INTRO : le monogramme (Documents/perso/logo_2.svg, intact, en masque),
      qui se remplit d'ocre puis de noir ; retirée par le JS (voir introSignature) -->
-<div class="intro" id="intro" aria-hidden="true"><div class="intro__bloc"><canvas class="intro__toile"></canvas><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg><p class="intro__nom">Thomas Bonneau</p></div></div>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro__bloc"><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg><p class="intro__nom">Thomas Bonneau</p></div></div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
 <div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
@@ -8491,7 +8486,7 @@ function figerLettres(nom) {
 })();
 
 
-/* ══ L'INTRO — TB NAÎT DE L'INTÉRIEUR, LA BASCULE ════════════════════════
+/* ══ L'INTRO — TB MONTE ET S'ÉTOFFE, LA BASCULE ══════════════════════════
    La naissance de TB, puis QUAND s'effacer. Le fondu attend que la réfraction soit
    prête — la photo du premier projet, les textures : le hero n'apparaît pas
    sans son interaction. Si elle l'est déjà, on enchaîne aussitôt ; sinon on
@@ -8504,7 +8499,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, GRAISSE = 2600, ENCRE = 1200, NOM = 950, DISQUES = 150,
+  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 2500, NOM = 1250, DISQUES = 150,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -8534,7 +8529,7 @@ function figerLettres(nom) {
       intro.classList.add('is-retrait');                 // TB s'efface, en fondu
       setTimeout(() => { indiceTot = true; updateIndice(); }, RETRAIT + 250);
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
-      setTimeout(() => { if (viderToile) viderToile(); intro.remove(); }, RETRAIT + 40);
+      setTimeout(() => intro.remove(), RETRAIT + 40);
       setTimeout(() => { phrase.classList.remove('phrase-attente', 'phrase-entre'); fini(); },
                  PHRASE_APRES + PHRASE + DECALAGE + 60);
     }, FIN);
@@ -8549,93 +8544,14 @@ function figerLettres(nom) {
     addEventListener('refraction-prete', basculer, { once: true });
     setTimeout(basculer, ATTENTE_MAX);
   }
-  /* LA NAISSANCE DE TB, en deux temps comme la signature du pied de page :
-     l'encre arrive sur un trait ultra-fin, puis le trait s'étoffe.
-     Chaque point du dessin reçoit une valeur : 0 au cœur de son jambage, 1 sur
-     son contour — sa distance au bord, rapportée à l'épaisseur du jambage en ce
-     point. Un seuil qui monte de 0 à 1 fait donc grossir TOUS les traits en même
-     temps, déliés comme jambages, de l'intérieur vers l'extérieur.
+  /* LA NAISSANCE DE TB, en vecteurs (rien à pixeliser) : le dessin exact, peint avec
+     un dégradé dont le bord monte (l'encre) ; par-dessus, le même contour tracé
+     d'un fin trait blanc, qui affine le dessin sans le briser, peint lui aussi d'un
+     dégradé dont le bord monte (la graisse revient). Quand les deux bords sont
+     passés, il ne reste que le monogramme, identique à celui du cadre.
      Il ne part qu'une fois la page prête : le script principal occupe le
      navigateur au chargement, et le mouvement y aurait saccadé. */
   const formeFinie = () => { presence(); attendre(); };
-  function distances(masque, N) {
-    const INF = 1e20, f = new Float64Array(N), v = new Int32Array(N), z = new Float64Array(N + 1), d = new Float64Array(N);
-    const passe = () => {
-      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
-      for (let q = 1; q < N; q++) {
-        let s;
-        do { const r = v[k]; s = (f[q] + q * q - f[r] - r * r) / (2 * q - 2 * r); } while (s <= z[k] && --k > -1);
-        k++; v[k] = q; z[k] = s; z[k + 1] = INF;
-      }
-      k = 0;
-      for (let q = 0; q < N; q++) { while (z[k + 1] < q) k++; const r = v[k]; d[q] = (q - r) * (q - r) + f[r]; }
-    };
-    const g = new Float64Array(N * N);
-    for (let i = 0; i < N * N; i++) g[i] = masque[i] ? 0 : INF;
-    for (let x = 0; x < N; x++) { for (let y = 0; y < N; y++) f[y] = g[y * N + x]; passe(); for (let y = 0; y < N; y++) g[y * N + x] = d[y]; }
-    for (let y = 0; y < N; y++) { for (let x = 0; x < N; x++) f[x] = g[y * N + x]; passe(); for (let x = 0; x < N; x++) g[y * N + x] = d[x]; }
-    return g;
-  }
-  let viderToile = null;
-  function preparerToile(d) {
-    const toile = intro.querySelector('.intro__toile');
-    let gl = null;
-    try { gl = toile.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false }); } catch (e) {}
-    if (!gl) return null;
-    const N = 512, c2 = document.createElement('canvas');
-    c2.width = c2.height = N;
-    const x = c2.getContext('2d', { willReadFrequently: true });
-    const ech = 0.86 * N / 90.58, chemin = new Path2D(d);
-    x.translate((N - 89.33 * ech) / 2, (N - 90.58 * ech) / 2); x.scale(ech, ech);
-    x.fill(chemin); x.lineWidth = 0.75; x.miterLimit = 10; x.stroke(chemin);
-    const a = x.getImageData(0, 0, N, N).data, dedans = new Uint8Array(N * N), dehors = new Uint8Array(N * N);
-    for (let i = 0; i < N * N; i++) { dedans[i] = a[i * 4 + 3] > 127 ? 1 : 0; dehors[i] = 1 - dedans[i]; }
-    const versDedans = distances(dedans, N), versBord = distances(dehors, N);
-    const P = new Float32Array(N * N), E = new Float32Array(N * N), champ = new Float32Array(N * N);
-    for (let i = 0; i < N * N; i++) if (dedans[i]) P[i] = Math.sqrt(versBord[i]);
-    /* l'épaisseur locale : chaque point de la ligne de crête couvre le disque qu'il peut remplir */
-    for (let yy = 1; yy < N - 1; yy++) for (let xx = 1; xx < N - 1; xx++) {
-      const i = yy * N + xx, r = P[i];
-      if (!r || P[i - 1] > r || P[i + 1] > r || P[i - N] > r || P[i + N] > r || P[i - N - 1] > r || P[i - N + 1] > r || P[i + N - 1] > r || P[i + N + 1] > r) continue;
-      const c = Math.ceil(r), rr = r * r;
-      for (let dy = -c; dy <= c; dy++) for (let dx = -c; dx <= c; dx++) {
-        if (dx * dx + dy * dy > rr) continue;
-        const j = (yy + dy) * N + xx + dx;
-        if (j >= 0 && j < N * N && r > E[j]) E[j] = r;
-      }
-    }
-    for (let i = 0; i < N * N; i++) {
-      champ[i] = dedans[i] ? 1 - Math.max(0, P[i] - 0.5) / Math.max(1, (E[i] || P[i]) - 0.5)
-                           : 1 + Math.min(1, (Math.sqrt(versDedans[i]) - 0.5) / 12);
-    }
-    const shader = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
-    const prog = gl.createProgram();
-    gl.attachShader(prog, shader(gl.VERTEX_SHADER, `#version 300 es
-      out vec2 v; void main() { vec2 p = vec2(float((gl_VertexID & 1) << 2) - 1., float((gl_VertexID & 2) << 1) - 1.); v = vec2(p.x * .5 + .5, .5 - p.y * .5); gl_Position = vec4(p, 0., 1.); }`));
-    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `#version 300 es
-      precision highp float; uniform sampler2D s; uniform float e, a; in vec2 v; out vec4 o;
-      void main() {
-        float c = texture(s, v).r, l = max(fwidth(c) * .7, .004);
-        float al = (1. - smoothstep(e - l, e + l, c)) * a;
-        o = vec4(vec3(.0627, .0627, .0784) * al, al);
-      }`));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
-    gl.useProgram(prog);
-    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, N, N, 0, gl.RED, gl.FLOAT, champ);
-    [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]].forEach(([p, val]) => gl.texParameteri(gl.TEXTURE_2D, p, val));
-    gl.bindVertexArray(gl.createVertexArray());
-    /* deux fois la définition de l'écran : le navigateur la réduit, les déliés restent propres */
-    const px = Math.max(128, Math.round(toile.offsetWidth * Math.min(devicePixelRatio || 1, 2) * 2));
-    toile.width = toile.height = px;
-    gl.viewport(0, 0, px, px);
-    gl.clearColor(0, 0, 0, 0);
-    const uE = gl.getUniformLocation(prog, 'e'), uA = gl.getUniformLocation(prog, 'a');
-    viderToile = () => { const l = gl.getExtension('WEBGL_lose_context'); if (l) l.loseContext(); };
-    return (e, al) => { gl.clear(gl.COLOR_BUFFER_BIT); gl.uniform1f(uE, e); gl.uniform1f(uA, al); gl.drawArrays(gl.TRIANGLES, 0, 3); };
-  }
   /* une courbe de Bézier, comme en CSS : la même allure que la signature */
   const bezier = (x1, y1, x2, y2) => t => {
     if (t <= 0) return 0; if (t >= 1) return 1;
@@ -8656,10 +8572,20 @@ function figerLettres(nom) {
     const logo = document.querySelector('#frameLogo svg path');
     const d = logo && logo.getAttribute('d');
     if (!trace || !d) { formeFinie(); return; }
-    const fond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    fond.setAttribute('class', 'intro__fond'); fond.setAttribute('d', d);
-    trace.appendChild(fond);
-    /* le nom, lettre après lettre */
+    const NS = 'http://www.w3.org/2000/svg', H = 90.58;
+    const creer = (nom, attrs, parent) => { const e = document.createElementNS(NS, nom); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); (parent || trace).appendChild(e); return e; };
+    const defs = creer('defs', {});
+    const degrade = (id, c0, a0, c1, a1) => {
+      const g = creer('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1: 0, x2: 0, y1: H, y2: H + 1 }, defs);
+      creer('stop', { offset: 0, 'stop-color': c0, 'stop-opacity': a0 }, g);
+      creer('stop', { offset: 1, 'stop-color': c1, 'stop-opacity': a1 }, g);
+      return g;
+    };
+    const gEncre = degrade('introEncre', '#101014', 0, '#101014', 1);
+    const gCreux = degrade('introCreux', '#ffffff', 1, '#ffffff', 0);
+    const fond = creer('path', { class: 'intro__fond', d, fill: 'url(#introEncre)', stroke: 'url(#introEncre)' });
+    fond.style.fill = 'url(#introEncre)'; fond.style.stroke = 'url(#introEncre)';
+    const creux = creer('path', { class: 'intro__creux', d, stroke: 'url(#introCreux)' });
     const nomEl = intro.querySelector('.intro__nom');
     if (nomEl) {
       const texte = nomEl.textContent; let rang = 0;
@@ -8671,25 +8597,25 @@ function figerLettres(nom) {
         nomEl.appendChild(l);
       }
     }
-    let dessiner = null;
-    try { dessiner = preparerToile(d); } catch (e) { dessiner = null; }
-    if (!dessiner) {
-      intro.classList.add('sans-toile', 'est-net');
-      setTimeout(() => intro.classList.add('nom-la'), NOM);
-      setTimeout(formeFinie, GRAISSE);
-      return;
-    }
-    const graisse = bezier(0.45, 0, 0.25, 1), encre = bezier(0.4, 0, 0.6, 1);
-    dessiner(0, 0);
+    const montee = bezier(0.3, 0.1, 0.2, 1), etoffe = bezier(0.5, 0, 0.2, 1), leve = bezier(0.16, 1, 0.3, 1);
+    const BANDE_E = 26, BANDE_C = 20;
+    const borde = (g, y, bande) => { g.setAttribute('y1', y.toFixed(2)); g.setAttribute('y2', (y + bande).toFixed(2)); };
     let debut = 0, nomVu = false;
     const pas = ts => {
       if (!debut) debut = ts;
       const ms = ts - debut;
-      dessiner(graisse(ms / GRAISSE) * 1.02, encre(ms / ENCRE));
+      /* l'encre monte (1,6 s) sur un trait affiné, puis le trait prend sa graisse, du bas vers le haut */
+      borde(gEncre, H - (H + BANDE_E) * montee(ms / 1600), BANDE_E);
+      borde(gCreux, H - (H + BANDE_C) * etoffe((ms - 700) / (DESSIN - 700)), BANDE_C);
+      trace.style.transform = 'translate3d(0,' + (9 * (1 - leve(ms / 1800))).toFixed(2) + '%,0)';
       if (!nomVu && ms > NOM) { nomVu = true; intro.classList.add('nom-la'); }
-      if (ms > GRAISSE * 0.66) presence();
-      if (ms < GRAISSE) requestAnimationFrame(pas);
-      else { intro.classList.add('est-net'); formeFinie(); }
+      if (ms > DESSIN * 0.66) presence();
+      if (ms < DESSIN) { requestAnimationFrame(pas); return; }
+      /* le dessin exact, sans plus rien par-dessus */
+      creux.remove();
+      fond.style.fill = '#101014'; fond.style.stroke = '#101014';
+      trace.style.transform = '';
+      formeFinie();
     };
     /* deux images d'attente : le navigateur a repris son souffle */
     requestAnimationFrame(() => requestAnimationFrame(pas));
@@ -9540,7 +9466,7 @@ void main() {
   let mx = null, my = null, wx = null, wy = null, tEvt = 0;
   let ox = 0, oy = 0, origineVue = false;
   let presence = 0, presenceCible = 0, prx = null, pry = null, enPresence = false, tChamp = 0;
-  let encre = 1;
+  let encre = 1, relaisTeinte = null;
 
   const voletProjet = document.getElementById('projPanel'), voletIndex = document.getElementById('worksPanel');
   const recouvert = () => (voletProjet && voletProjet.classList.contains('open')) ||
@@ -9939,12 +9865,28 @@ void main() {
     presenceCible = 0;
     if (!installed) return;
     buildHeroTexture();
-    encre = 1;
-    if (enPresence) {
+    if (!enPresence) { encre = 1; lastP = -1; kick(); return; }
+    /* (04/11) LA TEINTE S'EFFACE EN FONDU. Le passage du mode « produit » au mode
+       normal changeait d'un coup la lumière de la vapeur (« hop, ça coupe »). La
+       couche s'efface donc d'abord, doucement ; le relais se fait une fois qu'elle
+       ne se voit plus, champ vidé. Si l'on défile entre-temps, il se fait aussitôt. */
+    const relais = () => {
+      if (!enPresence) return;
       enPresence = false;
+      clearTimeout(fonduTeinte);
+      encre = 1; presence = 0; prx = pry = null; dernierDepot = -10;
+      if (champSale) viderChamp();
       if (active) draw(smoothProgress, performance.now() / 1000);
       holder.classList.remove('en-presence');
-    }
+      canvas.style.transition = ''; canvas.style.opacity = '';
+      lastP = -1; kick();
+    };
+    /* le canvas, pas la couche : le script règle l'opacité de la couche à chaque image.
+       Sous lui, le fond blanc de la couche, en mode produit, n'a aucun effet. */
+    canvas.style.transition = 'opacity 1400ms cubic-bezier(0.4, 0, 0.3, 1)';
+    canvas.style.opacity = '0';
+    const fonduTeinte = setTimeout(relais, 1450);
+    relaisTeinte = relais;
     lastP = -1; kick();
   });
 
@@ -9956,6 +9898,7 @@ void main() {
   });
 
   onMotionScroll(() => {
+    if (relaisTeinte && enPresence && motionState.scroll.y > 2) relaisTeinte();
     velTarget = Math.abs(motionState.scroll.velocity);
     updateTargetProgress();
     // on ne coupe que si la CIBLE et le RENDU sont tous deux hors transition :
