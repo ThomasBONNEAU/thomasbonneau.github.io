@@ -412,9 +412,8 @@ body.zone-fondu .cursor {
 /* cercle « Voir » : n'existe QUE sur les projets. Sa couleur suit la
    luminosité RÉELLE du visuel sous le curseur (voir bgIsLight). */
 .cursor-ring {
-  width: 34px; height: 34px;
+  width: 66px; height: 66px;
   color: #111;
-  border: 0.5px solid currentColor;     /* un demi-pixel : le trait le plus fin de l'écran (29/10) */
   border-radius: 50%;
   position: fixed;
   top: 0; left: 0;
@@ -423,16 +422,26 @@ body.zone-fondu .cursor {
   opacity: 0;
   display: grid;
   place-items: center;
-  transition: width 0.4s cubic-bezier(0.16,1,0.3,1), height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s;
+  transition: opacity 0.25s ease;
+}
+/* (04/11) le contour se dessine : une ligne fine fait le tour, depuis le haut */
+.cursor-cercle { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; rotate: -90deg; pointer-events: none; }
+.cursor-cercle circle {
+  fill: none; stroke: currentColor; stroke-width: 0.8;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0s linear 0.3s;      /* en partant : il s'efface d'abord, se rembobine ensuite */
+}
+.cursor-ring.hover-view .cursor-cercle circle {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.95s cubic-bezier(0.65, 0, 0.35, 1);
 }
 .cursor-label {
-  font-family: 'Synapse', sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-family: 'Castillon', Georgia, serif;
+  font-size: 16px; font-weight: 200; font-style: italic;
+  letter-spacing: 0.03em;
   color: currentColor;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.2s ease;
   pointer-events: none;
 }
 .cursor-ring.on-dark { color: #fff; }        /* visuel sombre → cercle blanc */
@@ -519,8 +528,8 @@ body:has(#worksPanel.open) .cursor__indice { visibility: hidden; }
 /* la souris n'est pas (encore) sur la page : pas de curseur */
 .cursor.curseur-absent, .cursor-ring.curseur-absent { opacity: 0 !important; }
 /* survol d'un projet : le cercle « Voir » apparaît, la flèche s'efface */
-.cursor-ring.hover-view { width: 62px; height: 62px; opacity: 1; }
-.cursor-ring.hover-view .cursor-label { opacity: 1; }
+.cursor-ring.hover-view { opacity: 1; }
+.cursor-ring.hover-view .cursor-label { opacity: 1; transition: opacity 0.5s ease 0.3s; }   /* le mot suit la ligne */
 .cursor.hover-view { opacity: 0; }
 /* survol lien/projet : la flèche grossit légèrement (géré en JS) — la couleur reste celle de la zone */
 
@@ -962,9 +971,6 @@ body.refraction-on .hero { position: sticky; top: 0; }
 /* ARCH'OCKTAIL sort directement de la transition : aucune césure au-dessus */
 .stack-card:first-child { border-top: 0 !important; }
 
-
-.carte-voile { position: absolute; inset: 0; z-index: 6; background: #000; opacity: 0; pointer-events: none; will-change: opacity; }
-@media not all and (hover: hover) and (pointer: fine) { .carte-voile { display: none; } }
 
 /* MÉDIA = FULL BLEED : aucune marge latérale, l'image occupe toute la largeur.
    Seul subsiste le FILET BLANC D'UN POINT, porté par le bord haut du projet
@@ -3081,8 +3087,8 @@ body.zone-foot .about-story {
 /* ══ L'INDEX — LA PLANCHE STRICTE (04/11, d'après SA référence) ═══════════
    Deux colonnes égales, puis une photo sur toute la largeur : 2, 1, 2, 1, 2.
    Les photos ne sont pas zoomées, le format des cases suit celui des images.
-   Sous chaque image, centrés sur une ligne : le nom, puis la spécificité en
-   italique, plus petite, sans tiret. Tout passe par transform. */
+   Sous chaque image, centrés sur une ligne : le nom, un petit rond noir, puis
+   la spécificité en italique, plus petite. Tout passe par transform. */
 .works-list, .works-aura { display: none; }
 .works-panel { scrollbar-width: none; }
 .works-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -3154,7 +3160,7 @@ body.zone-foot .about-story {
 }
 .works-panel:not(.open) .ix-logos img { animation-play-state: paused; }
 
-/* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom, puis la spécificité en italique, sans tiret */
+/* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom, un petit rond, la spécificité en italique */
 .ix-sous {
   display: block; text-align: center; padding-top: clamp(12px, 1vw, 18px); pointer-events: none;
   font-family: 'Castillon', Georgia, serif; line-height: 1.2; color: #111114;
@@ -3168,7 +3174,9 @@ body.zone-foot .about-story {
   transform: none;
   transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t));
 }
-.ix-fct { font-style: italic; margin-left: 0.5em; }
+.ix-fct { font-style: italic; }
+/* entre les deux, un tout petit rond noir, au milieu de la hauteur des lettres */
+.ix-point { display: inline-block; width: 0.17em; height: 0.17em; margin: 0 0.3em; border-radius: 50%; background: currentColor; vertical-align: middle; }
 /* (04/11) au bureau, la spécificité nettement plus petite que le nom */
 @media (min-width: 901px) { .ix-nom { font-size: 0.9em; } .ix-fct { font-size: 0.7em; } }
 /* L'ALLURE DE CHAQUE RANGÉE : les photos seules s'ouvrent lentement, de côté,
@@ -3632,7 +3640,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <noscript><style>.intro { display: none; }</style></noscript>
 
 <div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
-<div class="cursor-ring curseur-absent" id="cursorRing" aria-hidden="true"><span class="cursor-label">Voir</span></div>
+<div class="cursor-ring curseur-absent" id="cursorRing" aria-hidden="true"><svg class="cursor-cercle" viewBox="0 0 66 66"><circle cx="33" cy="33" r="32.5" pathLength="1"/></svg><span class="cursor-label">Voir</span></div>
 
 <!-- WORKS PANEL -->
 <div class="works-panel" id="worksPanel">
@@ -4405,12 +4413,10 @@ document.addEventListener('mouseover', e => {
   const view = e.target.closest('.stack-card');
   const ibc = e.target.closest('.ix-case');
   const link = !ibc && !view && e.target.closest('a, button');
-  /* (04/11) sur un projet de l'accueil, le mot de l'Index : « Voir », en italique */
-  cursor.classList.toggle('sur-ib', !!ibc || !!view);
-  const voirMot = cursor.querySelector('.cursor__voir');
-  if (view && voirMot.textContent !== 'Voir') voirMot.textContent = 'Voir';
-  else if (ibc && voirMot.textContent !== 'Voir le projet') voirMot.textContent = 'Voir le projet';
+  cursor.classList.toggle('sur-ib', !!ibc);
+  cursor.classList.toggle('hover-view', !!view);
   cursor.classList.toggle('hover-link', !!link);
+  if (cursorRing) cursorRing.classList.toggle('hover-view', !!view);
   hoverPhoto = view ? view.querySelector('img') : null;
 });
 
@@ -6612,6 +6618,8 @@ function ixConstruire(cards) {
     ligne.appendChild(mot);
     span('ix-nom', mot).textContent = titre;
     mot.appendChild(document.createTextNode(' '));
+    span('ix-point', mot).setAttribute('aria-hidden', 'true');
+    mot.appendChild(document.createTextNode(' '));
     span('ix-fct', mot).textContent = ibFonction(card);
     const c = { card, d, el, box, photo, sous, rang, k: ixSouris ? d.k : 0, kt: ixSouris ? d.kt : 0, top: 0, left: 0, w: 0, h: 0, vu: false };
     el.addEventListener('pointerenter', () => prechargerProjet(card));
@@ -7380,17 +7388,6 @@ function stackFrame(ts) {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches || motionState.reducedMotion) return;
   const ENTREE = 0.24, SORTIE = 0.32;                 // (31/10) « encore un tout petit peu plus fort »
   const photos = stackCards.map(c => c.querySelector('.proj-photo'));
-  /* (04/11, ESSAI à sa demande) le projet qui s'en va s'assombrit à mesure que
-     le suivant se dévoile, jusqu'à 85 % de noir : pour retirer l'effet,
-     VOILE_MAX = 0. Les coins en tiennent compte (voir lumSous). */
-  const VOILE_MAX = 0.85;
-  const voiles = stackCards.map(c => {
-    const v = document.createElement('div');
-    v.className = 'carte-voile';
-    v.setAttribute('aria-hidden', 'true');
-    c.appendChild(v);
-    return v;
-  });
   const pistes = [];                                   // (02/11) le nom de chaque carte suit sa photo
   let dernierY = null;
   function poser() {
@@ -7400,13 +7397,6 @@ function stackFrame(ts) {
     const vh = innerHeight;
     const rects = stackCards.map(c => c.getBoundingClientRect());
     rects.forEach((r, i) => {
-      /* le voile suit le bord haut de la carte suivante */
-      const suivante = rects[i + 1];
-      const voile = suivante && suivante.top < vh && r.bottom > 0 ? VOILE_MAX * Math.max(0, Math.min(1, (vh - suivante.top) / vh)) : 0;
-      if (stackCards[i]._voile !== voile) {
-        stackCards[i]._voile = voile;
-        voiles[i].style.opacity = voile.toFixed(3);
-      }
       const ph = photos[i];
       if (!ph) return;
       let ty = 0;
@@ -8168,11 +8158,7 @@ function lumSous(x, y, signalerInconnu) {
     if ((tag === 'IMG' || tag === 'VIDEO') && el.closest('#projPanel') && getComputedStyle(el).opacity === '0') continue;
     if (tag === 'IMG' || (tag === 'VIDEO' && el.closest('#projPanel'))) {
       const l = lumAt(el, x, y);
-      if (l !== null) {
-        /* une carte de l'accueil en train de s'assombrir (voir .carte-voile) */
-        const carteV = el.closest('.stack-card');
-        return carteV && carteV._voile ? l * (1 - carteV._voile) : l;
-      }
+      if (l !== null) return l;
       if (signalerInconnu) return null;
     } else if (signalerInconnu && (tag === 'VIDEO' || tag === 'CANVAS')) return null;
     const cs = getComputedStyle(el);
