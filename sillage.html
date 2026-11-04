@@ -3076,11 +3076,8 @@ body.zone-foot .about-story {
 /* ══ L'INDEX — LA PLANCHE STRICTE (04/11, d'après SA référence) ═══════════
    Deux colonnes égales, puis une photo sur toute la largeur : 2, 1, 2, 1, 2.
    Les photos ne sont pas zoomées, le format des cases suit celui des images.
-   LE TITRE SUIT LE DÉFILEMENT, AVEC INERTIE (à la souris, voir ixMoteur) :
-   grand et centré en haut de l'image, il descend jusqu'en bas, puis se
-   sépare en rétrécissant et sort sous l'image, le nom à gauche, la spécificité
-   à droite, et il reste figé là, même quand on remonte. Au doigt, il reste
-   centré sous l'image. Tout passe par transform. */
+   Sous chaque image, centrés sur une ligne : le nom, un tiret, la spécificité
+   en italique. Tout passe par transform. */
 .works-list, .works-aura { display: none; }
 .works-panel { scrollbar-width: none; }
 .works-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -3089,10 +3086,9 @@ body.zone-foot .about-story {
 .ix-grille {
   --ix-m: clamp(18px, 1.35vw, 26px);              /* la marge du cadre : l'image tombe à l'aplomb de TB */
   --ix-g: clamp(10px, 1.1vw, 20px);
-  --ix-z: clamp(46px, 3.6vw, 66px);               /* la place du nom, sous l'image */
   position: relative; display: flow-root;
   /* en bas, le script centre la dernière rangée dans l'écran (voir ixMesurer) */
-  padding: 56px var(--ix-m) 64px;
+  padding: 64px var(--ix-m) 64px;
 }
 .ix-rang {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3114,7 +3110,7 @@ body.zone-foot .about-story {
 .ix-image {
   position: relative; display: block; overflow: hidden; width: 100%;
   aspect-ratio: 1.12;
-  max-height: calc(100vh - 145px);                /* le nom, sorti dessous, reste au-dessus des deux mentions du bas */
+  max-height: calc(100vh - 122px);
 }
 .ix-c-sillage .ix-image, .ix-c-onf .ix-image, .ix-autre .ix-image { aspect-ratio: 2.27; }
 .ix-volet, .ix-contre { position: absolute; inset: 0; display: block; }
@@ -3153,24 +3149,13 @@ body.zone-foot .about-story {
 }
 .works-panel:not(.open) .ix-logos img { animation-play-state: paused; }
 
-/* LE TITRE. Sans le mouvement (au doigt) : sous l'image, au milieu, la
-   spécificité en italique, le nom dessous. Avec : deux couches identiques,
-   l'une dans l'image (coupée par son bord, l'encre lue sur la photo), l'autre
-   sous l'image (noire) ; le texte passe de l'une à l'autre au pixel près. */
+/* SOUS L'IMAGE, CENTRÉ, SUR UNE LIGNE : le nom – la spécificité */
 .ix-sous {
-  position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding-top: clamp(14px, 1.2vw, 22px); pointer-events: none;
+  display: block; text-align: center; padding-top: clamp(12px, 1vw, 18px); pointer-events: none;
+  font-family: 'Castillon', Georgia, serif; line-height: 1.2; color: #111114;
+  font-size: clamp(18px, 1.5vw, 25px); font-weight: 200; letter-spacing: 0.002em;
 }
-.ix-t { display: block; font-family: 'Castillon', Georgia, serif; line-height: 1.15; color: #111114; white-space: nowrap; }
-.ix-image > .ix-t { display: none; }
-.ix-grille.ix-vivant .ix-sous { display: block; height: var(--ix-z); padding: 0; overflow: hidden; }
-.ix-grille.ix-vivant .ix-t { display: block; position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; transform-origin: 0 0; }
-/* le titre en grand, dans l'image ; il rétrécit en sortant (la taille finale : ixMesurer) */
-.ix-grille.ix-vivant .ix-nom { font-size: clamp(34px, 3.2vw, 60px); font-weight: 150; letter-spacing: -0.01em; }
-.ix-grille.ix-vivant .ix-fct { font-size: clamp(16px, 1.25vw, 22px); }
-.ix-image > .ix-t { transition: color 0.3s ease; }
-.ix-image > .ix-t.est-clair { color: #fff; }
-.ix-ligne { display: block; overflow: hidden; padding: 0.16em 0.2em; margin: -0.16em -0.2em; }
+.ix-ligne { display: block; overflow: hidden; padding: 0.16em 0; margin: -0.16em 0; }
 .ix-ligne > span {
   display: block; transform: translate3d(0, 118%, 0);
 }
@@ -3178,10 +3163,8 @@ body.zone-foot .about-story {
   transform: none;
   transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ix-r) + var(--ix-t));
 }
-.ix-case.est-vu .ix-nom .ix-ligne > span { transition-delay: calc(var(--ix-r) + var(--ix-t) + 0.07s); }
-.ix-fct { font-style: italic; font-weight: 200; letter-spacing: 0.02em; white-space: nowrap; font-size: clamp(14px, 1.02vw, 17px); }
-.ix-grille:not(.ix-vivant) .ix-nom { margin-top: 3px; }
-.ix-nom { font-weight: 200; letter-spacing: -0.005em; white-space: nowrap; font-size: clamp(22px, 1.9vw, 32px); }
+.ix-fct { font-style: italic; }
+.ix-tiret { margin: 0 0.32em; }
 /* L'ALLURE DE CHAQUE RANGÉE : les photos seules s'ouvrent lentement, de côté,
    chacune d'un bord ; les paires se répondent, l'une monte, l'autre suit */
 .ix-r2 .ix-case { --vx: 100%; --vy: 0%; --ix-d: 1.55s; --ix-t: 0.8s; --ix-c: cubic-bezier(0.65, 0, 0.35, 1); }
@@ -3190,6 +3173,12 @@ body.zone-foot .about-story {
 .ix-r5 .ix-case { --ix-d: 0.9s; --ix-t: 0.32s; }
 .ix-c-affiches { --ix-r: 0.12s; }
 .ix-c-malbec.ix-deja { --ix-r: 0.1s; }
+
+/* Malbec : l'image reste dessous, la vidéo se pose dessus quand ses images arrivent */
+.ix-photo.ix-film { display: block; }
+.ix-film > img, .ix-film > video, .ix-film > canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ix-film > video { opacity: 0; transition: opacity 0.5s ease; }
+.ix-film > video.est-la { opacity: 1; }
 
 @media (hover: hover) and (pointer: fine) {
   /* LE SURVOL : la photo avance à peine, lentement. Rien d'autre. */
@@ -3396,7 +3385,7 @@ body.zone-foot .about-story {
   .ib-carte {
     position: absolute; left: 0; top: 50%; display: block;
     width: 100%; height: var(--ib-h); margin: calc(var(--ib-h) / -2 + var(--ib-dy)) 0 0;
-    overflow: hidden; background: #ececec;
+    overflow: hidden;
     transform-origin: 50% 100%;
     backface-visibility: hidden;
     will-change: transform;
@@ -3405,8 +3394,8 @@ body.zone-foot .about-story {
     position: absolute; left: 50%; top: 50%; max-width: none; display: block;
     object-fit: contain; will-change: transform;
   }
-  .ib-carte.est-logos { background: #f1efe8; }
-  .ib-carte img:not(.est-charge) { opacity: 0 !important; }
+  /* un dossier ne paraît qu'avec son image, jamais vide (le carré blanc d'une connexion lente) */
+  .ib-carte:not(.est-pret) { visibility: hidden; }
   /* (ouvert depuis l'À propos : la bande et le filet de sa fenêtre ne
      passent pas devant l'Index) */
   /* (29/10) avec !important : la règle de Safari qui montre le trait
@@ -6513,18 +6502,17 @@ function openWorksPanel() {
 
 /* ══ L'INDEX — LA PLANCHE STRICTE (04/11, d'après sa référence) ═══════════
    IX_PROJETS : ce que chaque projet montre dans sa case, cadré (x, y), sans
-   zoom. fonce : une encre noire fixe (une vidéo, des logos : on ne lit pas
-   leurs pixels) ; sinon l'encre se lit sur la photo. fond : la teinte de la photo, lue par les coins en file://. col /
+   zoom. fond : la teinte de la photo, lue par les coins en file://. col /
    tel : la largeur, en colonnes au bureau, en part de la page au téléphone
    (pour charger la bonne variante). */
 const IX_PROJETS = {
   'Arch’ocktail': { cl: 'archocktail', src: 'web/proj-archocktail-cocktail.webp', x: 0.5, y: 0.5, fond: '#23261c', col: 6, tel: 1 },
-  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', x: 0.5, y: 0.5, fonce: true, fond: '#e8d8be', col: 6, tel: 1 },
+  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', x: 0.5, y: 0.5, fond: '#e8d8be', col: 6, tel: 1 },
   'Sillage': { cl: 'sillage', src: 'web/PRESENTATION_SILLAGE_1.webp', x: 0.5, y: 0.5, fond: '#e8e6e0', col: 12, tel: 1 },
   'Grapillon': { cl: 'grapillon', src: 'web/proj-grapillon.webp', x: 0.5, y: 0.5, fond: '#b9a48c', col: 6, tel: 1 },
-  'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse-3.webp', x: 0.5, y: 0.5, fond: '#3a2f33', col: 6, tel: 1 },
+  'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse.webp', x: 0.5, y: 0.5, fond: '#2a2527', col: 6, tel: 1 },
   'ONF': { cl: 'onf', src: 'web/ONF_pres/Links/logo_arbre.webp', x: 0.5, y: 0.5, fond: '#1c2a1f', col: 12, tel: 1 },
-  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fonce: true, fond: '#f1efe8', col: 6, tel: 1 },
+  'Logotypes': { cl: 'logotypes', logos: ['logos/france-boulangerie.svg', 'logos/Opulus_1.svg', 'logos/LogoONF.svg', 'logos/Logosynapse.svg'], fond: '#f1efe8', col: 6, tel: 1 },
   'Affiches': { cl: 'affiches', src: 'web/affiches/Affiche2_Mur.webp', x: 0.5, y: 0.5, fond: '#d9d9d9', col: 6, tel: 1 }
 };
 const IX_RANGEES = [['Arch’ocktail', 'Malbec'], ['Sillage'], ['Grapillon', 'Studio Synapse'], ['ONF'], ['Logotypes', 'Affiches']];
@@ -6539,7 +6527,7 @@ const IX_CADRE = [-0.04, -0.04, 1.08, 1.08], IX_GLISSE = 0.034;   // la photo d�
 let ixCases = [], ibCartes = [];
 function ixSource(d) {
   const part = indexBureau.matches ? d.col / 12 : d.tel;
-  return varianteProche(d.src, Math.round(innerWidth * part * (d.cadre || IX_CADRE)[2] * Math.min(devicePixelRatio || 1, 2)));
+  return varianteProche(d.src, Math.round(innerWidth * part * IX_CADRE[2] * Math.min(devicePixelRatio || 1, 2)));
 }
 function ibFonction(card) {
   const titre = (card.dataset.title || '').trim().toLowerCase();
@@ -6552,11 +6540,7 @@ function buildIndexBureau(cards) {
   if (indexBureau.matches && ibImages && !ibCartes.length) ibConstruirePile(cards);
 }
 function ixConstruire(cards) {
-  if (ixSouris && !motionState.reducedMotion) ixGrille.classList.add('ix-vivant');
   const restants = new Map(cards.map(card => [(card.dataset.title || '').trim(), card]));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
-    if (worksPanel.classList.contains('open')) { ixMesurer(); ixDefiler(true); }
-  });
   const span = (cl, parent) => {
     const s = document.createElement('span'); s.className = cl;
     if (parent) parent.appendChild(s);
@@ -6569,7 +6553,7 @@ function ixConstruire(cards) {
     el.href = (IX_PROJETS[titre] ? d.cl : '#') + (IX_PROJETS[titre] ? '.html' : '');
     const box = span('ix-image', el);
     const volet = span('ix-volet', box);
-    volet.style.backgroundColor = d.fond;
+    if (!d.video) volet.style.backgroundColor = d.fond;   // une vidéo n'a pas de fond : son image est dessous
     const contre = span('ix-contre', volet);
     let photo;
     if (d.logos) {
@@ -6577,33 +6561,46 @@ function ixConstruire(cards) {
       d.logos.forEach(src => { const im = new Image(); im.alt = ''; im.decoding = 'async'; im.src = src; photo.appendChild(im); });
     } else {
       if (d.video) {
-        /* Malbec : le packaging en mouvement, qui joue une fois et s'arrête */
-        photo = document.createElement('video');
-        photo.muted = true; photo.playsInline = true; photo.preload = 'auto';
-        photo.setAttribute('muted', ''); photo.setAttribute('playsinline', '');
-        photo.className = 'ix-photo'; photo.poster = d.src; photo.src = d.video;
+        /* Malbec : l'image, toujours là, et par-dessus le packaging en mouvement,
+           qui ne paraît que lorsqu'il joue vraiment, joue une fois et s'arrête */
+        photo = span('ix-photo ix-film', contre);
+        photo._poster = new Image();
+        photo._poster.alt = ''; photo._poster.decoding = 'async'; photo._poster.src = d.src;
+        photo.appendChild(photo._poster);
+        const v = document.createElement('video');
+        v.muted = true; v.playsInline = true; v.preload = 'auto';
+        v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+        v.src = d.video;
+        v.addEventListener('playing', () => v.classList.add('est-la'));
+        /* la dernière image, recopiée : plus rien à décoder, elle reste figée */
+        v.addEventListener('ended', () => {
+          try {
+            const cv = document.createElement('canvas');
+            cv.width = v.videoWidth; cv.height = v.videoHeight;
+            cv.getContext('2d').drawImage(v, 0, 0);
+            cv.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
+            photo.appendChild(cv);
+            photo._fige = cv;
+          } catch (e) {}
+        });
+        photo.appendChild(v);
+        photo._video = v;
       } else {
         photo = new Image();
         photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
         photo.src = ixSource(d);
+        photo.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
+        photo._ixX = d.x; photo._ixY = d.y;
+        contre.appendChild(photo);
       }
-      photo.style.objectPosition = (d.x * 100) + '% ' + (d.y * 100) + '%';
-      if (d.cadre) { const [l, t, w, h] = d.cadre; Object.assign(photo.style, { left: (l * 100) + '%', top: (t * 100) + '%', width: (w * 100) + '%', height: (h * 100) + '%' }); }
-      photo._ixX = d.x; photo._ixY = d.y;
-      contre.appendChild(photo);
     }
-    /* le titre, en deux couches : dans l'image, et sous l'image */
-    const texte = (parent, cl, mot) => {
-      const t = span('ix-t ' + cl, parent);
-      span('ix-ligne', t).appendChild(document.createElement('span')).textContent = mot;
-      return t;
-    };
-    const fonction = ibFonction(card);
-    const sous = span('ix-sous', el);
-    const out = { f: texte(sous, 'ix-fct', fonction), n: texte(sous, 'ix-nom', titre) };
-    const dans = { f: texte(box, 'ix-fct', fonction), n: texte(box, 'ix-nom', titre) };
-    dans.f.setAttribute('aria-hidden', 'true'); dans.n.setAttribute('aria-hidden', 'true');
-    const c = { card, d, el, box, photo, out, dans, rang, top: 0, left: 0, w: 0, h: 0, vu: false, fige: false, pn: 0, pf: 0, ps: -1, clairN: !d.fonce, clairF: !d.fonce };
+    /* sous l'image : le nom – la spécificité, une seule ligne qui monte dans son masque */
+    const sous = span('ix-sous', el), ligne = span('ix-ligne', sous), mot = document.createElement('span');
+    ligne.appendChild(mot);
+    span('ix-nom', mot).textContent = titre;
+    span('ix-tiret', mot).textContent = '–';
+    span('ix-fct', mot).textContent = ibFonction(card);
+    const c = { card, d, el, box, photo, rang, top: 0, left: 0, w: 0, h: 0, vu: false };
     el.addEventListener('pointerenter', () => prechargerProjet(card));
     el.addEventListener('click', e => {
       /* cmd-clic, clic milieu : le navigateur ouvre la vraie page du projet */
@@ -6637,17 +6634,23 @@ function ibConstruirePile(cards) {
   ibImages.innerHTML = '';
   ibCartes = cards.map((card, i) => {
     const cas = ixCases.find(c => c.card === card);
-    if (!cas) return null;
+    if (!cas || cas.d.logos) return null;        // pas de carte claire dans le noir
     const b = document.createElement('div');
-    b.className = 'ib-carte' + (cas.d.logos ? ' est-logos' : '');
+    b.className = 'ib-carte';
     b.style.zIndex = String(i + 1);              // le plus proche passe devant
     const im = new Image();
     im.alt = ''; im.decoding = 'async'; im.loading = 'eager';
-    im.src = cas.d.logos ? cas.d.logos[0] : (cas.d.video ? cas.d.src : (cas.photo.currentSrc || cas.photo.src));
-    decodee(im).then(() => { if (im.naturalWidth || cas.d.logos) { im.classList.add('est-charge'); ibGeometrie(); } });
+    im.src = cas.d.video ? cas.d.src : (cas.photo.currentSrc || cas.photo.src);
+    const c = { b, im, cas, pret: false };
+    decodee(im).then(() => {
+      if (!im.naturalWidth) return;
+      c.pret = true; b.classList.add('est-pret');
+      ibGeometrie();
+      if (ib.classList.contains('ix-scene')) ibDessiner(ibTemps.T);
+    });
     b.appendChild(im);
     ibImages.appendChild(b);
-    return { b, im, cas };
+    return c;
   }).filter(Boolean);
 }
 /* LES POSITIONS, relevées une fois pour toutes (ouverture, redimensionnement) :
@@ -6660,31 +6663,10 @@ function ixMesurer() {
     c.top = c.el.offsetTop + ixGrille.offsetTop; c.left = r.left - worksPanel.getBoundingClientRect().left;
     c.w = r.width; c.h = r.height;
   });
-  if (!ixGrille.classList.contains('ix-vivant')) return;
-  /* la dernière rangée (image et titre) finit centrée dans l'écran : pas de vide dessous */
-  const dernier = ixCases[ixCases.length - 1], zone = dernier.el.querySelector('.ix-sous').offsetHeight;
-  const bord = Math.max(20, (ixVue.h - dernier.h - zone) / 2);
-  ixGrille.style.paddingBottom = bord + 'px';
-  const finPage = worksPanel.scrollHeight - worksPanel.clientHeight;
-  const repos = ixCases[0].top;
-  const pxN = Math.max(22, Math.min(32, ixVue.w * 0.019)), pxF = Math.max(14, Math.min(17, ixVue.w * 0.0102));
-  /* la course du titre : la première rangée part de sa position de repos ; les
-     autres, dès que l'image a passé le milieu de l'écran, pour finir quand elle
-     arrive en haut : l'image monte pendant que le titre descend */
-  ixCases.forEach(c => {
-    [c.out.n, c.out.f].forEach(t => { t.style.fontSize = ''; });
-    c.t0 = c.rang === 1 ? repos : ixVue.h * 0.55;
-    const voulu = c.rang === 1 ? c.h * 0.5 : c.h * 0.66;
-    c.course = Math.max(60, Math.min(voulu, c.t0 - (c.top - finPage)));
-    const n = c.dans.n, f = c.dans.f;
-    c.nw = n.offsetWidth; c.nh = n.offsetHeight; c.fw = f.offsetWidth; c.fh = f.offsetHeight;
-    c.z = zone; c.pad = Math.max(14, Math.min(24, ixVue.w * 0.0125));
-    c.pxN = pxN; c.pxF = pxF;
-    c.sn = pxN / (parseFloat(getComputedStyle(n).fontSize) || pxN);
-    c.sf = pxF / (parseFloat(getComputedStyle(f).fontSize) || pxF);
-    c.ps = -1;
-    if (c.fige) ixFiger(c);
-  });
+  /* au bureau, la dernière rangée (image et nom) finit centrée dans l'écran : pas de vide dessous */
+  if (!indexBureau.matches || !ixCases.length) { ixGrille.style.paddingBottom = ''; return; }
+  const dernier = ixCases[ixCases.length - 1];
+  ixGrille.style.paddingBottom = Math.max(20, (ixVue.h - dernier.el.offsetHeight) / 2) + 'px';
 }
 /* où en est une case dans sa traversée de l'écran : +1 elle entre par le
    bas, 0 elle est au milieu, -1 elle sort par le haut */
@@ -6692,111 +6674,6 @@ function ixProgres(c, st) {
   const p = (c.top + c.h / 2 - st - ixVue.h / 2) / ((ixVue.h + c.h) / 2);
   return Math.max(-1, Math.min(1, p));
 }
-const ixCourbe = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-const IX_DESCENTE = 0.72, IX_TAU_NOM = 420, IX_TAU_FCT = 640;
-/* au repos, au pixel entier : le texte reste net */
-const ixPose = (el, x, y, e, net) => {
-  el.style.transform = 'translate3d(' + (net ? Math.round(x) : x.toFixed(1)) + 'px,' + (net ? Math.round(y) : y.toFixed(1)) + 'px,0)' + (e === 1 ? '' : ' scale(' + e.toFixed(4) + ')');
-};
-/* la lumière de la photo sous un texte, en trois points sur sa largeur */
-function ixLumiere(c, x, y, l, h) {
-  if (c.photo.tagName !== 'IMG' || !c.photo.naturalWidth) return null;
-  const g = lumGrid(c.photo);
-  if (!g) return null;
-  const [cl, ct, cw, ch] = c.d.cadre || IX_CADRE;
-  const PW = c.w * cw, PH = c.h * ch, k = Math.max(PW / c.photo.naturalWidth, PH / c.photo.naturalHeight);
-  const iw = c.photo.naturalWidth * k, ih = c.photo.naturalHeight * k;
-  const gx = cl * c.w + (PW - iw) * c.d.x, gy = ct * c.h + (PH - ih) * c.d.y;
-  let somme = 0;
-  for (let i = 0; i < 3; i++) {
-    const u = Math.floor(((x + l * (i + 0.5) / 3 - gx) / iw) * g.w), v = Math.floor(((y + h / 2 - gy) / ih) * g.h);
-    somme += g.d[Math.max(0, Math.min(g.h - 1, v)) * g.w + Math.max(0, Math.min(g.w - 1, u))];
-  }
-  return somme / 3;
-}
-function ixEncre(c, el, cle, lum) {
-  if (lum !== null) {
-    if (c[cle] && lum > LUM_CLAIR) c[cle] = false;
-    else if (!c[cle] && lum < LUM_SOMBRE) c[cle] = true;
-  }
-  el.classList.toggle('est-clair', c[cle]);
-}
-/* LE TITRE. q = 0 : grand, centré en haut de l'image, la spécificité sur le
-   nom. q = 0,72 : tout en bas de l'image. Puis il se sépare en rétrécissant :
-   q = 1, sous l'image, le nom à gauche et la spécificité à droite, sur la même
-   ligne de base. Le nom (pn) et la spécificité (pf) ont chacun leur inertie :
-   quand on défile vite, l'italique traîne derrière le nom, puis le rejoint. */
-function ixPoser(c) {
-  if (c.fige || c.t0 === undefined) return;
-  const W = c.w, h = c.h, gap = 3;
-  const bas = h - c.fh - gap - c.nh - c.pad;
-  const pile = q => c.pad + (bas - c.pad) * Math.min(1, q / IX_DESCENTE);
-  const sortie = q => ixCourbe(Math.max(0, (q - IX_DESCENTE) / (1 - IX_DESCENTE)));
-  const en = sortie(c.pn), ef = sortie(c.pf);
-  const yN1 = h + (c.z - c.nh * c.sn) / 2, yF1 = yN1 + 0.8 * (c.nh * c.sn - c.fh * c.sf);
-  const yNh = pile(c.pn) + c.fh + gap, yFh = pile(c.pf);
-  const cN = (W - c.nw) / 2, cF = (W - c.fw) / 2;
-  const xN = cN * (1 - en), yN = yNh + (yN1 - yNh) * en, sN = 1 + (c.sn - 1) * en;
-  const xF = cF + (W - c.fw * c.sf - cF) * ef, yF = yFh + (yF1 - yFh) * ef, sF = 1 + (c.sf - 1) * ef;
-  const net = c.pn === 0 && c.pf === 0;
-  ixPose(c.dans.n, xN, yN, sN, net); ixPose(c.dans.f, xF, yF, sF, net);
-  ixPose(c.out.n, xN, yN - h, sN, net); ixPose(c.out.f, xF, yF - h, sF, net);
-  if (!c.d.fonce) {
-    if (yN < h) ixEncre(c, c.dans.n, 'clairN', ixLumiere(c, xN, yN, c.nw * sN, c.nh * sN));
-    if (yF < h) ixEncre(c, c.dans.f, 'clairF', ixLumiere(c, xF, yF, c.fw * sF, c.fh * sF));
-  }
-}
-/* ARRIVÉ EN BAS, IL RESTE LÀ, même quand on remonte. Le texte prend alors sa
-   vraie taille (plus de mise à l'échelle) : il est parfaitement net. */
-function ixFiger(c) {
-  c.fige = true;
-  c.out.n.style.fontSize = c.pxN + 'px'; c.out.f.style.fontSize = c.pxF + 'px';
-  const nh = c.out.n.offsetHeight, fh = c.out.f.offsetHeight, fw = c.out.f.offsetWidth;
-  const yN = (c.z - nh) / 2;
-  ixPose(c.out.n, 0, yN, 1, true);
-  ixPose(c.out.f, c.w - fw, yN + 0.8 * (nh - fh), 1, true);
-  c.dans.n.style.visibility = c.dans.f.style.visibility = 'hidden';
-}
-function ixDefiger(c) {
-  c.fige = false; c.acquis = false; c.pn = c.pf = 0; c.ps = -1;
-  [c.out.n, c.out.f].forEach(t => { t.style.fontSize = ''; });
-  c.dans.n.style.visibility = c.dans.f.style.visibility = '';
-}
-const ixCible = (c, st) => Math.max(0, Math.min(1, (c.t0 - (c.top - st)) / c.course));
-/* L'INERTIE : chaque titre rejoint sa position à son rythme, indépendant du
-   défilement ; la boucle s'arrête d'elle-même quand tout est posé */
-let ixMoteurRaf = 0, ixMoteurT = 0;
-function ixMoteur(ts) {
-  ixMoteurRaf = 0;
-  const dt = ixMoteurT ? Math.min(64, ts - ixMoteurT) : 16.7;
-  ixMoteurT = ts;
-  const st = worksPanel.scrollTop;
-  let encore = false;
-  for (let i = 0; i < ixCases.length; i++) {
-    const c = ixCases[i];
-    if (c.fige || c.t0 === undefined) continue;
-    /* la cible atteinte une fois, c'est acquis : il finit sa course et ne remonte plus */
-    if (ixCible(c, st) >= 1) c.acquis = true;
-    const q = c.acquis ? 1 : ixCible(c, st), haut = c.top - st;
-    if (haut > ixVue.h + 80 || haut + c.h + c.z < -80) {       // hors de l'écran : sans attendre
-      c.pn = c.pf = q;
-      if (q >= 1) ixFiger(c);
-      continue;
-    }
-    c.pn += (q - c.pn) * (1 - Math.exp(-dt / IX_TAU_NOM));
-    c.pf += (q - c.pf) * (1 - Math.exp(-dt / IX_TAU_FCT));
-    if (Math.abs(q - c.pn) < 0.0006) c.pn = q;
-    if (Math.abs(q - c.pf) < 0.0006) c.pf = q;
-    c.pf = Math.max(c.pn - 0.07, Math.min(c.pn + 0.07, c.pf));   // l'italique ne décroche jamais
-    const ps = c.pn + c.pf * 1000;
-    if (ps !== c.ps) { c.ps = ps; ixPoser(c); }
-    if (c.acquis && c.pn > 0.985 && c.pf > 0.985) { ixFiger(c); continue; }
-    if (c.pn !== q || c.pf !== q) encore = true;
-  }
-  if (encore) ixMoteurRaf = requestAnimationFrame(ixMoteur);
-  else ixMoteurT = 0;
-}
-function ixRelancer() { if (!ixMoteurRaf) { ixMoteurT = 0; ixMoteurRaf = requestAnimationFrame(ixMoteur); } }
 let ixPrec = -1;
 function ixDefiler(force) {
   if (!ixSouris || motionState.reducedMotion || !worksPanel.classList.contains('open')) return;
@@ -6809,13 +6686,6 @@ function ixDefiler(force) {
     const p = ixProgres(c, st);
     c.photo.style.transform = 'translate3d(0,' + (-p * c.h * IX_GLISSE).toFixed(1) + 'px,0)';
   }
-  if (force === true) ixCases.forEach(c => {
-    if (c.fige || c.t0 === undefined) return;
-    if (ixCible(c, st) >= 1) c.acquis = true;
-    c.pn = c.pf = c.acquis ? 1 : ixCible(c, st); c.ps = -1;
-    ixPoser(c);
-  });
-  else ixRelancer();
 }
 let ixRaf = 0, ixLecture = 0, ixDerniere = 0;
 const ixRelireCadre = () => document.dispatchEvent(new Event('cadre-relire'));
@@ -6837,14 +6707,11 @@ let ixObs = null, ixSonRang = 0;
 function ixMontrer(c) {
   if (c.vu) return;
   c.vu = true;
-  const pret = c.photo.tagName === 'IMG' ? decodee(c.photo) : Promise.resolve();
+  const pret = c.d.video ? decodee(c.photo._poster) : (c.photo.tagName === 'IMG' ? decodee(c.photo) : Promise.resolve());
   pret.then(() => {
     if (!worksPanel.classList.contains('open')) { c.vu = false; return; }
     c.el.classList.add('est-vu');
-    if (c.d.video) { const l = c.photo.play(); if (l) l.catch(() => {}); }
-    /* l'encre du titre, lue sur la photo maintenant décodée, puis sur sa mesure fine */
-    ixPoser(c);
-    setTimeout(() => ixPoser(c), 500);
+    if (c.d.video) { const l = c.photo._video.play(); if (l) l.catch(() => {}); }
     /* la photo a pris sa place sous les coins : ils la relisent */
     setTimeout(ixRelireCadre, 450); setTimeout(ixRelireCadre, 1500);
     if (c.rang > ixSonRang) { ixSonRang = c.rang; if (c.rang > 1) son.jouer('pile'); }
@@ -6882,14 +6749,8 @@ function ibGeometrie() {
     c.tx = x.left + x.w / 2 - centre;
     c.ty = x.top + x.h - bas;
     c.sx = x.w / W; c.sy = x.h / H;
-    if (x.d.logos) {
-      /* une marque au centre de son dossier, sans déformation */
-      c.B = c.R = c.M = 1; c.dx = c.dy = 0;
-      c.im.style.width = (W * 0.46) + 'px'; c.im.style.height = (H * 0.46) + 'px';
-      return;
-    }
     const nw = c.im.naturalWidth || W, nh = c.im.naturalHeight || H;
-    const [cl, ct, cw, ch] = x.d.cadre || IX_CADRE;
+    const [cl, ct, cw, ch] = IX_CADRE;
     const PW = x.w * cw, PH = x.h * ch;
     c.B = Math.max(W / nw, H / nh) * 1.07;       // toutes un rien agrandies dans la pile
     c.R = Math.max(PW / nw, PH / nh);            // l'échelle exacte de la photo dans sa case
@@ -6935,7 +6796,9 @@ function ibDemarrer() {
    tard, la pile s'efface (aucun blanc possible). Les titres viennent ensuite. */
 function ibAtterrir() {
   ibTemps.enCours = false; ibTemps.arme = false;
-  ixCases.forEach(c => { if (c.top < ixVue.h) c.el.classList.add('ix-deja'); });
+  /* seules les cases dont le dossier s'est vraiment posé sont déjà en place ; les
+     autres se montreront normalement, une fois leur image arrivée */
+  ibCartes.forEach(c => { if (c.pret && c.cas.top < ixVue.h) c.cas.el.classList.add('ix-deja'); });
   ib.classList.remove('ix-cache');
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (!worksPanel.classList.contains('open')) return;
@@ -6953,8 +6816,12 @@ function ibOuverture() {
   ixSonRang = 0; ixPrec = -1;
   ixCases.forEach(c => {
     c.vu = false; c.el.classList.remove('est-vu', 'ix-deja');
-    ixDefiger(c);
-    if (c.d.video) { try { c.photo.pause(); c.photo.currentTime = 0; } catch (e) {} }
+    if (c.d.video) {
+      const v = c.photo._video;
+      try { v.pause(); v.currentTime = 0; } catch (e) {}
+      v.classList.remove('est-la');
+      if (c.photo._fige) { c.photo._fige.remove(); c.photo._fige = null; }
+    }
   });
   ixMesurer();
   ixDefiler(true);
@@ -6972,7 +6839,15 @@ function ibOuverture() {
 function ibLancer() {
   clearTimeout(ibTemps.attente);
   ibTemps.arme = true;
-  ibTemps.attente = setTimeout(ibDemarrer, 550);
+  /* le noir tient 0,55 s, et le temps que les images arrivent (3 s au plus) :
+     la pile ne se lève jamais à moitié vide */
+  const t0 = performance.now();
+  const verifier = () => {
+    const ecoule = performance.now() - t0;
+    if (ecoule >= 3000 || ibCartes.every(c => c.pret)) ibDemarrer();
+    else ibTemps.attente = setTimeout(verifier, 60);
+  };
+  ibTemps.attente = setTimeout(verifier, 550);
 }
 function ibArreter() {
   clearTimeout(ibTemps.attente); ibTemps.attente = 0;
