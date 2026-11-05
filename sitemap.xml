@@ -118,21 +118,6 @@
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse-3.webp</image:loc></image:image>
   </url>
   <url>
-    <loc>https://thomas-bonneau.fr/logotypes</loc>
-    <lastmod>2026-11-05</lastmod>
-    <priority>0.8</priority>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/logotypes.jpg</image:loc></image:image>
-  </url>
-  <url>
-    <loc>https://thomas-bonneau.fr/affiches</loc>
-    <lastmod>2026-11-05</lastmod>
-    <priority>0.8</priority>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/affiches.jpg</image:loc></image:image>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Affiche2_Mur.webp</image:loc></image:image>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Poster_Frame_Mockup_2.webp</image:loc></image:image>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Poster_Frame_Mockup_3.webp</image:loc></image:image>
-  </url>
-  <url>
     <loc>https://thomas-bonneau.fr/onf</loc>
     <lastmod>2026-11-05</lastmod>
     <priority>0.8</priority>
@@ -151,5 +136,20 @@
     <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/xgxgx.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://thomas-bonneau.fr/logotypes</loc>
+    <lastmod>2026-11-05</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/logotypes.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://thomas-bonneau.fr/affiches</loc>
+    <lastmod>2026-11-05</lastmod>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/partage/affiches.jpg</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Affiche2_Mur.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Poster_Frame_Mockup_2.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/affiches/cadre-Poster_Frame_Mockup_3.webp</image:loc></image:image>
   </url>
 </urlset>
