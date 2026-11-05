@@ -821,6 +821,9 @@ body.light {
    portent leur rang (--k) : 140 ms de l'un à l'autre. */
 /* au bureau, plus légère encore : l'axe prolongé descend sous 85 */
 @media (min-width: 901px) { .hero-phrase { font-weight: 58; } }
+/* essai du 05/11, à la souris seulement : la phrase en italique, un rien plus
+   espacée. L'italique de la Castillon s'arrête au Thin (100). */
+@media (hover: hover) and (pointer: fine) { .hero-phrase { font-style: italic; font-weight: 100; letter-spacing: 0.018em; max-width: none; } }
 .hero-phrase__ligne { display: block; }
 .hero-phrase__ligne > span { display: block; }
 .hero-phrase .mot { display: inline-block; transform-origin: 50% 62%; }
