@@ -2099,19 +2099,19 @@ footer.filet-anime.sans-anim::before { transition: none !important; }
 .affiche-scene.en-attente img { opacity: 0 !important; }
 .affiche-scene img { position: relative; z-index: 1; }
 .affiche-scene img.affiche-cadre { position: absolute; z-index: 2; aspect-ratio: auto; }
-/* les flèches ont la forme de celles des logos — un rond cerné d'un filet —,
-   posées SUR l'image, à mi-hauteur, une à chaque bord, au-dessus des affiches */
+/* les flèches, seules (04/11 : plus de rond autour), posées SUR l'image, à
+   mi-hauteur, une à chaque bord, au-dessus des affiches */
 .affiches .marque-fleche {
   z-index: 3;
-  background: transparent;               /* sur l'affiche : un contour blanc, sans fond */
-  border: 0;                             /* le filet : un demi-pixel, en ombre */
-  box-shadow: inset 0 0 0 0.5px #fff;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   color: #fff;
   /* le mur est clair à gauche (0,62) : une ombre très courte décolle le
      blanc du fond sans rien poser derrière */
   filter: drop-shadow(0 0 2px rgba(0,0,0,0.35));
 }
-.affiches .marque-fleche:hover { border-color: #fff; background: rgba(255,255,255,0.12); }
+.affiches .marque-fleche:hover { background: transparent; }
 /* (après les règles du bureau, qu'elles remplacent au téléphone) */
 @media (max-width: 600px) {
   /* LES AFFICHES ET LES LOGOS PRENNENT LA PLACE. Une affiche se regarde
@@ -3147,6 +3147,8 @@ body.zone-foot .about-story {
 .ix-film > img, .ix-film > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .ix-film > video { opacity: 0; transition: opacity 0.5s ease; }
 .ix-film > video.est-la { opacity: 1; }
+.ix-film > .ix-fin { opacity: 0; transition: opacity 0.4s ease; }
+.ix-film.est-fini > .ix-fin { opacity: 1; }
 
 @media (hover: hover) and (pointer: fine) {
   /* LE SURVOL : la photo avance à peine, lentement. Rien d'autre. */
@@ -6479,7 +6481,7 @@ function openWorksPanel() {
    (pour charger la bonne variante). */
 const IX_PROJETS = {
   'Arch’ocktail': { cl: 'archocktail', src: 'web/proj-archocktail-cocktail.webp', x: 0.5, y: 0.5, fond: '#23261c', col: 6, tel: 1 },
-  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', x: 0.5, y: 0.5, fond: '#e8d8be', col: 6, tel: 1 },
+  'Malbec': { cl: 'malbec', src: 'web/proj-malbec-motion-packaging.affiche.webp', video: 'proj-malbec-motion-packaging.mp4', fin: 'web/proj-malbec-packaging-fin.webp', x: 0.5, y: 0.5, fond: '#e8d8be', col: 6, tel: 1 },
   'Sillage': { cl: 'sillage', src: 'web/PRESENTATION_SILLAGE_1.webp', x: 0.5, y: 0.5, fond: '#e8e6e0', col: 12, tel: 1 },
   'Grapillon': { cl: 'grapillon', src: 'web/proj-grapillon.webp', x: 0.5, y: 0.5, fond: '#b9a48c', col: 6, tel: 1 },
   'Studio Synapse': { cl: 'studio-synapse', src: 'web/proj-synapse.webp', x: 0.5, y: 0.5, fond: '#2a2527', col: 6, tel: 1 },
@@ -6534,8 +6536,10 @@ function ixConstruire(cards) {
       d.logos.forEach(src => { const im = new Image(); im.alt = ''; im.decoding = 'async'; im.src = src; photo.appendChild(im); });
     } else {
       if (d.video) {
-        /* Malbec : l'image, toujours là, et par-dessus le packaging en mouvement,
-           qui ne paraît que lorsqu'il joue vraiment, joue une fois et s'arrête */
+        /* Malbec : la première image, le packaging en mouvement, qui ne paraît que
+           lorsqu'il joue vraiment, et par-dessus LA DERNIÈRE IMAGE, avec la carte, posée
+           à la fin de la vidéo. La première image n'a pas la carte : si le navigateur
+           cessait d'afficher la vidéo (Safari, économie d'énergie), le paquet paraissait vide. */
         photo = span('ix-photo ix-film', contre);
         photo._poster = new Image();
         photo._poster.alt = ''; photo._poster.decoding = 'async'; photo._poster.src = d.src;
@@ -6547,6 +6551,11 @@ function ixConstruire(cards) {
         v.addEventListener('playing', () => v.classList.add('est-la'));
         photo.appendChild(v);
         photo._video = v;
+        const fin = new Image();
+        fin.className = 'ix-fin'; fin.alt = ''; fin.decoding = 'async'; fin.src = d.fin;
+        photo.appendChild(fin);
+        v.addEventListener('ended', () => photo.classList.add('est-fini'));
+        v.addEventListener('error', () => photo.classList.add('est-fini'));
       } else {
         photo = new Image();
         photo.className = 'ix-photo'; photo.alt = ''; photo.decoding = 'async'; photo.loading = 'eager';
@@ -6785,7 +6794,13 @@ function ixMontrer(c) {
   pret.then(() => {
     if (!worksPanel.classList.contains('open')) { c.vu = false; return; }
     c.el.classList.add('est-vu');
-    if (c.d.video) { const l = c.photo._video.play(); if (l) l.catch(() => {}); }
+    if (c.d.video) {
+      /* la vidéo refusée (économie d'énergie) ou qui ne vient pas : la dernière image, tout de suite */
+      const v = c.photo._video, sansVideo = () => { if (!v.classList.contains('est-la')) c.photo.classList.add('est-fini'); };
+      const l = v.play();
+      if (l) l.catch(sansVideo);
+      setTimeout(sansVideo, 2500);
+    }
   });
 }
 function ixArmer() {
@@ -6892,6 +6907,7 @@ function ibOuverture() {
       const v = c.photo._video;
       try { v.pause(); v.currentTime = 0; } catch (e) {}
       v.classList.remove('est-la');
+      c.photo.classList.remove('est-fini');
     }
   });
   ixMesurer();
@@ -6905,7 +6921,7 @@ function ibOuverture() {
   ixCases.forEach(ixMesurerLumiere);
   ixMesurerCoins();
   ixLireCoins();
-  if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); }); return; }
+  if (motionState.reducedMotion) { ixCases.forEach(c => { c.vu = true; c.el.classList.add('est-vu', 'ix-deja'); if (c.d.video) c.photo.classList.add('est-fini'); }); return; }
   if (!indexBureau.matches || !ibCartes.length) return;      // au téléphone : pas de pile, voir entreeIndex
   ibGeometrie();
   ibTemps.T = 0; ibTemps.vitesse = 1;
@@ -6944,9 +6960,9 @@ worksPanel.addEventListener('wheel', () => {
   if (ibTemps.attente) ibDemarrer();
   ibTemps.vitesse = 3;
 }, { passive: true });
-/* LE CLIC : les cases à l'écran s'envolent vers le haut, en cascade — celle
-   qu'on a choisie la dernière — puis la page du projet monte du bas, entière
-   et déjà chargée. Au retour, l'Index est là, intact. */
+/* LE CLIC : toute la page des projets remonte, d'un seul bloc, quelle que soit la
+   rangée où l'on est, puis la page du projet monte du bas, entière et déjà chargée.
+   Au retour, l'Index est là, intact. */
 let ixDepart = false;
 function ixOuvrir(c) {
   if (ixDepart || !worksPanel.classList.contains('open')) return;
@@ -6956,14 +6972,11 @@ function ixOuvrir(c) {
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
   ixDepart = true;
-  const st = worksPanel.scrollTop;
-  const vues = ixCases.filter(x => x !== c && x.top - st < ixVue.h && x.top + x.h - st > 0).sort((a, b) => a.top - b.top);
-  vues.push(c);
-  const anims = vues.map((x, k) => x.el.animate(
-    [{ translate: '0 0' }, { translate: '0 ' + -Math.round(x.top - st + x.h + 120) + 'px' }],
-    { duration: 800, delay: k * 60, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', fill: 'forwards' }));
+  const envol = ixGrille.animate(
+    [{ translate: '0 0' }, { translate: '0 ' + -Math.round(ixVue.h * 1.2) + 'px' }],
+    { duration: 1150, easing: 'cubic-bezier(0.6, 0, 0.85, 0.4)', fill: 'forwards' });
   Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
-    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+    try { envol.cancel(); } catch (e) {}
     ixDepart = false;
     ixMesurerCoins();
     ixLireCoins();
@@ -6984,6 +6997,7 @@ addEventListener('load', () => {
   const partir = () => Object.values(IX_PROJETS).forEach(d => {
     if (d.logos) { d.logos.forEach(src => { new Image().src = src; }); return; }
     const im = new Image(); im.decoding = 'async'; im.src = ixSource(d);
+    if (d.fin) new Image().src = d.fin;
   });
   ('requestIdleCallback' in window) ? requestIdleCallback(partir, { timeout: 3000 }) : setTimeout(partir, 1500);
 }, { once: true });
