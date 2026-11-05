@@ -3564,26 +3564,33 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 .proj-name { font-size: clamp(21px, 3vw, 41px); letter-spacing: 0; }
 .proj-num { display: none; }
 
-/* (05/11) ESSAI, Arch'ocktail, souris seulement : tout le début du volet au centre.
-   Mention italique, nom plus petit, un seul paragraphe, mots-clés près de l'image. */
+/* (05/11) Souris seulement : tout le début du volet au centre. La mention en
+   italique au-dessus du nom, un seul paragraphe, les mots-clés près de l'image. */
 @media (hover: hover) and (pointer: fine) {
   .proj-panel.mise-centre .proj-panel-intro {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: clamp(1.8rem, 3.6vh, 2.6rem);
-    padding: clamp(6rem, 15vh, 9.5rem) 3.5rem clamp(1.6rem, 3vh, 2.4rem);
+    padding: clamp(3.4rem, 8.5vh, 5.6rem) 3.5rem clamp(1.6rem, 3vh, 2.4rem);
     text-align: center;
   }
   .proj-panel.mise-centre .proj-panel-head { display: flex; flex-direction: column-reverse; align-items: center; }
   .proj-panel.mise-centre .proj-panel-title { font-size: clamp(30px, 3.9vw, 56px); }
   .proj-panel.mise-centre .proj-panel-year {
-    margin: 0 0 clamp(0.7rem, 1.6vh, 1.1rem);
+    margin: 0 0 clamp(0.15rem, 0.5vh, 0.35rem);
     font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
     font-size: clamp(15px, 1.2vw, 18px); letter-spacing: 0.04em; color: #000;
   }
-  .proj-panel.mise-centre .proj-panel-meta { width: 100%; justify-items: center; row-gap: clamp(4.5rem, 11vh, 7rem); }
+  .proj-panel.mise-centre .proj-panel-meta { width: 100%; justify-items: center; row-gap: clamp(7rem, 17vh, 10rem); }
   .proj-panel.mise-centre .proj-panel-texte { columns: 1; width: 100%; max-width: 41rem; }
-  .proj-panel.mise-centre .proj-panel-tags { justify-content: center; gap: 0.6rem 2.8rem; }
+  .proj-panel.mise-centre .proj-panel-suite { width: 100%; }
+  .proj-panel.mise-centre .proj-panel-tags { justify-content: center; gap: 0.6rem 3.6rem; }
+  .proj-panel.mise-centre .proj-panel-tags li,
+  .proj-panel.mise-centre .proj-panel-tags li:last-child {
+    margin-right: 0;
+    font-family: 'Castillon', Georgia, serif; font-style: italic; font-weight: 200;
+    font-size: clamp(15px, 1.2vw, 18px); letter-spacing: 0.04em; text-transform: none; color: #000;
+  }
 }
 
 /* ── ÉDITION AUTO — paire asymétrique : petit visuel (clay) à gauche, grand (composition) à droite ── */
@@ -3734,7 +3741,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <!-- PROJETS -->
 <section class="projects" id="projets">
   <div class="projects-stack">
-    <div class="stack-card" data-bg="#D7E8CF" data-fg="#2E5D34" data-num="01" data-title="Arch’ocktail" data-mise="centre" data-surtitre="Identité visuelle" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000511182735404407000000000000000000000000000000000000000000000000608284858685846000000000000000000000000000000000000000000000000060808074818385170000000000000000000000000000000000000000000000005967726970758409000000000000000000000000000000000000000000000000607980818184830800000000000000000000000000000000000000000000000059778079798181080000000000000000000000000000000000000000000000005976717279797908000000000000000000000000000000000000000000000000597662678679790800000000000000000000000000000000000000000000000059767671827778070000000000000000000000000000000000000000000000005875778179787807000000000000000000000000000000010204060910111010597576797879790803020202010101010101000000172330384654616668696872747779798081135452514947454341393735333045536168758084878787867774777979808016878787878787868686858278716975808385878889898988716467707173771258596162636465666563605446848688898989898989898983797670646468060505050606060606060606050491929292929292929191919090898987858071656057534842352719130906049595959595959595949392929190898989898989888886827564534334272116" data-cat="Direction artistique · Identité visuelle" data-desc="Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités complémentaires. L’identité s’est construite autour de cette dualité, avec le doseur comme symbole d’équilibre et de précision. Les nuances de vert distinguent subtilement les deux frères, tandis que les illustrations à l’aquarelle apportent une dimension plus artisanale et sensible. Un univers pensé à leur image, entre exigence, prestige, créativité et savoir-faire français dans l’univers de la mixologie." data-tags="Direction artistique, Identité visuelle, Typographie, Édition" data-imgs="web/proj-archocktail-livret.webp,v:web/proj-archocktail-p2.webp,web/proj-archocktail-doseur.webp,proj-archocktail-motion.mp4,d:web/proj-archocktail-livret3.webp,web/proj-archocktail-livret2.webp,web/proj-archocktail-cocktail.webp,d:web/proj-archocktail-carte.webp,web/proj-archocktail-img4282.webp,proj-archocktail-site.mp4">
+    <div class="stack-card" data-bg="#D7E8CF" data-fg="#2E5D34" data-num="01" data-title="Arch’ocktail" data-surtitre="Identité visuelle" data-lum="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000511182735404407000000000000000000000000000000000000000000000000608284858685846000000000000000000000000000000000000000000000000060808074818385170000000000000000000000000000000000000000000000005967726970758409000000000000000000000000000000000000000000000000607980818184830800000000000000000000000000000000000000000000000059778079798181080000000000000000000000000000000000000000000000005976717279797908000000000000000000000000000000000000000000000000597662678679790800000000000000000000000000000000000000000000000059767671827778070000000000000000000000000000000000000000000000005875778179787807000000000000000000000000000000010204060910111010597576797879790803020202010101010101000000172330384654616668696872747779798081135452514947454341393735333045536168758084878787867774777979808016878787878787868686858278716975808385878889898988716467707173771258596162636465666563605446848688898989898989898983797670646468060505050606060606060606050491929292929292929191919090898987858071656057534842352719130906049595959595959595949392929190898989898989888886827564534334272116" data-cat="Direction artistique · Identité visuelle" data-desc="Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités complémentaires. L’identité s’est construite autour de cette dualité, avec le doseur comme symbole d’équilibre et de précision. Les nuances de vert distinguent subtilement les deux frères, tandis que les illustrations à l’aquarelle apportent une dimension plus artisanale et sensible. Un univers pensé à leur image, entre exigence, prestige, créativité et savoir-faire français dans l’univers de la mixologie." data-tags="Direction artistique, Identité visuelle, Typographie, Édition" data-imgs="web/proj-archocktail-livret.webp,v:web/proj-archocktail-p2.webp,web/proj-archocktail-doseur.webp,proj-archocktail-motion.mp4,d:web/proj-archocktail-livret3.webp,web/proj-archocktail-livret2.webp,web/proj-archocktail-cocktail.webp,d:web/proj-archocktail-carte.webp,web/proj-archocktail-img4282.webp,proj-archocktail-site.mp4">
       <div class="proj-image"><img src="web/proj-archocktail-livret.webp" srcset="web/proj-archocktail-livret-w960.webp 960w, web/proj-archocktail-livret-w1036.webp 1036w, web/proj-archocktail-livret-w1119.webp 1119w, web/proj-archocktail-livret-w1209.webp 1209w, web/proj-archocktail-livret-w1306.webp 1306w, web/proj-archocktail-livret-w1410.webp 1410w, web/proj-archocktail-livret-w1523.webp 1523w, web/proj-archocktail-livret-w1645.webp 1645w, web/proj-archocktail-livret-w1776.webp 1776w, web/proj-archocktail-livret-w1919.webp 1919w, web/proj-archocktail-livret-w2072.webp 2072w, web/proj-archocktail-livret-w2238.webp 2238w, web/proj-archocktail-livret-w2417.webp 2417w, web/proj-archocktail-livret-w2610.webp 2610w, web/proj-archocktail-livret-w2800.webp 2800w" sizes="(max-width: 600px) and (min-resolution: 2.5dppx) calc(149vh * 0.67), (min-aspect-ratio: 1483/1000) 100vw, 149vh" alt="Arch’ocktail — projet de Thomas Bonneau, designer graphique" class="proj-photo proj-photo--carte" fetchpriority="high" decoding="async"></div>
       <div class="proj-info">
         <div>
@@ -5620,9 +5627,12 @@ function majIndiceBas() {
   });
 })();
 function poserTextes(k) {
+  let textes = textesVues.map(t => (t[k] !== undefined ? t[k] : t[0]) || '');
+  /* au centre, tout le texte tient en un seul paragraphe */
+  if (panel.classList.contains('mise-centre')) textes = [textes.filter(Boolean).join(' '), ''];
   ['projPanelDesc', 'projPanelDesc2'].forEach((id, i) => {
-    const p = document.getElementById(id), t = textesVues[i];
-    typographier(p, t[k] !== undefined ? t[k] : t[0]);
+    const p = document.getElementById(id);
+    typographier(p, textes[i]);
     composerTexte(p);
   });
   composerColonnes();
@@ -5648,8 +5658,8 @@ function openPanel(card) {
   /* (essai du 30/10) LA FENÊTRE : un projet peut se présenter dans une
      fenêtre centrée sur fond noir (voir .mise-fenetre) — Arch'ocktail */
   panel.classList.toggle('mise-fenetre', card.dataset.mise === 'fenetre');
-  /* (essai du 05/11, souris seulement) le début du volet tout au centre : retirer data-mise="centre" de la carte pour revenir */
-  panel.classList.toggle('mise-centre', card.dataset.mise === 'centre' && sourisFine.matches);
+  /* (05/11, souris seulement) le début de chaque volet est tout au centre, voir .mise-centre */
+  panel.classList.toggle('mise-centre', sourisFine.matches && card.dataset.mise !== 'fenetre');
   /* une page en construction : sa phrase seule, lettre après lettre comme les noms de l'Index */
   panel.classList.toggle('en-construction', !!card.dataset.construction);
   if (card.dataset.construction) {
@@ -5678,11 +5688,11 @@ function openPanel(card) {
      Le titre d'origine reste intact pour la pile et l'index. */
   const elTitre = document.getElementById('projPanelTitle');
   elTitre.textContent = '';
-  (card.dataset.titleLignes || title).split('|').forEach((t, i) => {
+  ((!panel.classList.contains('mise-centre') && card.dataset.titleLignes) || title).split('|').forEach((t, i) => {
     if (i) elTitre.appendChild(document.createElement('br'));
     elTitre.appendChild(document.createTextNode(t));
   });
-  document.getElementById('projPanelYear').textContent = (panel.classList.contains('mise-centre') && card.dataset.surtitre) || year || '2026';
+  document.getElementById('projPanelYear').textContent = panel.classList.contains('mise-centre') ? (card.dataset.surtitre || ibFonction(card)) : (year || '2026');
   panel.classList.remove('volet-logos', 'volet-affiches');   // addMarque / addAffiches les reposeront
   /* un volet à plusieurs vues (logos, affiches) a un texte par vue : « | »
      les sépare dans data-desc et data-desc2, dans l'ordre des vues */
