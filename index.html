@@ -6988,42 +6988,13 @@ function ixOuvrir(c) {
   if (!pageCurtain || motionState.reducedMotion) { if (pageCurtain) pageCurtain.open(card, null); else openPanel(card); return; }
   prechargerProjet(card);
   ixDepart = true;
-  const st = worksPanel.scrollTop, vh = ixVue.h;
-  let anims = [], attente = 950;
-  if (indexBureau.matches) {
-    /* l'ordre de passage : à partir de la première rangée visible, puis on boucle */
-    const rangs = [...new Set(ixCases.map(x => x.rang))];
-    const premier = (ixCases.find(x => x.top + x.h - st > 0) || ixCases[0]).rang;
-    const k0 = rangs.indexOf(premier);
-    const ordre = rangs.slice(k0).concat(rangs.slice(0, k0));
-    let retard = 0, sousEcran = vh + 40;
-    ordre.forEach(rang => {
-      const dansRang = ixCases.filter(x => x.rang === rang);
-      const hauteur = Math.max(...dansRang.map(x => x.h)) + 80;
-      const vu = dansRang.some(x => x.top - st < vh && x.top + x.h - st > 0);
-      dansRang.forEach((x, j) => {
-        if (!x.vu) { x.vu = true; x.el.classList.add('est-vu'); }   // son nom est là quand il passe
-        const haut = x.top - st;
-        const depart = vu ? 0 : sousEcran - haut;
-        const arrivee = -(x.h + 170) - haut;
-        /* chacune sa vitesse : à droite un rien après et un rien plus lente ; une photo seule, plus lente encore */
-        anims.push(x.el.animate(
-          [{ translate: '0 ' + depart + 'px' }, { translate: '0 ' + arrivee + 'px' }],
-          { duration: (dansRang.length === 1 ? 1320 : 1120) + j * 150, delay: retard + j * 85, easing: 'cubic-bezier(0.62, 0.02, 0.3, 1)', fill: 'both' }));
-      });
-      retard += vu ? 110 : 165;
-      if (!vu) sousEcran += hauteur * 0.55;              // ceux qui suivent attendent un peu plus bas
-    });
-    attente = 1300;
-  } else {
-    /* au téléphone, comme avant : celles qu'on voit, celle qu'on a choisie la dernière */
-    const vues = ixCases.filter(x => x !== c && x.top - st < vh && x.top + x.h - st > 0).sort((a, b) => a.top - b.top);
-    vues.push(c);
-    anims = vues.map((x, k) => x.el.animate(
-      [{ translate: '0 0' }, { translate: '0 ' + -Math.round(x.top - st + x.h + 120) + 'px' }],
-      { duration: 800, delay: k * 60, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', fill: 'forwards' }));
-  }
-  Promise.resolve(pageCurtain.open(card, null, false, 'monte', attente)).then(() => {
+  const st = worksPanel.scrollTop;
+  const vues = ixCases.filter(x => x !== c && x.top - st < ixVue.h && x.top + x.h - st > 0).sort((a, b) => a.top - b.top);
+  vues.push(c);
+  const anims = vues.map((x, k) => x.el.animate(
+    [{ translate: '0 0' }, { translate: '0 ' + -Math.round(x.top - st + x.h + 120) + 'px' }],
+    { duration: 800, delay: k * 60, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', fill: 'forwards' }));
+  Promise.resolve(pageCurtain.open(card, null, false, 'monte', 950)).then(() => {
     anims.forEach(a => { try { a.cancel(); } catch (e) {} });
     ixDepart = false;
     ixMesurerCoins();
