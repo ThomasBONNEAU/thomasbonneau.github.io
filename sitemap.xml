@@ -158,5 +158,7 @@
     <priority>0.8</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/soma.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-soma-principale.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-soma-silhouette.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-soma-femme.webp</image:loc></image:image>
   </url>
 </urlset>
