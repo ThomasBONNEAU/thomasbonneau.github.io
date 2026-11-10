@@ -8835,7 +8835,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 1900, DISQUES = 150,
+  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 2000, DISQUES = 150,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -8908,52 +8908,57 @@ function figerLettres(nom) {
     const logo = document.querySelector('#frameLogo svg path');
     const d = logo && logo.getAttribute('d');
     if (!trace || !d) { formeFinie(); return; }
-    const NS = 'http://www.w3.org/2000/svg', H = 90.58, W = 89.33;
+    const NS = 'http://www.w3.org/2000/svg', H = 90.58;
     const creer = (nom, attrs, parent) => { const e = document.createElementNS(NS, nom); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); (parent || trace).appendChild(e); return e; };
-    /* (10/11, 2e) LE MONOGRAMME SURGIT, EN COULEURS DE L'IDENTITÉ. Une fente nette
-       au pied du dessin : TB en sort en deux couches, l'OCRE de l'identité d'abord,
-       le NOIR juste derrière. Chacune monte d'un ressort : elle dépasse un peu,
-       penche, revient et se pose ; décalées, elles vibrent l'une contre l'autre,
-       puis le noir recouvre exactement l'ocre. Un temps fort à l'arrivée (une
-       pulsation de 3 %), et le logo est là, tel qu'au coin du site. */
+    /* (10/11, 3e — d'après sa vidéo) LE MONOGRAMME S'ÉCRIT, TRAIT APRÈS TRAIT.
+       Le dessin exact apparaît le long de ses traits, comme sous une plume : la
+       panse basse, le fût qui monte du pied, la panse haute, la barre du T et son
+       bec, le pied. Chaque trait part à son heure et pousse dans son sens ; ils se
+       chevauchent, puis le monogramme est entier. En même temps il se redresse
+       et se pose (un ressort léger). Le masque est fait de traits larges posés
+       sur l'ossature du dessin : ce qui se voit, c'est toujours la vraie forme. */
     const defs = creer('defs', {});
-    const fente = creer('clipPath', { id: 'introFente', clipPathUnits: 'userSpaceOnUse' }, defs);
-    creer('rect', { x: -40, y: -80, width: W + 80, height: H + 80.6 }, fente);
-    const scene = creer('g', { 'clip-path': 'url(#introFente)' });
-    const couches = [
-      { c: '#c16700', retard: 0,   z: 0.56, f: 1.7,  penche: -8 },
-      { c: '#101014', retard: 100, z: 0.7,  f: 1.5,  penche: -6 }
-    ].map(k => {
-      const e = creer('path', { d }, scene);
-      e.style.fill = k.c; e.style.stroke = k.c; e.style.strokeWidth = '0.75px';
-      return Object.assign(k, { e });
-    });
-    /* un ressort amorti : 0 → 1, avec un dépassement, puis le repos */
+    const plume = creer('mask', { id: 'introPlume', maskUnits: 'userSpaceOnUse', x: -20, y: -20, width: 130, height: 130 }, defs);
+    const TRAITS = [
+      { d: 'M33 44.5 L58 45 C78 47 87 57 86 68 C85 81 74 89.5 56 89.5 L31 89.5', t0: 0, dur: 1080 },
+      { d: 'M35 92 L35 0', t0: 180, dur: 930 },
+      { d: 'M33 2.5 L62 2.5 C76 2.5 81 12 80 21 C79 32 70 42 52 43 L33 43', t0: 390, dur: 960 },
+      { d: 'M38 3 L9 3 Q1 4 1.5 20', t0: 570, dur: 840 },
+      { d: 'M15 89.5 L38 89.5', t0: 780, dur: 570 }
+    ].map(k => Object.assign(k, { e: creer('path', { d: k.d, pathLength: 1, fill: 'none', stroke: '#fff', 'stroke-width': 13,
+      'stroke-linecap': 'butt', 'stroke-linejoin': 'round', 'stroke-dasharray': '1 1', 'stroke-dashoffset': 1, opacity: 0 }, plume) }));
+    const groupe = creer('g', {});
+    const encre = creer('path', { d, mask: 'url(#introPlume)' }, groupe);
+    const plein = creer('path', { d }, groupe);
+    [encre, plein].forEach(e => { e.style.fill = '#101014'; e.style.stroke = '#101014'; e.style.strokeWidth = '0.75px'; });
+    plein.style.opacity = '0';
+    const ecrit = bezier(0.62, 0, 0.3, 1);
     const ressort = (t, z, f) => {
       if (t <= 0) return 0;
       const w = 2 * Math.PI * f, wd = w * Math.sqrt(1 - z * z);
       return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t));
     };
-    const ATTENTE = 140, POULS = 1180;
+    const ATTENTE = 120;
     let debut = 0;
     const pas = ts => {
       if (!debut) debut = ts;
-      const ms = ts - debut;
-      /* le temps fort : une pulsation brève quand tout est posé */
-      const q = (ms - POULS) / 320, s = q > 0 && q < 1 ? 1 + 0.03 * Math.sin(Math.PI * q) : 1;
-      couches.forEach(k => {
-        const p = ressort((ms - ATTENTE - k.retard) / 1000, k.z, k.f);
-        const dy = (1 - p) * (H + 8), a = k.penche * (1 - p);
-        k.e.setAttribute('transform',
-          'translate(' + (W / 2).toFixed(2) + ' ' + (H / 2).toFixed(2) + ') scale(' + s.toFixed(4) + ') translate(' + (-W / 2).toFixed(2) + ' ' + (-H / 2).toFixed(2) + ')' +
-          ' translate(0 ' + dy.toFixed(2) + ') rotate(' + a.toFixed(2) + ' 6 ' + H + ')');
+      const ms = ts - debut - ATTENTE;
+      TRAITS.forEach(k => {
+        const u = ecrit((ms - k.t0) / k.dur);
+        k.e.setAttribute('stroke-dashoffset', (1 - u).toFixed(4));
+        k.e.setAttribute('opacity', u > 0 ? 1 : 0);
       });
+      /* les derniers fils manquants se comblent, sans saut */
+      const r = (ms - 1350) / 300;
+      plein.style.opacity = (r <= 0 ? 0 : r >= 1 ? 1 : r).toFixed(3);
+      const p = ressort(ms / 1000, 0.62, 1.0);
+      groupe.setAttribute('transform', 'translate(0 ' + ((1 - p) * 5).toFixed(2) + ') rotate(' + ((1 - p) * -3).toFixed(2) + ' 6 ' + H + ')');
       if (ms > DESSIN * 0.66) presence();
       if (ms < DESSIN) { requestAnimationFrame(pas); return; }
-      /* le logo exact, seul */
-      couches[0].e.remove();
-      couches[1].e.removeAttribute('transform');
-      scene.removeAttribute('clip-path');
+      /* le dessin exact, seul */
+      encre.remove(); plume.remove();
+      plein.style.opacity = '1';
+      groupe.removeAttribute('transform');
       formeFinie();
     };
     /* deux images d'attente : le navigateur a repris son souffle */
