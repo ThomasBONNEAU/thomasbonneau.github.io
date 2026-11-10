@@ -857,18 +857,11 @@ body.light {
 .intro__trace { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
 .intro__fond { fill: #101014; stroke: #101014; stroke-width: 0.75px; stroke-miterlimit: 10; }
 .intro__creux { fill: none; stroke-width: 1.7px; stroke-linejoin: round; stroke-linecap: round; }
-.intro__nom {
-  position: absolute; left: 50%; top: 100%; translate: -50% 0; margin: clamp(14px, 1.15vw, 19px) 0 0;
-  font-family: 'Castillon', Georgia, serif; font-weight: 200; font-size: clamp(15px, 1.15vw, 18px);
-  line-height: 1.2; letter-spacing: 0.02em; white-space: nowrap; color: transparent;
-}
-.intro.nom-la .intro__l { color: #101014; transition: color 0.8s cubic-bezier(0.3, 0, 0.2, 1) var(--d, 0ms); }
 
 /* MOUVEMENT RÉDUIT — le monogramme posé, dans son encre, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
   .intro__fond { opacity: 1; }
-  .intro__nom { color: #101014; }
 }
 }
 
@@ -3670,7 +3663,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 
 <!-- L'INTRO : le monogramme (Documents/perso/logo_2.svg, intact, en masque),
      qui se remplit d'ocre puis de noir ; retirée par le JS (voir introSignature) -->
-<div class="intro" id="intro" aria-hidden="true"><div class="intro__bloc"><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg><p class="intro__nom">Thomas Bonneau</p></div></div>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro__bloc"><svg class="intro__trace" viewBox="0 0 89.33 90.58" aria-hidden="true"></svg></div></div>
 <noscript><style>.intro { display: none; }</style></noscript>
 
 <div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
@@ -3861,7 +3854,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     <article class="projet-fiche" data-num="06" data-title="ONF" data-cat="Identité visuelle · Signalétique" data-desc="Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune." data-desc2="J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité." data-tags="Identité visuelle, Signalétique, Logotype, Édition" data-bloc="« Nos empreintes se mêlent à celles de la nature, dans un même cycle où préserver la forêt, c’est aussi préserver une part de nous-mêmes. »" data-imgs="nat:web/ONF_pres/Links/logo_arbre.webp,e:cosmos_1024194981.mp4,v:web/ONF_pres/Links/f642508f168f82eb1079d14f7d7aec7e.webp,p50:r:web/ONF_pres/Links/20260209143208.webp|web/ONF_pres/Links/Plan de travail 1.webp|web/ONF_pres/Links/20260304095207.webp|web/ONF_pres/Links/20260304095502.webp,ONF_pres/Links/Composition 1_1.mp4,v:web/ONF_pres/Links/Logo_Fond_1.webp,web/ONF_pres/Links/Trame_Photos.webp,web/ONF_pres/Links/sgfswg.webp,v:y80:web/ONF_pres/Links/5d7fcf09-10d8-4234-9092-ff843c6a16b6.webp,web/ONF_pres/Links/7d00f79b-5afe-4aa5-9bfc-e386f093d080.webp,web/ONF_pres/Links/xgxgx.webp,v:web/ONF_pres/Links/1dbf0388-a955-4ef8-bb52-cfad720129ae.webp,y61:web/ONF_pres/Links/98270e5e-8b90-485d-8932-50de3541fa9e.webp,z104:ONF_pres/Links/Composition 1_3.mp4"><p class="lu-seul">Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune. <a href="/onf" tabindex="-1">Voir le projet ONF</a></p></article>
     <article class="projet-fiche" data-num="07" data-title="Logotypes" data-cat="Logotypes · Identité visuelle" data-desc="Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal.|Opulus est un outil développé dans l’écosystème France Boulangerie pour accompagner les boulangers dans la gestion de leurs achats. Grâce à l’intelligence artificielle, il analyse, compare et centralise les références afin de faciliter leurs décisions au quotidien.|Réalisé collectivement au sein de Studio Synapse, ce projet autour de l’ONF nous a amenés à questionner les codes de la communication institutionnelle et la manière dont le graphisme peut apporter une dimension plus sensible à la préservation de l’environnement. Notre réflexion s’est construite à partir des traces laissées par la nature et par l’humain, récoltées et observées collectivement pour constituer une matière graphique commune.|Studio Synapse est un collectif de quatre étudiants réuni autour de la création d’identités visuelles. J’ai conçu l’identité du studio dans un univers premium, inspiré par l’exigence et le savoir-faire, afin de s’adresser à des commanditaires haut de gamme." data-desc2="Son traitement mêle dessin numérique et approche picturale, avec des formes volontairement irrégulières et imparfaites. Une manière de retrouver dans l’image la spontanéité du geste artisanal, la matière et le caractère unique d’un produit façonné à la main.|L’identité traduit cette idée d’observation à travers le « O » d’Opulus, transformé en un regard. Tourné vers l’ensemble des références qui l’entourent, il incarne un assistant attentif, capable d’observer, d’analyser et de guider le boulanger vers les choix les plus pertinents.|J’ai développé un axe autour de la rencontre entre ces deux empreintes, avec l’idée que l’humain et la nature appartiennent à un même environnement. Veines du bois, empreintes et formes organiques viennent ainsi se rapprocher et se superposer pour construire l’identité.|Le concept de la synapse traduit cette idée de connexion et de transmission : le studio reçoit l’histoire et le savoir de ses clients pour, à son tour, les transmettre visuellement à leur public." data-tags="" data-ordre="visuel" data-logos-noms="France Boulangerie|Opulus|ONF|Studio Synapse" data-suite="|loop:fondf2f2f2:masque17x19:logos/animation-opulus.mp4||" data-imgs="q:w74:logos/france-boulangerie.svg|logos/Opulus_1.svg|logos/LogoONF.svg|logos/Logosynapse.svg"><p class="lu-seul">Réalisée durant mon alternance chez France Boulangerie, cette identité valorise les produits issus de la boulangerie artisanale. L’illustration mêle dessin numérique et approche picturale, avec un trait volontairement irrégulier qui évoque le geste, la matière et le savoir-faire artisanal. <a href="/logotypes" tabindex="-1">Voir le projet Logotypes</a></p></article>
     <article class="projet-fiche" data-num="08" data-title="Affiches" data-cat="Affiches · Composition" data-desc="|Affiche réalisée pour une exposition fictive en hommage à Jean Widmer, réinterprétant son travail dans un langage contemporain. Les initiales J et W se rencontrent à travers un jeu de morphing et de flou, en référence à son approche graphique et à son travail pour le Centre Pompidou.|Affiche imaginée pour une exposition fictive au MAD autour de la Citroën DS et de l’esthétique des années 1970. La voiture volontairement hors champ suggère le mouvement et la vitesse, tout en laissant sa silhouette et son design emblématique guider la composition." data-desc2="" data-tags="" data-ordre="visuel" data-affiches-mur="web/affiches/Poster_Frame_Mockup_2.webp" data-affiches-place="31.3750 16.8333 37.0000 68.6667" data-affiches-vignette="web/affiches/Affiche2_Mur.webp" data-affiches="web/affiches/cadre-Affiche2_Mur.webp ; web/affiches/cadre-Poster_Frame_Mockup_2.webp ; web/affiches/cadre-Poster_Frame_Mockup_3.webp" data-imgs="f:"><p class="lu-seul">Affiche réalisée pour une exposition fictive en hommage à Jean Widmer, réinterprétant son travail dans un langage contemporain. Les initiales J et W se rencontrent à travers un jeu de morphing et de flou, en référence à son approche graphique et à son travail pour le Centre Pompidou. <a href="/affiches" tabindex="-1">Voir le projet Affiches</a></p></article>
-    <article class="projet-fiche" data-num="09" data-title="Soma" data-titre-volet="SOMA" data-cat="Identité visuelle" data-desc="Pour sa deuxième édition, Soma met à l’honneur le spectacle vivant, réunissant musique et performances artistiques autour d’une expérience collective et sensorielle. L’identité visuelle puise son essence dans les notions de synergie, de connexion et de mouvement. Le corps devient un véritable langage graphique : les silhouettes se rencontrent, se prolongent et se fondent dans des dégradés chromatiques, traduisant la fluidité du geste, la vibration musicale et l’éveil des sens." data-desc2="La typographie prolonge cette dynamique par ses courbes organiques, ses tensions formelles et ses contrastes marqués, tandis qu’une palette chromatique vive et saturée traduit l’énergie du spectacle et l’expérience musicale et artistique." data-tags="Identité visuelle, Direction artistique, Typographie, Affiche" data-imgs="nat:web/proj-soma-principale.webp,t:loop:web/cosmos_1842815433.mp4,v:web/proj-soma-femme-carre.jpg,web/proj-soma-silhouette-carre.webp,noir:web/proj-soma-affiche.jpg,v:web/proj-soma-mockup.jpg,osmose:web/proj-soma-trame-violet.jpg|web/proj-soma-trame-orange.jpg,noir:web/proj-soma-affiche-3.jpg|web/proj-soma-affiche-2.jpg,b:y56:web/proj-soma-mockup-3-1.jpg,v:web/proj-soma-mockup-3-2.jpg,osmose:fixe:produit:apparition:web/proj-soma-trame-orange-2.jpg|web/proj-soma-silhouette.webp,nat:web/proj-soma-banderoles.jpg" data-note-police="blur" data-note-title="Synergie" data-note-text="La synergie désigne l’action combinée de plusieurs éléments qui, en interagissant, produisent un effet plus fort que la somme de leurs actions individuelles.|Dans l’univers de Soma, elle évoque la connexion entre les corps, les mouvements, la musique et les émotions, donnant naissance à une énergie collective où chaque expression nourrit l’autre."></article>
+    <article class="projet-fiche" data-num="09" data-title="Soma" data-titre-volet="SOMA" data-cat="Identité visuelle" data-desc="Pour sa deuxième édition, Soma met à l’honneur le spectacle vivant, réunissant musique et performances artistiques autour d’une expérience collective et sensorielle. L’identité visuelle puise son essence dans les notions de synergie, de connexion et de mouvement. Le corps devient un véritable langage graphique : les silhouettes se rencontrent, se prolongent et se fondent dans des dégradés chromatiques, traduisant la fluidité du geste, la vibration musicale et l’éveil des sens." data-desc2="La typographie prolonge cette dynamique par ses courbes organiques, ses tensions formelles et ses contrastes marqués, tandis qu’une palette chromatique vive et saturée traduit l’énergie du spectacle et l’expérience musicale et artistique." data-tags="Identité visuelle, Direction artistique, Typographie, Affiche" data-imgs="nat:web/proj-soma-principale.webp,t:loop:web/cosmos_1842815433.mp4,v:web/proj-soma-femme-carre.jpg,web/proj-soma-silhouette-carre.webp,noir:web/proj-soma-affiche.jpg,v:web/proj-soma-mockup.jpg,osmose:web/proj-soma-trame-violet.jpg|web/proj-soma-trame-orange.jpg,noir:web/proj-soma-affiche-3.jpg|web/proj-soma-affiche-2.jpg,y73:web/proj-soma-mockup-3-1.jpg,v:web/proj-soma-mockup-3-2.jpg,osmose:fixe:produit:apparition:web/proj-soma-trame-orange-2.jpg|web/proj-soma-silhouette.webp,nat:web/proj-soma-banderoles.jpg" data-note-police="blur" data-note-title="Synergie" data-note-text="La synergie désigne l’action combinée de plusieurs éléments qui, en interagissant, produisent un effet plus fort que la somme de leurs actions individuelles.|Dans l’univers de Soma, elle évoque la connexion entre les corps, les mouvements, la musique et les émotions, donnant naissance à une énergie collective où chaque expression nourrit l’autre."></article>
   </div>
 </section>
 
@@ -4732,7 +4725,7 @@ function makeOsmose(liste) {
      le défont et le refont deux fois ; puis il se pose, entier, et tout se fige */
   let l = String(liste || ''), fixe = false, produit = false, apparition = false;
   for (let m; (m = l.match(/^(fixe|produit|apparition):/)); l = l.slice(m[0].length)) { if (m[1] === 'fixe') fixe = true; else if (m[1] === 'produit') produit = true; else apparition = true; }
-  const T_MONTEE = 5200, T_MOUV = 10000, T_FIN = T_MONTEE + T_MOUV;
+  const T_MONTEE = 5200, T_MOUV = 5000, T_FIN = T_MONTEE + T_MOUV;
   const srcs = l.split('|').map(v => v.trim()).filter(Boolean);
   const graine = [...l].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 1000, 0) * 0.173;   /* deux osmoses, deux dessins */
   const box = document.createElement('div');
@@ -4817,16 +4810,16 @@ function makeOsmose(liste) {
      Le partage va et vient sans jamais s'arrêter tout à fait sur une seule :
      quand l'une domine, l'autre continue d'affleurer par des courants. */
   function peindre(t) {
-    const z = t / 1000 * (apparition ? 0.2 : 0.12);
+    /* l'entrée garde son allure ; ensuite le courant ralentit */
+    const z = !apparition ? t / 1000 * 0.12 : t < T_MONTEE ? t / 1000 * 0.2 : T_MONTEE / 1000 * 0.2 + (t - T_MONTEE) / 1000 * 0.1;
     ctx.globalCompositeOperation = 'source-over';
     ctx.imageSmoothingQuality = 'high';
     couvrir(ctx, 0, t);
     for (let k = 1; k < imgs.length; k++) {
       if (!apparition) masque(z + graine + (k - 1) * 41, 0.42 * Math.sin(2 * Math.PI * t / PERIODE - Math.PI / 2 + (k - 1) * 2.1));
       else if (t < T_MONTEE) masqueMontee(z + graine, t);
-      /* entier au départ, deux fois défait par les courants jusqu'à n'en laisser
-         que des traînées, entier à la fin : aucun saut entre les temps */
-      else if (t < T_FIN) masque(z + graine, 1.8 - 2.25 * Math.pow(Math.sin(2 * Math.PI * (t - T_MONTEE) / T_MOUV), 2));
+      /* posée, elle bouge à peine une fois (les bords ondulent), puis se fige */
+      else if (t < T_FIN) masque(z + graine, 1.8 - 1.05 * Math.pow(Math.sin(Math.PI * (t - T_MONTEE) / T_MOUV), 2));
       else masquePlein();
       cc.globalCompositeOperation = 'source-over';
       cc.clearRect(0, 0, calque.width, calque.height);
@@ -8829,7 +8822,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 2500, NOM = 1250, DISQUES = 150,
+  const FIN = 700, RETRAIT = 700, PHRASE_APRES = 200, DESSIN = 2750, DISQUES = 150,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -8905,44 +8898,45 @@ function figerLettres(nom) {
     const NS = 'http://www.w3.org/2000/svg', H = 90.58;
     const creer = (nom, attrs, parent) => { const e = document.createElementNS(NS, nom); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); (parent || trace).appendChild(e); return e; };
     const defs = creer('defs', {});
-    const degrade = (id, c0, a0, c1, a1) => {
-      const g = creer('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1: 0, x2: 0, y1: H, y2: H + 1 }, defs);
-      creer('stop', { offset: 0, 'stop-color': c0, 'stop-opacity': a0 }, g);
-      creer('stop', { offset: 1, 'stop-color': c1, 'stop-opacity': a1 }, g);
-      return g;
-    };
-    const gEncre = degrade('introEncre', '#101014', 0, '#101014', 1);
-    const gCreux = degrade('introCreux', '#ffffff', 1, '#ffffff', 0);
-    const fond = creer('path', { class: 'intro__fond', d, fill: 'url(#introEncre)', stroke: 'url(#introEncre)' });
+    /* (10/11) LE MONOGRAMME SE POSE. Sa forme reste exacte à chaque instant :
+       l'encre monte du bas avec un bord très large, pendant que le dessin se met
+       au point (un flou qui se resserre) et se pose de quelques pour cent ; puis
+       une lumière oblique le traverse une fois, comme sur un objet. */
+    const gEncre = creer('linearGradient', { id: 'introEncre', gradientUnits: 'userSpaceOnUse', x1: 0, x2: 0, y1: H, y2: H + 1 }, defs);
+    creer('stop', { offset: 0, 'stop-color': '#101014', 'stop-opacity': 0 }, gEncre);
+    creer('stop', { offset: 1, 'stop-color': '#101014', 'stop-opacity': 1 }, gEncre);
+    const gReflet = creer('linearGradient', { id: 'introReflet', gradientUnits: 'userSpaceOnUse', x1: -80, y1: 0, x2: -46, y2: 17 }, defs);
+    creer('stop', { offset: 0, 'stop-color': '#ffffff', 'stop-opacity': 0 }, gReflet);
+    creer('stop', { offset: 0.5, 'stop-color': '#ffffff', 'stop-opacity': 0.34 }, gReflet);
+    creer('stop', { offset: 1, 'stop-color': '#ffffff', 'stop-opacity': 0 }, gReflet);
+    const flou = creer('filter', { id: 'introFlou', x: '-30%', y: '-30%', width: '160%', height: '160%' }, defs);
+    const gauss = creer('feGaussianBlur', { stdDeviation: 4.5 }, flou);
+    const groupe = creer('g', { filter: 'url(#introFlou)' });
+    const fond = creer('path', { class: 'intro__fond', d }, groupe);
     fond.style.fill = 'url(#introEncre)'; fond.style.stroke = 'url(#introEncre)';
-    const creux = creer('path', { class: 'intro__creux', d, stroke: 'url(#introCreux)' });
-    const nomEl = intro.querySelector('.intro__nom');
-    if (nomEl) {
-      const texte = nomEl.textContent; let rang = 0;
-      nomEl.textContent = '';
-      for (const ch of texte) {
-        const l = document.createElement('span');
-        l.className = 'intro__l'; l.textContent = ch;
-        l.style.setProperty('--d', (rang++ * 34) + 'ms');
-        nomEl.appendChild(l);
-      }
-    }
-    const montee = bezier(0.3, 0.1, 0.2, 1), etoffe = bezier(0.5, 0, 0.2, 1), leve = bezier(0.16, 1, 0.3, 1);
-    const BANDE_E = 26, BANDE_C = 20;
-    const borde = (g, y, bande) => { g.setAttribute('y1', y.toFixed(2)); g.setAttribute('y2', (y + bande).toFixed(2)); };
-    let debut = 0, nomVu = false;
+    const reflet = creer('path', { d, fill: 'url(#introReflet)' });
+    reflet.style.opacity = '0';
+    const montee = bezier(0.45, 0.05, 0.25, 1), net = bezier(0.4, 0.05, 0.2, 1),
+          pose = bezier(0.22, 1, 0.36, 1), passe = bezier(0.45, 0, 0.3, 1);
+    const BANDE = 48;                        /* le bord de l'encre : la moitié du monogramme */
+    let debut = 0;
     const pas = ts => {
       if (!debut) debut = ts;
       const ms = ts - debut;
-      /* l'encre monte (1,6 s) sur un trait affiné, puis le trait prend sa graisse, du bas vers le haut */
-      borde(gEncre, H - (H + BANDE_E) * montee(ms / 1600), BANDE_E);
-      borde(gCreux, H - (H + BANDE_C) * etoffe((ms - 700) / (DESSIN - 700)), BANDE_C);
-      trace.style.transform = 'translate3d(0,' + (9 * (1 - leve(ms / 1800))).toFixed(2) + '%,0)';
-      if (!nomVu && ms > NOM) { nomVu = true; intro.classList.add('nom-la'); }
+      const y = H + 6 - (H + BANDE + 12) * montee(ms / 2100);
+      gEncre.setAttribute('y1', y.toFixed(2)); gEncre.setAttribute('y2', (y + BANDE).toFixed(2));
+      gauss.setAttribute('stdDeviation', (4.5 * (1 - net(ms / 1950))).toFixed(2));
+      trace.style.transform = 'translate3d(0,' + (6 * (1 - pose(ms / 2400))).toFixed(2) + '%,0)';
+      const r = (ms - 1750) / 950;
+      if (r > 0 && r < 1) {
+        const x = -70 + 200 * passe(r);
+        gReflet.setAttribute('x1', x.toFixed(2)); gReflet.setAttribute('x2', (x + 34).toFixed(2));
+        reflet.style.opacity = Math.sin(Math.PI * r).toFixed(3);
+      } else reflet.style.opacity = '0';
       if (ms > DESSIN * 0.66) presence();
       if (ms < DESSIN) { requestAnimationFrame(pas); return; }
-      /* le dessin exact, sans plus rien par-dessus */
-      creux.remove();
+      /* le dessin exact, net, sans plus rien par-dessus */
+      groupe.removeAttribute('filter'); reflet.remove();
       fond.style.fill = '#101014'; fond.style.stroke = '#101014';
       trace.style.transform = '';
       formeFinie();
