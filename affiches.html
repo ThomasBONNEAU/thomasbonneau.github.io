@@ -6507,8 +6507,9 @@ var son = (function sonDuSite() {
   let retrait = 0;
   function ambiance() {
     if (!actif || !ctx) return;
-    /* (10/11, sa demande) la musique est là dès l'accueil, au premier geste */
-    const la = true;
+    /* (10/11, il l'a redit) le saxophone n'est PAS au hero : il arrive avec la
+       transition vers les projets, et reste dans les projets, l'Index, les volets */
+    const la = !auHero();
     if (la !== presente) {
       presente = la;
       const p = pistes[courante];
@@ -6740,8 +6741,8 @@ var son = (function sonDuSite() {
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
     /* les deux lecteurs se débloquent pendant le geste (Safari ne les
-       laisserait pas partir plus tard tout seuls) ; seul le lecteur courant
-       continue : (10/11) la musique part dès l'accueil */
+       laisserait pas partir plus tard tout seuls), muets, aussitôt arrêtés :
+       la musique ne part que lorsqu'on arrive aux projets */
     pistes.forEach(p => { if (p.a.paused) { const l = p.a.play(); if (l) l.then(() => { if (!presente || p !== pistes[courante]) p.a.pause(); }).catch(() => {}); } });
     ambiance();
   }
