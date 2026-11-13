@@ -3798,8 +3798,8 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <div class="cv-voile" id="cvVoile" role="dialog" aria-modal="true" aria-label="CV de Thomas Bonneau" hidden>
   <button type="button" class="cv-fermer" id="cvFermer" aria-label="Fermer le CV">&#215;</button>
   <div class="cv-scene">
-    <div class="cv-feuille"><img data-src="web/cv-thomas-bonneau-2.svg" alt="CV de Thomas Bonneau, designer graphique et directeur artistique"></div>
-    <a class="cv-telecharger" href="CV_Thomas_BONNEAU.pdf" download>Télécharger le CV<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg></a>
+    <div class="cv-feuille"><img data-src="web/cv-thomas-bonneau-3.svg" alt="CV de Thomas Bonneau, designer graphique et directeur artistique"></div>
+    <a class="cv-telecharger" href="CV_Thomas_BONNEAU.pdf?v=3" download="CV_Thomas_BONNEAU.pdf">Télécharger le CV<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg></a>
   </div>
 </div>
 <div class="ascenseur" id="ascenseur" aria-hidden="true"><span class="ascenseur__poignee"></span></div>
@@ -4080,7 +4080,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     <p class="fm-nom"><strong>Thomas Bonneau</strong></p>
     <p class="fm-linkedin"><a class="footer-social" href="#"><span class="swap" data-text="LinkedIn">LinkedIn</span></a></p>
     <!-- déposer le PDF sous ce nom à côté du HTML et le lien fonctionne -->
-    <p class="fm-cv"><a class="footer-social footer-cv" id="lienCV" href="CV_Thomas_BONNEAU.pdf" download><span class="swap" data-text="CV">CV</span><svg class="fcv-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></p>
+    <p class="fm-cv"><a class="footer-social footer-cv" id="lienCV" href="CV_Thomas_BONNEAU.pdf?v=3" download="CV_Thomas_BONNEAU.pdf"><span class="swap" data-text="CV">CV</span><svg class="fcv-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></p>
     <p class="fm-ville">Angers, France</p>
     <p class="fm-annee">© <span id="footerYear">2026</span></p>
     <p class="fm-pays">France</p>
@@ -6619,11 +6619,22 @@ var son = (function sonDuSite() {
   const voletOuvertSon = () => { const v = document.getElementById('projPanel'); return !!v && v.classList.contains('open'); };
   const auHero = () => !indexOuvertSon() && !voletOuvertSon() && (pHero >= 0 ? pHero < 0.85 : scrollY < innerHeight * 1.2);
   let retrait = 0;
+  /* (13/11, sa demande) TOUJOURS DANS L'ORDRE : d'abord le vent, puis la
+     vapeur, puis le saxophone. Le son naît au premier geste du visiteur — et
+     ce geste est souvent un clic sur « Index » ou sur un projet, loin du hero :
+     on entendait alors le saxophone d'emblée. Né ailleurs qu'au hero, le son
+     joue donc une OUVERTURE : le vent seul monte, quelques souffles de vapeur
+     passent, et le saxophone n'arrive qu'ensuite (voir ouvertureDuSon). */
+  const OUVERTURE = 3600, OUVERTURE_ATTENTE = 6000;          // ms
+  let ouvertureFin = 0, ouvertureLancee = false;
+  const enOuverture = () => ouvertureFin > 0 && performance.now() < ouvertureFin;
+  /* les quatre secondes qui suivent : le vent se retire lentement */
+  const apresOuverture = () => { const d = performance.now() - ouvertureFin; return ouvertureLancee && d >= 0 && d < 4000; };
   function ambiance() {
     if (!actif || !ctx) return;
     /* (10/11, il l'a redit) le saxophone n'est PAS au hero : il arrive avec la
        transition vers les projets, et reste dans les projets, l'Index, les volets */
-    const la = !auHero();
+    const la = !auHero() && !enOuverture();
     if (la !== presente) {
       presente = la;
       const p = pistes[courante];
@@ -6688,6 +6699,18 @@ var son = (function sonDuSite() {
     }
     heros();
   }
+  function ouvertureDuSon() {
+    const bv = tampons.vent;
+    /* né au hero, le son est déjà dans l'ordre ; sans vent (page ouverte en
+       fichier), rien à faire attendre */
+    if (!ouvertureFin) return;
+    if (auHero() || !vent || !bv || bv === 'element') { ouvertureFin = 0; ambiance(); return; }
+    ouvertureFin = performance.now() + OUVERTURE;
+    ouvertureLancee = true;
+    heros();
+    [1700, 2150, 2600, 3050].forEach((t, k) => setTimeout(() => { if (actif && enOuverture()) petiteVapeur(0.5 + 0.06 * k); }, t));
+    setTimeout(ambiance, OUVERTURE + 30);
+  }
   const lisse = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
   /* le vent et la vapeur d'après la progression de la transition */
   /* (un gain n'est reprogrammé que s'il change vraiment : rien ne
@@ -6698,7 +6721,10 @@ var son = (function sonDuSite() {
   function heros() {
     if (!actif || !ctx) return;
     const ici = auHero() ? 1 : 0, p = pVap;
-    if (vent) viser(0, vent.base.gain, VOL.vent * ici * (1 - lisse(0.3, 0.85, p)), 0.25);
+    /* pendant l'ouverture, le vent est là où qu'on soit ; ensuite il se retire
+       lentement sous le saxophone qui monte */
+    const ouv = enOuverture() ? 1 : 0;
+    if (vent) viser(0, vent.base.gain, VOL.vent * Math.max(ouv, ici * (1 - lisse(0.3, 0.85, p))), ouv ? 0.35 : apresOuverture() ? 1.1 : 0.25);
     const fin = 1 - lisse(0.8, 0.94, p), vit = enMouvement ? 1 : 0.35;
     if (brume) viser(1, brume.g.gain, VOL.vapeur * lisse(0.04, 0.35, p) * fin * vit * ici, enMouvement ? 0.15 : 0.6);
   }
@@ -6850,7 +6876,10 @@ var son = (function sonDuSite() {
       gMusique = ctx.createGain(); gMusique.gain.value = 0;
       if (LOCAL) gMusique.connect(maitre);
       preparerMusique();
-      Promise.all(['vent'].map(charger)).then(lancerHero);
+      /* le saxophone attend que le vent soit chargé (au plus tard six secondes) */
+      ouvertureFin = performance.now() + OUVERTURE_ATTENTE;
+      setTimeout(() => { if (!ouvertureLancee && ouvertureFin) { ouvertureFin = 0; ambiance(); } }, OUVERTURE_ATTENTE + 60);
+      Promise.all(['vent'].map(charger)).then(() => { lancerHero(); ouvertureDuSon(); });
     }
     if (ctx.state !== 'running') ctx.resume();
     glisse(maitre.gain, 1, MONTEE);
