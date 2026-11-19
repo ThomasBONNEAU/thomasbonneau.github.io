@@ -851,22 +851,17 @@ body.light {
 
 /* ══ L'INTRO — LE MONOGRAMME ET SA LIGNE (retour du 10/11, à sa demande) ══
    Un écran blanc. Le monogramme (le fichier d'origine) monte dans son masque ;
-   dessous, une ligne d'un pixel se remplit de 0 à 90 %, le pourcentage à son
-   bout. À 90 %, tout l'écran s'efface d'un fondu sur le hero. */
-@property --pct { syntax: '<integer>'; inherits: true; initial-value: 0; }
+   dessous, une petite ligne se remplit (19/11) de 0 à 100, très vite, et le
+   chiffre, accroché à son bout, la traverse en comptant (voir le compte, juste
+   après le HTML de l'intro). À 100, tout l'écran s'efface d'un fondu. */
 .intro {
   position: fixed; inset: 0; z-index: 10000;
   display: grid; place-items: center;
   background: #fff;
   pointer-events: none;
-  animation: intro-progression 800ms cubic-bezier(0.45, 0, 0.25, 1) 350ms both;
 }
-/* la bascule : les dix derniers pour cent, une fois le hero prêt */
-.intro.is-fin { animation: intro-fin 340ms cubic-bezier(0.2, 0, 0, 1) forwards; }
 /* (10/11) LA FIN : tout l'écran s'efface d'un fondu (celle qu'il a gardée) */
 .intro.is-retrait { opacity: 0; transition: opacity 700ms cubic-bezier(0.4, 0, 0.3, 1); }
-@keyframes intro-progression { from { --pct: 0; } to { --pct: 80; } }
-@keyframes intro-fin { from { --pct: 80; } to { --pct: 90; } }
 
 .intro__bloc { display: flex; flex-direction: column; align-items: center; gap: clamp(17px, 1.9vw, 24px); }
 .intro__masque { display: block; overflow: hidden; }
@@ -880,9 +875,10 @@ body.light {
      page met du temps à se lire, le monogramme est déjà là pour le couvrir */
   animation: intro-monte 420ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
 }
-/* la ligne : un filet d'un pixel sur sa réserve, le chiffre accroché à son
-   bout — hors de l'axe, pour que la ligne reste centrée sous le monogramme */
-.intro__ligne { position: relative; width: clamp(84px, 7.6vw, 118px); height: 1px; }
+/* la ligne : (19/11, « plus petite ») un filet court, d'un pixel d'écran, sur
+   sa réserve ; le chiffre, dessous, suit son bout (posé par le compte) */
+.intro__ligne { position: relative; width: clamp(54px, 4.4vw, 70px); height: 1px; }
+@media (min-resolution: 2dppx) { .intro__ligne { height: 0.5px; } }
 .intro__regle {
   position: absolute; inset: 0;
   background: rgba(16, 16, 20, 0.1);
@@ -893,11 +889,11 @@ body.light {
   position: absolute; inset: 0;
   background: #101014;
   transform-origin: 0 50%;
-  transform: scaleX(calc(var(--pct) / 100));
+  transform: scaleX(0);
 }
-.intro__masque--pct { position: absolute; left: calc(100% + 12px); top: 50%; margin-top: -0.75em; font-size: 10px; }
+.intro__masque--pct { position: absolute; left: 0; top: calc(100% + 7px); font-size: 10px; transform: translate3d(0, 0, 0) translateX(-50%); }
 .intro__pct {
-  display: block; min-width: 4ch;
+  display: block; min-width: 4ch; text-align: center;
   font-family: 'LumaSans', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 400; font-size: 10px; line-height: 1.5;
   letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
@@ -905,7 +901,6 @@ body.light {
   transform: translate3d(0, 105%, 0);
   animation: intro-monte 340ms cubic-bezier(0.16, 1, 0.3, 1) 330ms forwards;
 }
-.intro__pct::after { counter-reset: pct var(--pct); content: counter(pct) "%"; }
 
 @keyframes intro-monte  { from { transform: translate3d(0, 105%, 0); } to { transform: translate3d(0, 0, 0); } }
 @keyframes intro-regle  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
@@ -913,7 +908,6 @@ body.light {
 /* MOUVEMENT RÉDUIT — le monogramme et sa ligne, posés, à 90 %, un instant */
 @media (prefers-reduced-motion: reduce) {
   .intro, .intro * { animation: none !important; }
-  .intro { --pct: 90; }
   .intro__signe, .intro__pct { transform: none; }
   .intro__regle { transform: none; }
 }
@@ -3744,9 +3738,63 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
 <div class="intro" id="intro" aria-hidden="true">
   <div class="intro__bloc">
     <span class="intro__masque"><img class="intro__signe" alt="" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FscXVlXzEiIGRhdGEtbmFtZT0iQ2FscXVlIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDg5LjMzIDkwLjU4Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjMWQxZDFiOwogICAgICAgIHN0cm9rZTogIzFkMWQxYjsKICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTA7CiAgICAgICAgc3Ryb2tlLXdpZHRoOiAuNzVweDsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNODUuMzUsNTQuMTdjLTIuNC0zLjM3LTYuMDUtNi4wMy0xMC45NS03Ljk3LTQuNjMtMS44My0xMC4zNS0yLjgxLTE3LjEtMi45OSw1LjQ2LS42NSwxMC4xNi0xLjkxLDEzLjkzLTMuOTEsNC4wNS0yLjE1LDcuMDctNC44MSw5LjA1LTcuOTcsMS45OC0zLjE3LDIuOTctNi41NiwyLjk3LTEwLjE5LDAtNi44NC0yLjQtMTItNy4yMS0xNS41MUM3MS4yMywyLjEzLDYzLjY4LjM4LDUzLjM5LjM4Yy0xLjc3LDAtNS44Mi4xMy0xMi4xNS4zOC0zLjA0LjE3LTUuMTUuMjUtNi4zMy4yNWgwcy0xNS4yNiwwLTE1LjI2LDBjLTQuMDgsMC03LjQ0LS4wMi0xMC4wNy0uMDYtMi42My0uMDQtNC45My0uMTEtNi44OC0uMTl2LjM5YzAtLjQyLS4zOSwzLjc0LTEuMTUsMTIuNDgtLjE3LDEuNDUtLjM0LDMuMDYtLjUxLDQuODQtLjE3LDEuNzgtLjM5LDMuNzQtLjY0LDUuODZsLjI1LjEzYzEuODctNy4zOSwzLjU5LTEyLjQ2LDUuMTYtMTUuMjMsMS41Ny0yLjc2LDQuMTItNC41Nyw3LjY1LTUuNDEsMy41Mi0uODUsOS43LTEuMjgsMTguNTQtMS4yOGgxLjUzdjY4LjgxYzAsNS4xOC0uMzYsOC44OC0xLjA4LDExLjA4LS43MiwyLjIxLTIuMTMsMy44LTQuMjEsNC43OHMtNS44LDEuODktMTEuMTUsMi43NHYuMjVoMzIuNjhjNi4xLDAsMTEuNTItLjM5LDE2LjA4LTEuMTYsNy44MS0xLjMxLDEzLjYxLTMuODQsMTcuNDEtNy42LDMuOC0zLjc1LDUuNy04LjkyLDUuNy0xNS41MSwwLTQuNDctMS4yLTguNC0zLjYxLTExLjc3Wk02Ny45NCw1LjE4YzcuMDEsMy4xMiwxMC41MSw4Ljc0LDEwLjUxLDE2Ljg0LDAsOS4yOC00LjA5LDE1LjI1LTEyLjI4LDE3LjkxLTcuNjEsMi40Ny0xNy4wMSwzLjA2LTI4LjA1LDEuOTJWMi43OGMxMy4zMS0xLjIyLDIzLjM1LS40OCwyOS44MiwyLjRaTTc0Ljg0LDgzLjQ4Yy03LjQsNC4zOC0xNC40Niw1LjIxLTIxLjMzLDUuNjMtLjY1LjA0LTIuMTQuMTEtNC4wNS0uMTItMy40MS0uNDEtNS40OS0xLjQ4LTYuMDYtMS43OC0uODQtLjQ1LTEuNy0uOTItMi41NS0xLjg1LS43My0uODEtMS4yOS0xLjc5LTEuNjYtMi45My0uNzItMi4yMS0xLjA4LTUuOS0xLjA4LTExLjA4di0yNi44OGMxMi4wMi0xLjMsMjIuNi0uNjUsMzEuNTksMi4xMSw5LjYyLDIuOTUsMTQuNDMsOS42MiwxNC40MywyMCwwLDcuNi0zLjEsMTMuMjMtOS4zMSwxNi45WiIvPgo8L3N2Zz4="></span>
-    <span class="intro__ligne"><span class="intro__regle"></span><span class="intro__trait"></span><span class="intro__masque intro__masque--pct"><span class="intro__pct"></span></span></span>
+    <span class="intro__ligne"><span class="intro__regle"></span><span class="intro__trait"></span><span class="intro__masque intro__masque--pct"><span class="intro__pct">0%</span></span></span>
   </div>
 </div>
+<script>
+/* (19/11, sa demande) LE COMPTE : « une petite ligne, et le chiffre qui la
+   traverse : 0, 1, 2, 3… jusqu'à 100, il change en même temps qu'il bouge, et
+   très vite — on n'est pas obligé de tout voir ». Mené ici, dès l'arrivée du
+   HTML (sans attendre le reste de la page), image par image : le compteur CSS
+   d'avant, Safari ne le redessinait pas en route (on voyait 0, puis 90).
+   0 → 90 en 0,76 s ; s'il faut attendre le hero, le compte avance encore, de
+   moins en moins vite (jamais figé) ; quand le hero est prêt, il file à 100. */
+(function compteIntro() {
+  var intro = document.getElementById('intro');
+  if (!intro) return;
+  var ligne = intro.querySelector('.intro__ligne'), trait = intro.querySelector('.intro__trait'),
+      porteur = intro.querySelector('.intro__masque--pct'), chiffre = intro.querySelector('.intro__pct');
+  var DEPART = 330, MONTEE = 760, FINALE = 300;
+  var t0 = performance.now(), pct = 0, tFin = -1, depuis = 0, fin = null, a90 = false, L = 0, ecrit = -1;
+  var doux = function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  var sortie = function (x) { return 1 - Math.pow(1 - x, 3); };
+  function poser(p) {
+    if (!L) L = ligne.getBoundingClientRect().width;
+    trait.style.transform = 'scaleX(' + (p / 100).toFixed(4) + ')';
+    porteur.style.transform = 'translate3d(' + (L * p / 100).toFixed(2) + 'px, 0, 0) translateX(-50%)';
+    var n = Math.round(p);
+    if (n !== ecrit) { ecrit = n; chiffre.textContent = n + '%'; }
+  }
+  function image(now) {
+    var t = now - t0 - DEPART;
+    if (tFin < 0) {
+      if (t <= 0) pct = 0;
+      else if (t < MONTEE) pct = 90 * doux(t / MONTEE);
+      else {
+        if (!a90) { a90 = true; intro.dispatchEvent(new Event('compte-90')); }
+        pct = 90 + 7 * (1 - Math.exp(-(t - MONTEE) / 1400));
+      }
+    } else {
+      var k = Math.min(1, (now - tFin) / FINALE);
+      pct = depuis + (100 - depuis) * sortie(k);
+      if (k >= 1) { poser(100); var f = fin; fin = null; if (f) f(); return; }
+    }
+    poser(pct);
+    requestAnimationFrame(image);
+  }
+  window.__introCompte = {
+    debut: t0 + DEPART,
+    a90: function () { return a90; },
+    /* le hero est prêt : le compte file à 100, puis on rappelle */
+    finir: function (rappel) {
+      if (tFin >= 0) return;
+      depuis = pct; tFin = performance.now(); fin = rappel;
+    }
+  };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { poser(100); window.__introCompte.finir = function (r) { if (r) r(); }; return; }
+  requestAnimationFrame(image);
+})();
+</script>
 <noscript><style>.intro { display: none; }</style></noscript>
 
 <div class="cursor sur-clair curseur-absent" id="cursor" aria-hidden="true"><span class="cursor__fleche">↖</span><span class="cursor__indice">Faites défiler</span><span class="cursor__voir">Voir le projet</span></div>
@@ -9092,7 +9140,7 @@ function figerLettres(nom) {
 (function introSignature() {
   const intro  = document.getElementById('intro');
   const phrase = document.getElementById('heroPhrase');
-  const FIN = 460, RETRAIT = 700, PHRASE_APRES = 200, PRESENCE = 560,
+  const FIN = 120, RETRAIT = 700, PHRASE_APRES = 200, PRESENCE = 560,
         PHRASE = 3000, DECALAGE = 4 * 140, ATTENTE_MAX = 2500, REDUIT = 600;   // le recul, puis le rang du dernier mot
   const fini = () => {
     heroPret = true; updateIndice();
@@ -9114,23 +9162,23 @@ function figerLettres(nom) {
     window.__introPresence = true;
     window.dispatchEvent(new Event('intro-presence'));
   }
-  intro.addEventListener('animationstart', e => { if (e.animationName === 'intro-progression') setTimeout(presence, PRESENCE); });
+  const compte = window.__introCompte || { debut: performance.now(), a90: () => true, finir: r => r() };
+  setTimeout(presence, Math.max(0, compte.debut + PRESENCE - performance.now()));
 
-  /* 80 → 90 %, puis tout l'écran s'efface en fondu */
+  /* le compte file à 100, puis tout l'écran s'efface en fondu */
   function basculer() {
     if (bascule) return;
     bascule = true;
-    intro.classList.add('is-fin');
-    setTimeout(() => {
+    compte.finir(() => setTimeout(() => {
       intro.classList.add('is-retrait');
       setTimeout(() => { indiceTot = true; updateIndice(); }, RETRAIT + 250);
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
       setTimeout(() => intro.remove(), RETRAIT + 40);
       setTimeout(() => { phrase.classList.remove('phrase-attente', 'phrase-entre'); fini(); },
                  PHRASE_APRES + PHRASE + DECALAGE + 60);
-    }, FIN);
+    }, FIN));
   }
-  /* la ligne est à 80 % : on bascule si le hero est prêt, sinon dès qu'il
+  /* le compte est à 90 : on bascule si le hero est prêt, sinon dès qu'il
      l'est — au plus tard 2,5 s plus tard */
   function attendre() {
     if (arrive) return;
@@ -9140,8 +9188,8 @@ function figerLettres(nom) {
     addEventListener('refraction-prete', basculer, { once: true });
     setTimeout(basculer, ATTENTE_MAX);
   }
-  /* on suit l'animation elle-même, pas une montre */
-  intro.addEventListener('animationend', e => { if (e.animationName === 'intro-progression') attendre(); });
+  /* on suit le compte lui-même, pas une montre */
+  if (compte.a90()) attendre(); else intro.addEventListener('compte-90', attendre, { once: true });
   setTimeout(attendre, 6000);                            // garde-fou : onglet en arrière-plan
 })();
 
