@@ -4177,6 +4177,15 @@ function onMotionPointer(fn) { _pointerConsumers.push(fn); return fn; }
 const inertie = (function inertieDuDefilement() {
   const fin = matchMedia('(hover: hover) and (pointer: fine)');
   if (!fin.matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+  /* (19/11) SOUS SAFARI, SON PROPRE DÉFILEMENT. Une position écrite par un script
+     n'est posée qu'au pixel ENTIER : en fin de course, le défilement doux avançait
+     de 1, 1, 0, 1, 0… — les « petits sauts » qu'il voyait partout (seul l'Index
+     porte la fraction ; l'accueil, plein d'éléments collés, ne le peut pas). Et un
+     fil de page occupé une image figeait tout. Le défilement de Safari, lui, est
+     fractionnaire, mené hors de la page, et garde l'élan du pavé tactile : sous
+     Safari, on le laisse faire. Les effets qui suivent le défilement l'écoutent
+     (onMotionScroll), comme au doigt. */
+  if ((navigator.vendor || '').indexOf('Apple') === 0) return null;
   /* (04/11) UN AMORTISSEMENT CRITIQUE (le « SmoothDamp » des moteurs de jeu, l'idée
      de Lenis poussée plus loin) à la place de l'ancien « on rattrape un pourcentage » :
      la vitesse ne saute plus à chaque cran de molette, et la fin n'a plus cette
