@@ -1307,7 +1307,9 @@ footer {
 .footer-meta {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
+  /* (20/11) « Disponible partout en France » tient sur une ligne : sa colonne
+     ne descend jamais sous la largeur de la phrase (rien ne bouge en grand) */
+  grid-template-columns: 1.4fr 1fr 1fr minmax(max-content, 1fr) auto;
   gap: 24px; align-items: start;
   padding: clamp(13px, 1.8vh, 21px) var(--foot-pad) 0;   /* un rien plus près du filet */
   font-family: 'LumaSans', 'Helvetica Neue', Arial, sans-serif;
@@ -4146,7 +4148,7 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
     <p class="fm-linkedin"><a class="footer-social" href="#"><span class="swap" data-text="LinkedIn">LinkedIn</span></a></p>
     <!-- déposer le PDF sous ce nom à côté du HTML et le lien fonctionne -->
     <p class="fm-cv"><a class="footer-social footer-cv" id="lienCV" href="CV_Thomas_BONNEAU.pdf?v=3" download="CV_Thomas_BONNEAU.pdf"><span class="swap" data-text="CV">CV</span><svg class="fcv-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></p>
-    <p class="fm-ville">Angers, France</p>
+    <p class="fm-ville">Disponible partout en France</p>
     <p class="fm-annee">© <span id="footerYear">2026</span></p>
     <p class="fm-pays">France</p>
   </div>
