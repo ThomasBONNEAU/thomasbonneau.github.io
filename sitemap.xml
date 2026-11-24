@@ -6,9 +6,9 @@
     <priority>1.0</priority>
     <image:image><image:loc>https://thomas-bonneau.fr/web/partage/accueil.jpg</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/portrait-tb.webp</image:loc></image:image>
-    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/PRESENTATION_SILLAGE_1.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-malbec.webp</image:loc></image:image>
+    <image:image><image:loc>https://thomas-bonneau.fr/web/proj-archocktail-livret.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-grapillon.webp</image:loc></image:image>
     <image:image><image:loc>https://thomas-bonneau.fr/web/proj-synapse.webp</image:loc></image:image>
   </url>
