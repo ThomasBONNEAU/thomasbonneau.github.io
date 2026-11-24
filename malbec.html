@@ -11,7 +11,7 @@
 <link rel="preload" href="/web/polices/castillon-normal-3f36f1b684.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-normal-u-00e7-1680bb6704.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-italic-42c3b4eee5.woff2" as="font" type="font/woff2" crossorigin>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-DBxjydwKMD8MV4U0W7UHAsIgL1AAeEumo+kSZ4UP970=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-x5GzWDXQgxWPh6X8onf99Ng1X7WsGOK58JeN/WdwIAU=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-DBxjydwKMD8MV4U0W7UHAsIgL1AAeEumo+kSZ4UP970=' 'sha256-wi2TMxcrU7GFswDULu2tAsMGXtcHlfpjnUC6rAxoiZU=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-tj9UGKJeaLzI8JyiC7tTEaKzSB2M1G7mU9F379Aqjys=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Malbec — Thomas Bonneau, directeur artistique à Angers</title>
 <meta name="description" content="Packaging · Direction artistique — Malbec Coffee est un torréfacteur premium basé à Valanjou, porté par une recherche de qualité et une sélection…">
@@ -867,6 +867,12 @@ body.light {
 }
 /* (10/11) LA FIN : tout l'écran s'efface d'un fondu (celle qu'il a gardée) */
 .intro.is-retrait { opacity: 0; transition: opacity 700ms cubic-bezier(0.4, 0, 0.3, 1); }
+/* (24/11, son choix) LE CLIC D'ENTRÉE, à la souris : à 100, l'écran attend un
+   clic n'importe où — c'est lui qui ouvre le site et fait naître le son (voir
+   introSignature). L'écran prend le clic (rien dessous ne le reçoit) et la
+   flèche passe devant lui. */
+html.attend-clic .intro { pointer-events: auto; }
+html.attend-clic .cursor { z-index: 10003; }
 
 .intro__bloc { display: flex; flex-direction: column; align-items: center; gap: clamp(17px, 1.9vw, 24px); }
 .intro__masque { display: block; overflow: hidden; }
@@ -3820,6 +3826,11 @@ body.zone-fondu .site-frame__bl, body.zone-fondu .site-frame__br {
       depuis = pct; tFin = performance.now(); fin = rappel;
     }
   };
+  /* (24/11) tant que l'écran attend le clic d'entrée, la molette ne fait pas
+     défiler la page cachée dessous (posé ici, avant le défilement doux) */
+  function molette(e) { if (document.documentElement.classList.contains('attend-clic')) { e.preventDefault(); e.stopImmediatePropagation(); } }
+  addEventListener('wheel', molette, { capture: true, passive: false });
+  addEventListener('hero-pret', function () { removeEventListener('wheel', molette, { capture: true }); }, { once: true });
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { poser(100); window.__introCompte.finir = function (r) { if (r) r(); }; return; }
   requestAnimationFrame(image);
 })();
@@ -7051,6 +7062,7 @@ var son = (function sonDuSite() {
        la musique ne part que lorsqu'on arrive aux projets */
     pistes.forEach(p => { if (p.a.paused) { const l = p.a.play(); if (l) l.then(() => { if (!presente || p !== pistes[courante]) p.a.pause(); }).catch(() => {}); } });
     ambiance();
+    window.dispatchEvent(new Event('son-allume'));   // (24/11) l'écran de chargement l'attend (voir introSignature)
   }
   function eteindre() {
     if (!actif) return;
@@ -7107,7 +7119,7 @@ var son = (function sonDuSite() {
     if (l) l.then(() => { essai.pause(); if (!actif) allumer(); }).catch(() => {});
   }
 
-  return { jouer, vapeur, actif: () => actif };
+  return { jouer, vapeur, actif: () => actif, possible: () => !coupe };
 })();
 
 function openWorksPanel() {
@@ -9260,18 +9272,49 @@ function figerLettres(nom) {
   const compte = window.__introCompte || { debut: performance.now(), a90: () => true, finir: r => r() };
   setTimeout(presence, Math.max(0, compte.debut + PRESENCE - performance.now()));
 
-  /* le compte file à 100, puis tout l'écran s'efface en fondu */
+  /* (24/11, son choix : « cliquer pour entrer ») LE SON DÈS L'ENTRÉE. Aucun
+     navigateur ne laisse un site jouer avant un geste du visiteur : le geste
+     est donc l'entrée. À 100, l'écran reste (le TB, sa ligne) et attend un
+     clic ou une touche ; le son naît dans ce geste et le site s'ouvre au même
+     instant. Pas d'attente si le son est déjà là (clic pendant le chargement,
+     navigateur réglé pour l'autoriser), s'il a été coupé (M), ni au doigt, où
+     il n'y a pas de son. Aucun mot. */
+  let entree = false, ouvrir = null;
+  const racine = document.documentElement;
+  const entrer = () => {
+    entree = true;
+    if (!ouvrir) return;
+    const f = ouvrir; ouvrir = null;
+    racine.classList.remove('attend-clic');
+    removeEventListener('click', entrer);
+    setTimeout(() => removeEventListener('keydown', touche, true), 0);          // après la touche en cours : elle ne doit pas défiler
+    f();
+  };
+  const touche = e => {
+    if (/^(Arrow|Page|Home|End| |Spacebar)/.test(e.key)) e.preventDefault();   // pas de défilement sous l'écran
+    if (e.key === 'Escape') entrer();                                          // sans son
+  };
+  addEventListener('son-allume', entrer, { once: true });
+  function attendreLeClic(f) {
+    if (entree || !son || !son.possible || !son.possible() || son.actif()) { setTimeout(f, FIN); return; }
+    ouvrir = f;
+    racine.classList.add('attend-clic');
+    addEventListener('click', entrer);                                         // même si le son ne venait pas
+    addEventListener('keydown', touche, true);
+  }
+
+  /* le compte file à 100, puis (au clic) tout l'écran s'efface en fondu */
   function basculer() {
     if (bascule) return;
     bascule = true;
-    compte.finir(() => setTimeout(() => {
+    compte.finir(() => attendreLeClic(() => {
       intro.classList.add('is-retrait');
       setTimeout(() => { indiceTot = true; updateIndice(); }, RETRAIT + 250);
       setTimeout(() => phrase.classList.add('phrase-entre'), PHRASE_APRES);   // la phrase sort de la lumière
       setTimeout(() => intro.remove(), RETRAIT + 40);
       setTimeout(() => { phrase.classList.remove('phrase-attente', 'phrase-entre'); fini(); },
                  PHRASE_APRES + PHRASE + DECALAGE + 60);
-    }, FIN));
+    }));
   }
   /* le compte est à 90 : on bascule si le hero est prêt, sinon dès qu'il
      l'est — au plus tard 2,5 s plus tard */
