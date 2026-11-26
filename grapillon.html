@@ -11,7 +11,7 @@
 <link rel="preload" href="/web/polices/castillon-normal-3f36f1b684.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-normal-u-00e7-1680bb6704.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-italic-42c3b4eee5.woff2" as="font" type="font/woff2" crossorigin>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TdiEll5/A7ofuNR0oY/9txTXdjfPatj9N1KEhV4RWWM=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-J8kRy7Ctbr7E8YwcHTY0gTGsHXqkcLz7SHJjXJAsFYk=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TdiEll5/A7ofuNR0oY/9txTXdjfPatj9N1KEhV4RWWM=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-FmoJSqNEW5frYoMK2OejwhKfPkC+/lBmgzW/PCHo66E=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Grapillon — Thomas Bonneau, directeur artistique à Angers</title>
 <meta name="description" content="Identité visuelle · Packaging — Grapillon est une marque de vin née de la vision d’une vinificatrice au parcours singulier, entre approche scientifique et…">
@@ -9553,7 +9553,7 @@ uniform vec2  uOrigin;    // là où l'ouverture a été touchée en dernier
 uniform float uDpr;
 uniform float uTemps;     // s — la vapeur dérive à peine pendant qu'elle vit
 uniform float uEncre;     // 0 pendant l'intro : la phrase du DOM sort de la lumière dessous
-uniform float uPropre;    // (26/11) où la photo est rendue exacte : la carte posée (souris), 0,95 au doigt
+uniform vec2  uPropre;    // (26/11) de x à y, la photo devient exacte : 0,64 → 0,74 à la souris, 0,88 → 0,95 au doigt
 /* le défocus : douze prélèvements, huit sur les petits écrans */
 #define TAPS ${innerWidth < 900 ? 8 : 12}
 /* l'onde du bord de l'ouverture (px), la force de l'aurore (sa lumière sur
@@ -9848,8 +9848,8 @@ void main() {
 
   /* garantie : photographie strictement propre, identique à la frame DOM */
   vec3 propre = texture(uProjectTexture, vUv).rgb;
-  col = mix(col, propre, smoothstep(uPropre - 0.07, uPropre, p));
-  if (p >= uPropre) col = propre;
+  col = mix(col, propre, smoothstep(uPropre.x, uPropre.y, p));
+  if (p >= uPropre.y) col = propre;
   fragColor = vec4(col, 1.0);
 }`;
 
@@ -10176,6 +10176,10 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
   function buildProjectTexture() {
     const vw = innerWidth, vh = hauteurCouche();
     prep(pc, pctx, vw, vh);
+    /* (26/11) Chrome réduit une image dans un calque 2D en qualité BASSE par
+       défaut : la photo (4 000 px) y perdait sa finesse — grain grossi, comme
+       pixelisée. En haute qualité, la copie rejoint la photo du DOM. (souris) */
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) { pctx.imageSmoothingEnabled = true; pctx.imageSmoothingQuality = 'high'; }
 
     // fond de la carte
     pctx.fillStyle = getComputedStyle(card).backgroundColor || '#ffffff';
@@ -10257,7 +10261,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
      carte 01. Au bureau, c'est un mouvement qui montre Malbec (voir
      malbecPointe), pas le défilement. */
   const DEPASSE_PART = 0.024;
-  let FONDU_FIN = 1 - DEPASSE_PART - 0.001, FONDU_DEBUT = FONDU_FIN - 0.025, PROPRE = 0.95;
+  let FONDU_FIN = 1 - DEPASSE_PART - 0.001, FONDU_DEBUT = FONDU_FIN - 0.025, PROPRE = 0.95, PROPRE_LARGE = 0.07;
   /* (26/11) À LA SOURIS, LA VRAIE PHOTO DÈS QUE LA CARTE SE POSE. La carte 01
      se pose à p = stick (≈ 0,91) ; le canvas la couvrait jusqu'à 0,975 avec une
      image encore travaillée (0,88 → 0,95 : plus de contraste, un grain plus
@@ -10295,7 +10299,10 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     const DEPASSE = total * DEPASSE_PART;
     document.documentElement.style.setProperty('--malbec-pointe', Math.round(DEPASSE) + 'px');
     stick = Math.min(0.94, Math.max(0.78, 1 - (rest + DEPASSE) / total));
-    if (RELAIS_POSE) { PROPRE = stick; FONDU_DEBUT = stick + 0.002; FONDU_FIN = FONDU_DEBUT + 0.025; }
+    /* (26/11, 2e temps) la photo exacte dès que la vapeur s'est ouverte (0,74), et non
+       plus seulement à la pose : de 0,64 à 0,91 l'image restait travaillée (noirs
+       éclaircis, léger défocus par les niveaux de mipmap) — tout le dernier écran */
+    if (RELAIS_POSE) { PROPRE = Math.min(stick, 0.74); PROPRE_LARGE = 0.10; FONDU_DEBUT = stick + 0.002; FONDU_FIN = FONDU_DEBUT + 0.025; }
 
     pin.style.height = '';
     const gap  = flowTop(stack) - pin.offsetHeight;      // padding-top de .projects, etc.
@@ -10530,7 +10537,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     gl.uniform1f(uDpr, dpr);
     gl.uniform1f(uTemps, (now || 0) % 1000);
     gl.uniform1f(uEncre, encre);
-    gl.uniform1f(uPropre, PROPRE);
+    gl.uniform2f(uPropre, PROPRE - PROPRE_LARGE, PROPRE);
     if (progLettres) {
       /* jamais de bascule en plein mouvement : les lettres entrent en jeu
          en haut de page, là où les deux dessins sont identiques */
