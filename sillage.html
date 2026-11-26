@@ -11,7 +11,7 @@
 <link rel="preload" href="/web/polices/castillon-normal-3f36f1b684.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-normal-u-00e7-1680bb6704.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-italic-42c3b4eee5.woff2" as="font" type="font/woff2" crossorigin>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wUuJihFgUYC3W/qdzrIpQiQVaaYIbK7MtSR6LlgpunI=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-FmoJSqNEW5frYoMK2OejwhKfPkC+/lBmgzW/PCHo66E=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wUuJihFgUYC3W/qdzrIpQiQVaaYIbK7MtSR6LlgpunI=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-/W+bx6kvGIa500m78j04FVGHq0v7AMtFvRTZoVI6VUQ=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Sillage — Thomas Bonneau, directeur artistique à Angers</title>
 <meta name="description" content="Design éditorial · Mémoire — Sillage, entre image et automobile est un mémoire réalisé pour ma dernière année de master en direction artistique, né de ma…">
@@ -6674,9 +6674,9 @@ function buildWorksPanel() {
 var son = (function sonDuSite() {
   const AC = window.AudioContext || window.webkitAudioContext;
   const muet = { jouer() {}, actif: () => false };
-  /* (30/10, sa demande) rien ne change au téléphone ni à la tablette : le
-     son n'existe qu'à la souris */
-  if (!AC || !matchMedia('(hover: hover) and (pointer: fine)').matches) return muet;
+  /* (26/11, sa demande) le son aussi au téléphone et à la tablette : il naît au
+     premier toucher (un glissement du doigt n'est pas un geste qui compte) */
+  if (!AC) return muet;
   const DOSSIER = 'son/';
   /* ouverte en fichier, la page ne peut pas faire passer ses médias par le
      contexte audio (le navigateur les rendrait muets) : la musique y règle
@@ -8171,9 +8171,13 @@ function stackFrame(ts) {
         const n = rects[i + 1];
         if (n && n.top < vh && r.top <= 1) ty = -SORTIE * Math.min(vh, vh - n.top);
       }
+      /* (26/11) calé sur les pixels de l'écran : à une fraction de pixel, Chrome
+         (carte graphique) lissait toute la photo — Sillage « pixelisé », molle */
+      const dpr = window.devicePixelRatio || 1;
+      ty = Math.round(ty * dpr) / dpr;
       if (ph._glisse === ty) return;
       ph._glisse = ty;
-      ph.style.transform = ty ? 'translate3d(0,' + ty.toFixed(1) + 'px,0)' : '';
+      ph.style.transform = ty ? 'translate3d(0,' + ty + 'px,0)' : '';
       if (pistes[i] === undefined) pistes[i] = stackCards[i].querySelector('.tp-piste');
       if (pistes[i]) pistes[i].style.transform = ph.style.transform;
     });
@@ -9536,8 +9540,9 @@ void main() {
   fragColor = c;
 }`;
 
-  /* (25/11) à la souris, la phrase s'écarte lettre à lettre au défilement */
-  const LETTRES = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  /* (25/11) la phrase s'écarte lettre à lettre au défilement ; (26/11, sa demande)
+     au téléphone aussi */
+  const LETTRES = true;
   const FRAG = `#version 300 es
 precision highp float;
 
@@ -10179,7 +10184,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     /* (26/11) Chrome réduit une image dans un calque 2D en qualité BASSE par
        défaut : la photo (4 000 px) y perdait sa finesse — grain grossi, comme
        pixelisée. En haute qualité, la copie rejoint la photo du DOM. (souris) */
-    if (matchMedia('(hover: hover) and (pointer: fine)').matches) { pctx.imageSmoothingEnabled = true; pctx.imageSmoothingQuality = 'high'; }
+    pctx.imageSmoothingEnabled = true; pctx.imageSmoothingQuality = 'high';
 
     // fond de la carte
     pctx.fillStyle = getComputedStyle(card).backgroundColor || '#ffffff';
@@ -10269,7 +10274,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
      Sillage paraissait « pixelisé ». Maintenant la photo est exacte à stick et
      le canvas s'efface juste après : on se pose sur la vraie photo. Au doigt,
      rien ne change. */
-  const RELAIS_POSE = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const RELAIS_POSE = true;          // (26/11, sa demande : le téléphone aussi bien)
   let stuckAt = 0, distance = 1, stick = 0.92;
 
   let VW = 1, VH = 1;
@@ -10541,7 +10546,9 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     if (progLettres) {
       /* jamais de bascule en plein mouvement : les lettres entrent en jeu
          en haut de page, là où les deux dessins sont identiques */
-      if (!L) lettresEnJeu = false; else if (p < 0.004) lettresEnJeu = true;
+      /* (26/11) au doigt, le canvas n'est pas affiché en haut de page (pas d'aura) :
+         sa première image peut venir plus loin ; rien n'était dessiné avant, aucune bascule */
+      if (!L) lettresEnJeu = false; else if (p < 0.004 || (!active && p < 0.2)) lettresEnJeu = true;
       if (lettresEnJeu) {
         dessinerLettres(p);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
