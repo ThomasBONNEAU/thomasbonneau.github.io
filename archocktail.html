@@ -11,7 +11,7 @@
 <link rel="preload" href="/web/polices/castillon-normal-3f36f1b684.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-normal-u-00e7-1680bb6704.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/web/polices/castillon-italic-42c3b4eee5.woff2" as="font" type="font/woff2" crossorigin>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wZ/edsMTGPIaAwhJZCI3eSmB8A+6sHDo03ThzzNmRp8=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-qTCwe9Sscrj1nKBL+WLaH1m1D6qIJ/WUXat1vDPlc/k=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wZ/edsMTGPIaAwhJZCI3eSmB8A+6sHDo03ThzzNmRp8=' 'sha256-MCA/u91UkFvC8BuzvVGvVjSnFqsXgtJhMnVALRrkZzY=' 'sha256-bvbsP9YbWSNtzZS8uERwbZnPzT5kVHKrR/APigfKrrc=' 'sha256-J8kRy7Ctbr7E8YwcHTY0gTGsHXqkcLz7SHJjXJAsFYk=' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Arch’ocktail — Thomas Bonneau, directeur artistique à Angers</title>
 <meta name="description" content="Direction artistique · Identité visuelle — Archocktail est une marque angevine née de l’association de deux frères et de deux personnalités…">
@@ -7949,6 +7949,7 @@ const pageCurtain = (function () {
     son.jouer('ferme');
     lockScroll(true);
     if (!fromHistory) popHash();
+    if (pt.homeScrollY == null) pt.homeScrollY = accueilDessous();
     passage(panel, 'descend', () => {
       if (Math.abs((window.scrollY || 0) - pt.homeScrollY) > 1) {
         window.scrollTo({ top: pt.homeScrollY, left: 0, behavior: 'instant' });
@@ -7959,6 +7960,18 @@ const pageCurtain = (function () {
       panel.style.transform = '';
       if (!indexOuvert()) document.body.style.overflow = '';
     }).then(finishClose);
+  }
+  /* (26/11) ARRIVÉ DIRECTEMENT SUR UN PROJET (page rechargée pendant qu'un projet
+     était ouvert, retour par « Précédent », lien #projet-…, page /malbec) : aucune
+     position de l'accueil n'avait été retenue, et la croix ramenait tout en haut, sur
+     le hero — même quand le navigateur avait remis l'accueil à sa place dessous. Le
+     navigateur l'a remis : on y reste. Sinon, l'accueil s'ouvre sur la carte du projet. */
+  function accueilDessous() {
+    const y = window.scrollY || 0;
+    if (y > 1) return y;
+    const c = pt.card;
+    if (c && c.classList.contains('stack-card')) return Math.max(0, Math.round(c.getBoundingClientRect().top + y));
+    return 0;
   }
   function finishClose() {
     pt.state = 'idle';
@@ -7976,7 +7989,7 @@ const pageCurtain = (function () {
   const deep = cardForHash(location.hash);
   if (deep) {
     pt.state = 'project'; pt.card = deep; pt.projectIndex = CARDS.indexOf(deep);
-    pt.homeScrollY = 0; pt.hashOwned = false;
+    pt.homeScrollY = null; pt.hashOwned = false;     // (26/11) décidé à la fermeture : voir accueilDessous
     openPanel(deep);
   }
 
@@ -9540,6 +9553,7 @@ uniform vec2  uOrigin;    // là où l'ouverture a été touchée en dernier
 uniform float uDpr;
 uniform float uTemps;     // s — la vapeur dérive à peine pendant qu'elle vit
 uniform float uEncre;     // 0 pendant l'intro : la phrase du DOM sort de la lumière dessous
+uniform float uPropre;    // (26/11) où la photo est rendue exacte : la carte posée (souris), 0,95 au doigt
 /* le défocus : douze prélèvements, huit sur les petits écrans */
 #define TAPS ${innerWidth < 900 ? 8 : 12}
 /* l'onde du bord de l'ouverture (px), la force de l'aurore (sa lumière sur
@@ -9834,8 +9848,8 @@ void main() {
 
   /* garantie : photographie strictement propre, identique à la frame DOM */
   vec3 propre = texture(uProjectTexture, vUv).rgb;
-  col = mix(col, propre, smoothstep(0.88, 0.95, p));
-  if (p >= 0.95) col = propre;
+  col = mix(col, propre, smoothstep(uPropre - 0.07, uPropre, p));
+  if (p >= uPropre) col = propre;
   fragColor = vec4(col, 1.0);
 }`;
 
@@ -9894,7 +9908,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
 
   const vao = gl.createVertexArray();
   let prog = null, progChamp = null, etatProgrammes = 0;     // 0 en cours · 1 prêts · -1 refusés
-  let uProgress, uRes, uOrigin, uDpr, uTemps, uEncre;
+  let uProgress, uRes, uOrigin, uDpr, uTemps, uEncre, uPropre;
   let progLettres = null, uBande, uEncreTexte, lOu, lDans, lCadre;
   let cTaille, cRes, cA, cB, cVit, cForce, cRayon, cDt, cTemps, cA2, cB2, cForce2, cRayon2;
   function brancherProgrammes() {
@@ -9905,7 +9919,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     const U = n => gl.getUniformLocation(prog, n);
     uProgress = U('uProgress'); uRes = U('uRes'); uOrigin = U('uOrigin');
     uDpr = U('uDpr'); uTemps = U('uTemps');
-    uEncre = U('uEncre');
+    uEncre = U('uEncre'); uPropre = U('uPropre');
     gl.useProgram(prog);
     gl.uniform1i(U('uHeroTexture'), 0);
     gl.uniform1i(U('uProjectTexture'), 1);
@@ -10243,7 +10257,15 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
      carte 01. Au bureau, c'est un mouvement qui montre Malbec (voir
      malbecPointe), pas le défilement. */
   const DEPASSE_PART = 0.024;
-  const FONDU_FIN = 1 - DEPASSE_PART - 0.001, FONDU_DEBUT = FONDU_FIN - 0.025;
+  let FONDU_FIN = 1 - DEPASSE_PART - 0.001, FONDU_DEBUT = FONDU_FIN - 0.025, PROPRE = 0.95;
+  /* (26/11) À LA SOURIS, LA VRAIE PHOTO DÈS QUE LA CARTE SE POSE. La carte 01
+     se pose à p = stick (≈ 0,91) ; le canvas la couvrait jusqu'à 0,975 avec une
+     image encore travaillée (0,88 → 0,95 : plus de contraste, un grain plus
+     gros, le dégradé du fond en bande) — et c'est là qu'on s'arrête. Dans Chrome,
+     Sillage paraissait « pixelisé ». Maintenant la photo est exacte à stick et
+     le canvas s'efface juste après : on se pose sur la vraie photo. Au doigt,
+     rien ne change. */
+  const RELAIS_POSE = matchMedia('(hover: hover) and (pointer: fine)').matches;
   let stuckAt = 0, distance = 1, stick = 0.92;
 
   let VW = 1, VH = 1;
@@ -10273,6 +10295,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     const DEPASSE = total * DEPASSE_PART;
     document.documentElement.style.setProperty('--malbec-pointe', Math.round(DEPASSE) + 'px');
     stick = Math.min(0.94, Math.max(0.78, 1 - (rest + DEPASSE) / total));
+    if (RELAIS_POSE) { PROPRE = stick; FONDU_DEBUT = stick + 0.002; FONDU_FIN = FONDU_DEBUT + 0.025; }
 
     pin.style.height = '';
     const gap  = flowTop(stack) - pin.offsetHeight;      // padding-top de .projects, etc.
@@ -10507,6 +10530,7 @@ void main() { o = vec4(1.0 - texture(uPlanche, vT).r); }`;
     gl.uniform1f(uDpr, dpr);
     gl.uniform1f(uTemps, (now || 0) % 1000);
     gl.uniform1f(uEncre, encre);
+    gl.uniform1f(uPropre, PROPRE);
     if (progLettres) {
       /* jamais de bascule en plein mouvement : les lettres entrent en jeu
          en haut de page, là où les deux dessins sont identiques */
